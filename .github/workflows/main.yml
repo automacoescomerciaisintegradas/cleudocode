@@ -1,0 +1,45 @@
+name: CleudoCode CI/CD
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install playwright pytest-playwright
+
+      - name: Install Playwright Browsers
+        run: playwright install chromium --with-deps
+
+      - name: Run Tests (Opcional)
+        run: |
+          # Aqui você pode adicionar seus testes
+          # pytest tests/
+
+      - name: Build and Push Docker Image (Opcional)
+        if: github.event_name == 'push'
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_HUB_TOKEN }}
+        run: |
+          # docker login -u $DOCKER_USER -p $DOCKER_PASS
+          # docker build -t automacoescomerciais/cleudocode:latest -f Dockerfile.production .
+          # docker push automacoescomerciais/cleudocode:latest
+          echo "Build pipeline configurado com sucesso!"

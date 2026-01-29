@@ -1,0 +1,118 @@
+[
+  {
+    "id": "112928179142781@lid",
+    "nome": "Ronaldo Simplicio",
+    "fonte": "webhook_recebido",
+    "grupo": "554184212269-1488774100@g.us",
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "ativo",
+      "grupo_principal"
+    ],
+    "historico": []
+  },
+  {
+    "id": "558894227586@s.whatsapp.net",
+    "nome": "Canal Oficial",
+    "fonte": "configuracao_sistema",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "canal",
+      "oficial"
+    ],
+    "historico": []
+  },
+  {
+    "id": "5588921567214@s.whatsapp.net",
+    "nome": "Atendimento Humano",
+    "fonte": "configuracao_sistema",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "atendimento",
+      "humano"
+    ],
+    "historico": []
+  },
+  {
+    "id": "5588999999999@s.whatsapp.net",
+    "nome": "Maria Silva",
+    "fonte": "importacao_planilha",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "importado"
+    ],
+    "historico": []
+  },
+  {
+    "id": "5585988888888@s.whatsapp.net",
+    "nome": "João Santos",
+    "fonte": "importacao_planilha",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "importado"
+    ],
+    "historico": []
+  },
+  {
+    "id": "5511977777777@s.whatsapp.net",
+    "nome": "Ana Costa",
+    "fonte": "importacao_planilha",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "importado"
+    ],
+    "historico": []
+  },
+  {
+    "id": "5588966666666@s.whatsapp.net",
+    "nome": "Pedro Oliveira",
+    "fonte": "importacao_planilha",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:32:28",
+    "tags": [
+      "importado"
+    ],
+    "historico": []
+  },
+  {
+    "id": "112928179142781@lid",
+    "nome": "Ronaldo Simplicio",
+    "fonte": "webhook_recebido",
+    "grupo": "554184212269-1488774100@g.us",
+    "data_importacao": "2026-01-27 14:34:00",
+    "tags": [
+      "ativo",
+      "grupo_principal"
+    ],
+    "historico": []
+  },
+  {
+    "id": "558894227586@s.whatsapp.net",
+    "nome": "Canal Oficial",
+    "fonte": "configuracao_sistema",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:34:00",
+    "tags": [
+      "canal",
+      "oficial"
+    ],
+    "historico": []
+  },
+  {
+    "id": "5588921567214@s.whatsapp.net",
+    "nome": "Atendimento Humano",
+    "fonte": "configuracao_sistema",
+    "grupo": null,
+    "data_importacao": "2026-01-27 14:34:00",
+    "tags": [
+      "atendimento",
+      "humano"
+    ],
+    "historico": []
+  }
+]

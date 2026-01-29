@@ -1,0 +1,18 @@
+{
+  "name": "cleudocode-browser-agent",
+  "version": "1.0.0",
+  "description": "Production implementation of CleudoCode Browser Automation",
+  "main": "agent_browser_cli.py",
+  "scripts": {
+    "setup": "python agent-browser/scripts/setup_production.py",
+    "start": "python agent-browser/agent_browser_cli.py IA",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "playwright": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.10.0"
+  }
+}

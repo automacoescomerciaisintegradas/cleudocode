@@ -1,0 +1,18 @@
+[
+  {
+    "role": "user",
+    "content": "ola"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 404 Client Error: Not Found for url: http://144.91.118.78:11435/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "/exit"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 404 Client Error: Not Found for url: http://144.91.118.78:11435/v1/chat/completions"
+  }
+]

@@ -1,0 +1,150 @@
+[
+  {
+    "role": "user",
+    "content": "#Always respond in Portugues do brasil"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "#Always respond in Portugues do brasil"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Always respond in Portugues do brasil"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "pp.py"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "=== LLM P2P Chat ==="
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Modelo: qwen2.5:14b"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Servidor: http://144.91.118.78:11434"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Digite '/help' para ver os comandos."
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Você: #Always respond in Portugues do brasil"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Processando..."
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Assistente: Erro: 500 Server Error: Internal Server Error for"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Você: #Always respond in Portugues do brasil"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Processando..."
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Assistente: Erro: 500 Server Error: Internal Server Error for"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Você: Always respond in Portugues do brasil"
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Processando..."
+  },
+  {
+    "role": "assistant",
+    "content": "Erro: 500 Server Error: Internal Server Error for url: http://144.91.118.78:11434/v1/chat/completions"
+  },
+  {
+    "role": "user",
+    "content": "Assistente: Erro: 500 Server Error: Internal Server Error for"
+  }
+]

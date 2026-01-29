@@ -1,0 +1,4 @@
+# Sincronização LLM P2P Chat -> NotebookLM
+Data: 20260117_225622
+Total de Fragmentos: 1
+

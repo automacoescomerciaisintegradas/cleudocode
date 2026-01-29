@@ -1,0 +1,34 @@
+# Dockerfile para Produção - CleudoCode Browser Agent
+# Baseado na imagem oficial do Playwright para garantir todas as dependências do sistema
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia os arquivos de dependências primeiro para aproveitar o cache do Docker
+COPY requirements.txt .
+COPY package.json .
+
+# Instala as dependências do Python
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir playwright pytest-playwright
+
+# Instala o navegador Chromium (apenas o necessário para economizar espaço)
+RUN playwright install chromium
+
+# Copia o restante do código do projeto
+COPY . .
+
+# Expõe a porta que o Streamlit ou seu servidor web usará
+EXPOSE 8501
+EXPOSE 3000
+
+# Variáveis de ambiente para garantir que o Playwright rode corretamente em containers
+ENV PYTHONUNBUFFERED=1
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV STREAMLIT_SERVER_PORT=8501
+ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
+
+# Comando para iniciar sua aplicação principal
+# Substitua pelo comando que inicia seu projeto (ex: streamlit run web_app.py)
+CMD ["python", "agent-browser/agent_browser_cli.py", "IA", "open", "https://google.com"]

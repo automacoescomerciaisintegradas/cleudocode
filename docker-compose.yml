@@ -1,0 +1,63 @@
+# ============================================
+# CLEUDO CODE - Docker Compose
+# LLM P2P Chat System
+# ============================================
+
+services:
+  # Aplicação principal - CLEUDO CODE
+  cleudocode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleudocode-app
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      # Configurações do Ollama (servidor externo)
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-qwen2.5-coder:7b}
+      # Configurações do Streamlit
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    volumes:
+      # Persistência de dados
+      - ./exports:/app/exports
+      - ./uploads:/app/uploads
+      - ./memory_db:/app/memory_db
+      - ./agents:/app/agents
+      - ./docs:/app/docs
+    networks:
+      - cleudocode-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Opcional: Ollama local (descomente se quiser rodar Ollama no Docker)
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: ollama-server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   networks:
+  #     - cleudocode-network
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+networks:
+  cleudocode-network:
+    driver: bridge
+# volumes:
+#   ollama-data:

@@ -1,0 +1,13 @@
+# Sincronização LLM P2P Chat -> NotebookLM
+Data: 20260118_193133
+Total de Fragmentos: 2
+
+--- INICIO FONTE: https://crewgpt.aiprorevolution.com/embedding/11f0a828-6c98-b230-a789-e19f80a2077c/data ---
+CrewGPT
+[PRO]
+--- FIM FONTE: https://crewgpt.aiprorevolution.com/embedding/11f0a828-6c98-b230-a789-e19f80a2077c/data ---
+
+--- INICIO FONTE: https://notebooklm.google.com/notebook/04360510-a582-4df9-9262-86138be8cf31 ---
+Sign in - Google AccountsSign inUse your Google AccountEmail or phoneForgot email?Not your computer? Use a private browsing window to sign in. Learn more about using Guest modeNextCreate account
+--- FIM FONTE: https://notebooklm.google.com/notebook/04360510-a582-4df9-9262-86138be8cf31 ---
+
