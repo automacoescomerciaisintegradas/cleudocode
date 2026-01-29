@@ -53,3 +53,4 @@ exports/
 
 # Node (if any)
 node_modules/
+.env  
