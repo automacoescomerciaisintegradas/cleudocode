@@ -48,8 +48,9 @@ def demo_instalacao_daemon():
     print()
     
     print("4. Após a instalação, o sistema estará disponível como serviço:")
-    print("   • API REST: http://localhost:5001")
-    print("   • Dashboard: streamlit run web/dashboard.py")
+    print("   • API REST: http://localhost:3002")  # Porta configurada para EasyPanel (3000 usada pelo painel)
+    print("   • Interface Web: http://localhost:3001")  # Porta configurada para EasyPanel
+    print("   • Dashboard: Acessado via interface web em /dashboard")
     print("   • O daemon iniciará automaticamente com o sistema")
     print()
     
