@@ -1,0 +1,172 @@
+# Sincronização LLM P2P Chat -> NotebookLM
+Data: 20260121_125337
+Total de Fragmentos: 7
+
+--- INICIO FONTE: https://github.com/automacoescomerciaisintegradas/cleudocode ---
+GitHub - automacoescomerciaisintegradas/cleudocode: Uma plataforma local avançada com LLMs, Agentes Autônomos e Memória RAG, alimentada por **Ollama**.
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+automacoescomerciaisintegradas
+/
+cleudocode
+P
+ window. Reload to refresh your session.
+Dismiss alert
+automacoescomerciaisintegradas
+/
+cleudocode
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+0
+Star
+0
+Uma plataforma local avançada com LLMs, Agentes Autônomos e Memória RAG, alimentada por **Ollama**.
+0
+stars
+0
+forks
+Branches
+Tags
+Activity
+Star
+Notifications
+You must be signed in to change notification settings
+automacoescomerciaisintegradas/cleudocode
+mainBranchesTagsGo to fileCodeOpen more actions menuFolders and filesNameNameLast commit messageLast commit dateLatest commit History2 Commits.agent-browser-sessions.agent-browser-sessions  .agent.agent  .github/workflows.github/workflows  __pycache____pycache__  agent-browseragent-browser  agentsagents  docsdocs  exportsexports  integrationsintegrations  memory_dbmemory_db  teststests  uploadsuploads  webweb  .dockerignore.dockerignore  .env.env  .env.example.env.example  .gitignore.gitignore  DockerfileDockerfile  Dockerfile.productionDockerfile.prod
+xample.env.example  .gitignore.gitignore  DockerfileDockerfile  Dockerfile.productionDockerfile.production  QWEN.mdQWEN.md  README.mdREADME.md  agent-browser.batagent-browser.bat  agent_loop.pyagent_loop.py  app.pyapp.py  chat_history_20260117_202711.jsonchat_history_20260117_202711.json  chat_history_20260117_203226.jsonchat_history_20260117_203226.json  chat_history_20260117_205909.jsonchat_history_20260117_205909.json  chat_history_20260117_205914.jsonchat_history_20260117_205914.json  chat_history_20260117_224902.jsonchat_history_20260117_224902.json  chat_history_20260117_224941.jsonchat_history_20260117_224941.json  chat_history_20260118_193650.jsonchat_history_20260118_193650.json  docker-compose.cloud.ymldocker-compose.cloud.yml  docker-compose.ymldocker-compose.yml  features.jsonfeatures.json  login_step.pnglogin_step.png  nginx.confnginx.conf  ollama.shollama.sh  package.jsonpackage.json  rag_engine.pyrag_engine.py  requirements.txtrequirements.txt  resultado.pngresultado.png
+ckage.json  rag_engine.pyrag_engine.py  requirements.txtrequirements.txt  resultado.pngresultado.png  start.batstart.bat  start_custom_ui.batstart_custom_ui.bat  streamlit_app.pystreamlit_app.py  tool_box.pytool_box.py  web_app.pyweb_app.py  web_credits.pyweb_credits.py  web_server.pyweb_server.py  View all filesRepository files navigationCleudoCode 🤖🚀
+CleudoCode é uma plataforma local avançada com LLMs, Agentes Autônomos e Memória RAG, alimentada por Ollama.
+✨ Funcionalidades
+1. 💬 Chat Poderoso
+Modelo Local: Roda 100% offline com Ollama (padrão: qwen2.5-coder).
+Multimodal: Envie Imagens (requer modelo type-vision) e PDFs/Códigos diretamente no chat.
+Streaming: Respostas em tempo real.
+Playground: Laboratório para testar prompts e parâmetros (Temp, Top-P).
+2. 🤖 Agentes Especializados
+Selecione personas na barra lateral para mudar o comportamento da IA:
+Analista (Mary): Brainstorming e Requisitos.
+PM (John): Documentação e Visão de Produto.
+Arquiteto (Winston): Estrutura técnica e decis
+quisitos.
+PM (John): Documentação e Visão de Produto.
+Arquiteto (Winston): Estrutura técnica e decisões.
+Dev (Carl): Implementação e Código.
+Researcher (Sherlock): Busca na Web e verificação de fatos.
+Browser IA: Automação de navegação e extração de dados.
+3. 🧠 Memória & RAG (Retrieval-Augmented Generation)
+Upload de Conhecimento: Adicione PDFs, TXTs e Markdown.
+Web Scraping: Cole uma URL e o agente aprende o conteúdo do site.
+Indexação Vetorial: Usa ChromaDB para busca semântica ultrarrápida.
+Sincronização: Exporte tudo para o Google NotebookLM com um clique.
+4. 🛠️ Autonomia (Agent Loop)
+Script agent_loop.py permite que a IA execute ações reais:
+Rodar comandos no Shell.
+Ler e Escrever arquivos.
+Navegar na Internet (fetch_url).
+🚀 Como Rodar
+Pré-requisitos
+Python 3.10+
+Ollama instalado e rodando.
+Instalação
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+python agent-browser/scripts/setup_production.py
+Iniciando (Fácil)
+Basta clicar duas vezes no arquivo star
+ agent-browser/scripts/setup_production.py
+Iniciando (Fácil)
+Basta clicar duas vezes no arquivo start.bat.
+Iniciando (Manual)
+streamlit run web_app.py
+📂 Estrutura
+web_app.py: Interface Principal (Streamlit).
+rag_engine.py: Motor de Vetores e Memória.
+agent_loop.py: Loop de execução autônoma.
+agent-browser/: Automação de navegador.
+agents/: Prompts das personas.
+docs/: Documentação técnica e PRDs.
+📞 Contato e Suporte
+📱 WhatsApp +55 88 92156-7214
+Desenvolvido por
+Automações Comerciais Integradas! ⚙️ - contato@automacoescomerciais.com.br
+© 2025 Automações Comerciais Integradas. Todos os direitos reservados.
+About
+Uma plataforma local avançada com LLMs, Agentes Autônomos e Memória RAG, alimentada por **Ollama**.
+Resources
+Readme
+Uh oh!
+There was an error while loading. Please reload this page.
+Activity
+Stars
+0
+stars
+Watchers
+0
+watching
+Forks
+0
+forks
+Report repository
+Releases
+No releases published
+Packages
+0
+No packages published
+Languages
+Python
+45.5%
+HTML
+29.9%
+JavaScript
+21.8%
+Shell
+1.8
+lished
+Packages
+0
+No packages published
+Languages
+Python
+45.5%
+HTML
+29.9%
+JavaScript
+21.8%
+Shell
+1.8%
+Other
+1.0%
+You can’t perform that action at this time.
+--- FIM FONTE: https://github.com/automacoescomerciaisintegradas/cleudocode ---
+

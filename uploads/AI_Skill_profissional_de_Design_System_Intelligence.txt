@@ -1,0 +1,287 @@
+**AI Skill profissional de Design System Intelligence**
+
+1. Estrutura de pastas
+2. Conteúdo completo do `MASTER.md` (fonte global de verdade)
+3. Exemplo de `pages/dashboard.md` (overrides por página)
+4. Estrutura lógica da Skill (como motor de decisão)
+
+Tudo pronto para plugar em agentes, n8n, LangChain, RAG ou sistemas próprios.
+
+---
+
+# 📁 Estrutura de Pastas
+
+```
+design-system/
+├── MASTER.md           # Global Source of Truth (tokens + regras + padrões)
+└── pages/
+    └── dashboard.md    # Overrides específicos por página
+```
+
+---
+
+# 📄 design-system/MASTER.md
+
+## (Global Source of Truth)
+
+```md
+# DESIGN SYSTEM MASTER
+## AI Design Intelligence Core
+
+SYSTEM_ID: DS-INTEL-001
+VERSION: 1.0
+ROLE: Provide design intelligence for professional multi-platform UI/UX
+
+---
+
+## 1. TARGET PROFILE
+Brand Type: Wellness / Beauty / Premium Services  
+Example Target: Serenity Spa  
+Primary Goal: Conversion + Trust + Emotional Engagement
+
+---
+
+## 2. LAYOUT & CONVERSION PATTERN
+
+PATTERN: Hero-Centric + Social Proof
+
+STRUCTURE:
+1. Hero (Value Proposition + Primary CTA)
+2. Services (Offer Clarity)
+3. Testimonials (Trust Layer)
+4. Booking (Conversion Section)
+5. Contact (Support + Secondary CTA)
+
+CTA RULES:
+- Primary CTA above the fold
+- Repeat CTA after testimonials
+- CTA must use accent color
+
+---
+
+## 3. STYLE SYSTEM
+
+STYLE: Soft UI Evolution
+
+DESIGN PRINCIPLES:
+- Soft shadows
+- Subtle depth
+- Organic rounded shapes
+- Calm, premium aesthetic
+- Low visual noise
+
+BEST FOR:
+- Wellness
+- Beauty
+- Lifestyle
+- Premium services
+
+ACCESSIBILITY:
+- WCAG AA minimum
+- No harsh contrast
+- Calm color transitions
+
+---
+
+## 4. COLOR TOKENS
+
+PRIMARY:    #E8B4B8   (Soft Pink)
+SECONDARY:  #A8D5BA   (Sage Green)
+CTA:        #D4AF37   (Gold Accent)
+BACKGROUND: #FFF5F5   (Warm White)
+TEXT:       #2D3436   (Charcoal)
+
+USAGE RULES:
+- CTA color ONLY for actions
+- Primary for highlights
+- Secondary for support elements
+- Background must remain light
+- Text contrast ≥ 4.5:1
+
+---
+
+## 5. TYPOGRAPHY SYSTEM
+
+HEADLINES: Cormorant Garamond  
+BODY: Montserrat  
+
+MOOD:
+- Elegant
+- Calming
+- Sophisticated
+- Editorial premium
+
+USAGE:
+- Headlines: Cormorant (serif, emotional)
+- Body/UI: Montserrat (sans-serif, clarity)
+
+---
+
+## 6. UI EFFECTS & MOTION
+
+SHADOWS:
+- Soft elevation (0px 4px 12px rgba(0,0,0,0.08))
+
+TRANSITIONS:
+- Duration: 200–300ms
+- Easing: ease-in-out
+
+HOVER STATES:
+- Subtle scale (1.01–1.03)
+- Light glow on CTA
+- No aggressive motion
+
+---
+
+## 7. COMPONENT RULES
+
+BUTTONS:
+- Rounded-lg
+- Gold CTA for primary
+- Soft shadow
+- cursor-pointer mandatory
+
+CARDS:
+- Soft radius
+- Subtle shadow
+- White or warm background
+
+FORMS:
+- Large inputs
+- Calm focus states
+- Visible focus ring
+
+---
+
+## 8. ANTI-PATTERNS (STRICT)
+
+AVOID:
+- Neon colors
+- Dark mode
+- Harsh animations
+- AI purple/pink gradients
+- Glassmorphism overload
+- Overuse of glow
+
+---
+
+## 9. PRE-DELIVERY CHECKLIST
+
+[ ] SVG icons only (Heroicons/Lucide)  
+[ ] cursor-pointer on clickable elements  
+[ ] Hover states with 150–300ms transitions  
+[ ] Text contrast ≥ 4.5:1  
+[ ] Focus states visible (keyboard nav)  
+[ ] prefers-reduced-motion respected  
+[ ] Responsive breakpoints:
+    - 375px
+    - 768px
+    - 1024px
+    - 1440px
+
+---
+
+## 10. AI DECISION RULES (LOGIC LAYER)
+
+IF industry == wellness OR beauty:
+  APPLY Soft UI Evolution
+  APPLY calm palette
+  DISALLOW dark mode
+
+IF goal == conversion:
+  ENFORCE hero-centric pattern
+  REQUIRE CTA above fold
+  REQUIRE testimonials before booking
+
+IF brand == premium:
+  INCREASE whitespace
+  USE serif headlines
+  USE gold accents for CTA only
+```
+
+---
+
+# 📄 design-system/pages/dashboard.md
+
+## (Overrides por Página)
+
+```md
+# DASHBOARD PAGE OVERRIDES
+
+PAGE: Dashboard
+INHERITS: MASTER.md
+
+---
+
+## LAYOUT OVERRIDES
+
+PATTERN:
+- Replace Hero with Dashboard Header
+- Add Sidebar Navigation
+
+STRUCTURE:
+1. Dashboard Header
+2. KPI Cards
+3. Appointments Table
+4. Quick Actions Panel
+
+---
+
+## COLOR OVERRIDES
+
+BACKGROUND:
+- Use #FFFFFF for data tables
+- Keep Warm White for global background
+
+CTA:
+- Primary CTA remains Gold
+- Secondary actions use Secondary color
+
+---
+
+## TYPOGRAPHY OVERRIDES
+
+HEADERS:
+- Use Montserrat Semi-Bold instead of Cormorant
+  (Improves readability for dashboards)
+
+---
+
+## COMPONENT OVERRIDES
+
+CARDS:
+- Reduce border-radius
+- Slightly stronger shadow for data separation
+
+TABLES:
+- Zebra striping with subtle opacity
+- Sticky header
+```
+
+---
+
+# 🧠 Estrutura da AI Skill (Motor Lógico)
+
+Você pode usar isso como prompt-base para agentes:
+
+```
+ROLE: Design System Intelligence Agent
+
+INPUT: User product description
+PROCESS:
+- Classify industry
+- Match UI pattern
+- Select style system
+- Select color palette
+- Select typography pairing
+- Apply anti-pattern filters
+- Generate MASTER + page overrides
+
+OUTPUT:
+- Complete design system
+- Tokens
+- Rules
+- Checklist
+- Page-level overrides
+```
+
