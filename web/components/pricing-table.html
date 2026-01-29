@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Preços - CLEUDO CODE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .pricing-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .pricing-header h1 {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .pricing-header p {
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        /* Toggle Mensal/Anual */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .billing-toggle span {
+            color: #9ca3af;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .billing-toggle span.active {
+            color: #ffffff;
+        }
+
+        .toggle-switch {
+            width: 56px;
+            height: 28px;
+            background: #374151;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #22c55e;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(28px);
+        }
+
+        .save-badge {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Cards de Preços */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .pricing-cards {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+
+        .pricing-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 32px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            border-color: #3a3a3a;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .pricing-card.popular {
+            border-color: #22c55e;
+            background: linear-gradient(180deg, #1a2a1a 0%, #1a1a1a 100%);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #ffffff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-name {
+            color: #9ca3af;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .plan-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .price-container {
+            margin-bottom: 24px;
+        }
+
+        .price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .currency {
+            color: #9ca3af;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .amount {
+            color: #ffffff;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .period {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .price-yearly {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        /* Features List */
+        .features-list {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: #d1d5db;
+            font-size: 14px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .check-icon svg {
+            width: 12px;
+            height: 12px;
+            color: #22c55e;
+        }
+
+        .features-list li.disabled {
+            color: #4b5563;
+        }
+
+        .features-list li.disabled .check-icon {
+            background: rgba(75, 85, 99, 0.2);
+        }
+
+        .features-list li.disabled .check-icon svg {
+            color: #4b5563;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button.primary {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #ffffff;
+        }
+
+        .cta-button.primary:hover {
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .cta-button.secondary {
+            background: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #3a3a3a;
+        }
+
+        .cta-button.secondary:hover {
+            background: #3a3a3a;
+            border-color: #4a4a4a;
+        }
+
+        .cta-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .cta-button:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Garantia */
+        .guarantee {
+            text-align: center;
+            margin-top: 48px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .guarantee span {
+            color: #22c55e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pricing-container">
+        <div class="pricing-header">
+            <h1>Escolha seu plano</h1>
+            <p>Comece grátis. Atualize quando precisar.</p>
+        </div>
+
+        <div class="billing-toggle">
+            <span class="monthly-label active">Mensal</span>
+            <div class="toggle-switch" id="billingToggle"></div>
+            <span class="yearly-label">Anual</span>
+            <span class="save-badge">Economize 20%</span>
+        </div>
+
+        <div class="pricing-cards">
+            <!-- Plano Básico -->
+            <div class="pricing-card">
+                <div class="plan-name">Básico</div>
+                <p class="plan-description">Perfeito para começar</p>
+                <div class="price-container">
+                    <div class="price">
+                        <span class="currency">R$</span>
+                        <span class="amount" data-monthly="29" data-yearly="23">29</span>
+                        <span class="period">/mês</span>
+                    </div>
+                    <p class="price-yearly yearly-price" style="display: none;">Cobrado R$ 276/ano</p>
+                </div>
+                <ul class="features-list">
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        5 projetos
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        1.000 requisições/mês
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Suporte por email
+                    </li>
+                    <li class="disabled">
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </span>
+                        API Access
+                    </li>
+                    <li class="disabled">
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </span>
+                        Integrações avançadas
+                    </li>
+                </ul>
+                <button class="cta-button secondary">Começar Grátis</button>
+            </div>
+
+            <!-- Plano Profissional (Popular) -->
+            <div class="pricing-card popular">
+                <span class="popular-badge">Mais Popular</span>
+                <div class="plan-name">Profissional</div>
+                <p class="plan-description">Para times em crescimento</p>
+                <div class="price-container">
+                    <div class="price">
+                        <span class="currency">R$</span>
+                        <span class="amount" data-monthly="79" data-yearly="63">79</span>
+                        <span class="period">/mês</span>
+                    </div>
+                    <p class="price-yearly yearly-price" style="display: none;">Cobrado R$ 756/ano</p>
+                </div>
+                <ul class="features-list">
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Projetos ilimitados
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        50.000 requisições/mês
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Suporte prioritário 24/7
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        API Access completo
+                    </li>
+                    <li class="disabled">
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </span>
+                        SLA dedicado
+                    </li>
+                </ul>
+                <button class="cta-button primary">Assinar Agora</button>
+            </div>
+
+            <!-- Plano Empresarial -->
+            <div class="pricing-card">
+                <div class="plan-name">Empresarial</div>
+                <p class="plan-description">Para grandes organizações</p>
+                <div class="price-container">
+                    <div class="price">
+                        <span class="currency">R$</span>
+                        <span class="amount" data-monthly="199" data-yearly="159">199</span>
+                        <span class="period">/mês</span>
+                    </div>
+                    <p class="price-yearly yearly-price" style="display: none;">Cobrado R$ 1.908/ano</p>
+                </div>
+                <ul class="features-list">
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Tudo do Profissional
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Requisições ilimitadas
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Gerente de conta dedicado
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        SLA 99.9% garantido
+                    </li>
+                    <li>
+                        <span class="check-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        Deploy on-premise
+                    </li>
+                </ul>
+                <button class="cta-button secondary">Falar com Vendas</button>
+            </div>
+        </div>
+
+        <p class="guarantee">✓ Garantia de <span>30 dias</span> de reembolso • Cancele quando quiser</p>
+    </div>
+
+    <script>
+        // Toggle Mensal/Anual
+        const toggle = document.getElementById('billingToggle');
+        const monthlyLabel = document.querySelector('.monthly-label');
+        const yearlyLabel = document.querySelector('.yearly-label');
+        const amounts = document.querySelectorAll('.amount');
+        const yearlyPrices = document.querySelectorAll('.yearly-price');
+        let isYearly = false;
+
+        toggle.addEventListener('click', () => {
+            isYearly = !isYearly;
+            toggle.classList.toggle('active', isYearly);
+            monthlyLabel.classList.toggle('active', !isYearly);
+            yearlyLabel.classList.toggle('active', isYearly);
+
+            amounts.forEach(amount => {
+                const price = isYearly ? amount.dataset.yearly : amount.dataset.monthly;
+                amount.textContent = price;
+            });
+
+            yearlyPrices.forEach(price => {
+                price.style.display = isYearly ? 'block' : 'none';
+            });
+        });
+
+        // Ripple effect nos botões
+        document.querySelectorAll('.cta-button').forEach(button => {
+            button.addEventListener('click', function (e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    background: rgba(255,255,255,0.3);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    width: 100px;
+                    height: 100px;
+                    left: ${x - 50}px;
+                    top: ${y - 50}px;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                `;
+
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // CSS para animação ripple
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

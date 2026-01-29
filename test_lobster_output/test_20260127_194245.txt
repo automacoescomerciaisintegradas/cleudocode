@@ -1,0 +1,5 @@
+Workflow: 
+Data: 
+Timestamp: 2026-01-27T19:42:45.264727
+
+Este arquivo foi gerado pelo Lobster Workflow Engine!

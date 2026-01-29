@@ -1,0 +1,56 @@
+import os
+from setuptools import setup, find_packages
+
+setup(
+    name='cleudocode',
+    version='1.0.0',
+    author='Cleudocode Team',
+    author_email='cleudocode.automacoescomerciais.com.br',
+    description='Cleudocodebot - Your Personal AI Assistant',
+    long_description=open('README.md', 'r', encoding='utf-8').read() if os.path.exists('README.md') else '',
+    long_description_content_type='text/markdown',
+    url='https://github.com/cleudocode/cleudocodebot',
+    packages=find_packages(),
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+    ],
+    python_requires='>=3.10',
+    install_requires=[
+        'streamlit>=1.30.0',
+        'requests>=2.31.0',
+        'python-dotenv>=1.0.0',
+        'click>=8.0.0',
+        'chromadb>=0.4.22',
+        'pypdf>=3.17.0',
+        'beautifulsoup4>=4.12.0',
+        'lxml>=5.0.0',
+        'numpy>=1.24.0',
+        'aiofiles>=23.2.0',
+        'Flask>=3.0.0',
+        'flask-cors>=4.0.0',
+        'Authlib>=1.3.0',
+        'itsdangerous>=2.1.2',
+        'discord.py>=2.3.0',
+        'python-telegram-bot>=20.0.0',
+        'PyYAML>=6.0.0',
+        'playwright>=1.40.0',
+        'pytest-playwright>=0.4.0',
+        'websockets>=12.0',
+    ],
+    entry_points={
+        'console_scripts': [
+            'cleudocode=cli.main:cli',
+        ],
+    },
+    keywords='ai, assistant, automation, llm, ollama',
+    project_urls={
+        'Bug Reports': 'https://github.com/cleudocode/cleudocodebot/issues',
+        'Source': 'https://github.com/cleudocode/cleudocodebot',
+    },
+)

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AI Platform - Memória e Histórico</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-sans;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    },
+                    colors: {
+                        primary: "#6366f1", // Keeps existing primary for sidebar/header
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "sidebar-dark": "#1e293b",
+                        // Serenity Spa Palette
+                        spa: {
+                            primary: "#E8B4B8", // Soft Pink
+                            secondary: "#A8D5BA", // Sage Green
+                            cta: "#D4AF37", // Gold
+                            bg: "#FFF5F5", // Warm White
+                            text: "#2D3436", // Charcoal
+                            card: "#FFFFFF",
+                            light: "#FAFAFA"
+                        }
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                        "spa-serif": ["Cormorant Garamond", "serif"],
+                        "spa-sans": ["Montserrat", "sans-serif"],
+                    },
+                }
+            }
+        };
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen flex overflow-hidden">
+
+    <!-- Login Overlay (Google OAuth) -->
+    <!-- Login Overlay Removed -->
+    <aside
+        class="w-80 bg-sidebar-dark text-slate-300 flex flex-shrink-0 flex-col border-r border-slate-800 relative overflow-hidden">
+        <!-- Sidebar Background Image -->
+        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('header-bg.png');">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-sidebar-dark/95 to-sidebar-dark"></div>
+
+        <!-- Header Section -->
+        <div class="relative border-b border-slate-800/50 z-10">
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <span class="material-symbols-outlined text-primary text-2xl">smart_toy</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-white tracking-tight">Controles</h1>
+                </div>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-medium">Servidor</span>
+                        <span
+                            class="font-mono text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-lg text-[10px] flex items-center gap-1.5 backdrop-blur-sm">
+                            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                            Conectado
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-medium">Modelo</span>
+                        <span
+                            class="font-mono text-primary bg-primary/20 px-2 py-1 rounded-lg text-[10px] backdrop-blur-sm">qwen2.5-coder:7b</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 relative z-10">
+            <section>
+                <div class="flex items-center gap-2 mb-4 text-white font-semibold">
+                    <span class="material-symbols-outlined text-sm text-primary">psychology</span>
+                    <h2>Personalidade</h2>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2 block">Escolha um
+                            Agente</label>
+                        <select id="agent-select"
+                            class="w-full bg-slate-800 border-slate-700 rounded-lg text-sm text-slate-200 focus:ring-primary focus:border-primary">
+                            <option value="custom">Personalizado</option>
+                            <!-- Options injected by JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs text-slate-500 uppercase font-bold tracking-wider">Prompt do
+                                Sistema</label>
+                            <span class="material-symbols-outlined text-xs text-slate-500 cursor-help"
+                                title="Define o comportamento base da IA">help</span>
+                        </div>
+                        <textarea id="system-prompt"
+                            class="w-full h-32 bg-slate-800 border-slate-700 rounded-lg text-sm text-slate-200 font-mono focus:ring-primary focus:border-primary p-3 resize-none"
+                            placeholder="Digite as instruções do sistema...">Você é um especialista em código Python e ajuda o usuário a resolver problemas complexos.</textarea>
+                    </div>
+                </div>
+            </section>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="btn-clear-chat"
+                    class="flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors border border-slate-700">
+                    <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                    Limpar
+                </button>
+                <button id="btn-save-history"
+                    class="flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors border border-slate-700">
+                    <span class="material-symbols-outlined text-sm">save</span>
+                    Salvar
+                </button>
+            </div>
+            <section>
+                <div class="flex items-center gap-2 mb-4 text-white font-semibold">
+                    <span class="material-symbols-outlined text-sm text-primary">folder</span>
+                    <h2>Carregar Arquivos</h2>
+                </div>
+                <div id="btn-upload-trigger"
+                    class="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center hover:border-primary/50 transition-colors group cursor-pointer bg-slate-800/50">
+                    <span
+                        class="material-symbols-outlined text-3xl text-slate-600 group-hover:text-primary mb-2">upload_file</span>
+                    <p class="text-xs text-slate-400 mb-3">Arraste arquivos de texto aqui ou clique para buscar.</p>
+                    <button
+                        class="w-full py-2 bg-slate-700 hover:bg-slate-600 rounded text-xs font-medium transition-colors">Procurar
+                        Arquivos</button>
+                </div>
+            </section>
+        </div>
+        <div class="p-6 border-t border-slate-800/50 relative z-10">
+            <button id="btn-new-chat"
+                class="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:opacity-90 text-white rounded-lg font-semibold transition-all shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined">bolt</span>
+                Novo Chat
+            </button>
+        </div>
+    </aside>
+    <main class="flex-1 flex flex-col relative bg-background-light dark:bg-background-dark">
+        <header
+            class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 z-10 shrink-0 relative overflow-hidden">
+            <!-- Background Image -->
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('header-bg.png');"></div>
+            <!-- Overlay for readability -->
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/90 to-white/80 dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-900/80 backdrop-blur-sm">
+            </div>
+            <nav class="flex gap-8 relative z-10">
+                <a id="nav-chat"
+                    class="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 h-16 px-1 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                    Bate-papo
+                </a>
+                <a id="nav-memory"
+                    class="flex items-center gap-2 text-primary border-b-2 border-primary h-16 px-1 font-semibold"
+                    href="#">
+                    <span class="material-symbols-outlined text-sm">psychology</span>
+                    Memória
+                </a>
+                <a id="nav-playground"
+                    class="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 h-16 px-1 transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-sm">architecture</span>
+                    Parque Infantil
+                </a>
+            </nav>
+            <div class="flex items-center gap-6 relative z-10">
+                <div class="relative w-64">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                    <input
+                        class="w-full pl-10 pr-4 py-1.5 text-sm bg-slate-100 dark:bg-slate-800 border-none rounded-full focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="Filtrar conversas..." type="text" />
+                </div>
+                <div class="flex items-center gap-4">
+                    <!-- Settings Button -->
+                    <button id="btn-settings"
+                        class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                        title="Configurações">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                    <!-- Dark Mode Toggle -->
+                    <button
+                        class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                        onclick="document.documentElement.classList.toggle('dark')">
+                        <span class="material-symbols-outlined block dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:block">light_mode</span>
+                    </button>
+
+                    <!-- User Profile & Logout -->
+                    <div id="auth-section" class="flex items-center gap-3">
+                        <!-- Login Button (Hidden if logged in) -->
+                        <a id="btn-login-header" href="/login"
+                            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full text-sm font-bold shadow-sm border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all hover:shadow-md">
+                            <span class="material-symbols-outlined text-spa-primary">lock</span>
+                            <span>Entrar</span>
+                        </a>
+
+                        <!-- Profile Dropdown (Hidden if logged out) -->
+                        <div id="user-profile-group" class="relative group hidden">
+                            <div id="user-profile-trigger"
+                                class="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs shadow-sm cursor-pointer overflow-hidden border-2 border-transparent hover:border-white transition-all ring-2 ring-transparent hover:ring-primary/20">
+                                JD
+                            </div>
+                            <!-- Dropdown -->
+                            <div
+                                class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 hidden group-hover:block z-50 overflow-hidden">
+                                <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Logado como</p>
+                                    <p id="user-profile-email"
+                                        class="text-sm font-semibold truncate text-slate-800 dark:text-slate-200">
+                                        admin@user.com</p>
+                                </div>
+                                <a href="/logout"
+                                    class="flex items-center gap-2 px-4 py-3 text-sm text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors">
+                                    <span class="material-symbols-outlined text-lg">logout</span>
+                                    Sair
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Dynamic Content Views -->
+        <!-- View 1: Memory Management (Reflected from Screenshot) -->
+        <div id="view-dashboard" class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 dark:bg-slate-900/50">
+            <div class="max-w-5xl mx-auto p-10 space-y-12">
+
+                <!-- Header -->
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">Gestão de Conhecimento</h1>
+                    <p class="text-slate-500">Adicione arquivos e links para aumentar o 'cérebro' do seu Chat.</p>
+                </div>
+
+                <!-- Section 1: Upload Documents -->
+                <section
+                    class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                        <span class="material-symbols-outlined text-primary">upload_file</span>
+                        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Carregar documentos (PDF,
+                            TXT, MD)</h2>
+                    </div>
+
+                    <div id="drop-area-main"
+                        class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-10 text-center hover:border-primary/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer">
+                        <div
+                            class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <span class="material-symbols-outlined text-3xl">cloud_upload</span>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-300 font-medium mb-1">Arraste e solte os arquivos aqui
+                        </p>
+                        <p class="text-xs text-slate-400">Limite de 200 MB por arquivo</p>
+                    </div>
+                    <input type="file" id="file-input-main" multiple class="hidden">
+
+                    <div class="mt-6 flex justify-start">
+                        <button id="btn-process-files"
+                            class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm">
+                            <span class="material-symbols-outlined text-rose-500">smart_display</span>
+                            Processar e Indexar Arquivos
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Section 2: Web Scraping -->
+                <section
+                    class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                        <span class="material-symbols-outlined text-primary">language</span>
+                        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">De uma Página Web</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">URL da
+                            página:</label>
+                        <input type="url" id="scraping-url" placeholder="https://exemplo.com/artigo"
+                            class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 outline-none transition-all">
+
+                        <button id="btn-scrape"
+                            class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm mt-2">
+                            <span class="material-symbols-outlined text-indigo-500">bug_report</span>
+                            Extrair e Indexar URLs
+                        </button>
+                        <p id="scrape-status" class="text-xs text-slate-400 mt-2 hidden"></p>
+                    </div>
+                </section>
+
+                <!-- Section 3: Integrations & NotebookLM -->
+                <section
+                    class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                        <span class="material-symbols-outlined text-primary">integration_instructions</span>
+                        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Integrações</h2>
+                    </div>
+
+                    <div
+                        class="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-4 mb-8 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-indigo-500 mt-0.5">lightbulb</span>
+                        <p class="text-sm text-indigo-800 dark:text-indigo-200">Exporte sua base de conhecimento para
+                            usar no Google NotebookLM.</p>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <button id="btn-export-notebooklm"
+                            class="w-full md:w-auto px-8 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">sync_alt</span>
+                            Sincronizar com NotebookLM
+                        </button>
+
+                        <div class="flex flex-wrap gap-2 justify-center">
+                            <span class="text-xs text-slate-400 uppercase tracking-wide mr-2 self-center">Acesso
+                                Rápido:</span>
+                            <a href="https://notebooklm.google.com/" target="_blank"
+                                class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[10px]">open_in_new</span> Google
+                            </a>
+                            <a href="https://chatgpt.com/" target="_blank"
+                                class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[10px]">open_in_new</span> ChatGPT
+                            </a>
+                            <a href="https://huggingface.co/chat/" target="_blank"
+                                class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[10px]">open_in_new</span> HuggingFace
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Memory Stats -->
+                <section
+                    class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                        <span class="material-symbols-outlined text-primary">analytics</span>
+                        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Estatísticas da Memória
+                        </h2>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="text-center p-4 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                            <p id="stat-documents" class="text-3xl font-bold text-primary">--</p>
+                            <p class="text-xs text-slate-500 mt-1">Documentos</p>
+                        </div>
+                        <div class="text-center p-4 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                            <p id="stat-tokens" class="text-3xl font-bold text-emerald-500">--</p>
+                            <p class="text-xs text-slate-500 mt-1">Tokens (aprox)</p>
+                        </div>
+                        <div class="text-center p-4 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                            <p id="stat-size" class="text-3xl font-bold text-amber-500">--</p>
+                            <p class="text-xs text-slate-500 mt-1">Tamanho</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+        <!-- View: Lock Screen (for unauthenticated users) -->
+        <div id="view-lock"
+            class="hidden flex-1 flex flex-col items-center justify-center bg-background-light dark:bg-background-dark p-8 text-center">
+            <div
+                class="w-32 h-32 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600">lock</span>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-200 mb-2">Acesso Restrito</h2>
+            <p class="text-slate-500 max-w-sm mb-8">Você precisa estar logado como administrador para acessar este
+                painel.</p>
+            <a href="/login"
+                class="px-8 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all">
+                Autenticar Agora
+            </a>
+        </div>
+
+        <!-- View: Active Chat Interface (Hidden by Default) -->
+        <div id="view-chat" class="hidden flex-1 flex-col h-full relative">
+            <!-- Messages Area -->
+            <div id="chat-container" class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6 pb-32">
+                <!-- Messages will be injected here via JS -->
+                <div class="flex gap-4">
+                    <div
+                        class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 rounded-bl-none shadow-sm">
+                        <div class="prose dark:prose-invert text-sm max-w-none">
+                            Olá! Sou seu assistente AI. Como posso ajudar com seu código ou análise hoje?
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div
+                class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent">
+                <div class="max-w-4xl mx-auto">
+                    <div
+                        class="relative flex items-end gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg p-2 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+                        <!-- Attach Button -->
+                        <button id="btn-attach-chat"
+                            class="p-2 text-slate-400 hover:text-primary transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700"
+                            title="Anexar Arquivo">
+                            <span class="material-symbols-outlined">attach_file</span>
+                        </button>
+                        <input type="file" id="chat-file-input" class="hidden" accept=".pdf,.txt,.md,.png,.jpg,.jpeg">
+
+                        <textarea id="chat-input" rows="1"
+                            class="w-full max-h-32 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-100 placeholder-slate-400 py-3 resize-none custom-scrollbar"
+                            placeholder="Digite sua mensagem... (Enter para enviar)"></textarea>
+
+                        <!-- Microphone Button (Voice Input) -->
+                        <button id="btn-mic"
+                            class="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700"
+                            title="Falar (Pesquisa por Voz)">
+                            <span class="material-symbols-outlined">mic</span>
+                        </button>
+
+                        <!-- Send Button -->
+                        <button id="btn-send"
+                            class="p-2 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md transition-all">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
+                    <p class="text-center text-[10px] text-slate-400 mt-2">
+                        LLM P2P Chat pode cometer erros. Verifique informações importantes.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 3: Playground (Parque Infantil / Prompts Page) - Serenity Spa Design -->
+        <div id="view-playground"
+            class="hidden flex-1 overflow-y-auto custom-scrollbar bg-spa-bg font-spa-sans text-spa-text">
+            <div class="max-w-6xl mx-auto p-12">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-12">
+                    <div>
+                        <h1 class="text-5xl font-spa-serif font-bold text-spa-text mb-2 tracking-tight">Design &
+                            Prompts
+                        </h1>
+                        <p class="text-spa-text/70 italic text-lg font-spa-serif">Crie experiências de beleza
+                            com
+                            elegância.</p>
+                    </div>
+                    <div class="bg-white/50 backdrop-blur-sm p-3 rounded-2xl shadow-sm border border-spa-primary/20">
+                        <span class="material-symbols-outlined text-spa-primary text-3xl">spa</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <!-- Left: Message Blocks -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div id="playground-blocks" class="space-y-6">
+                            <!-- Initial System Block -->
+                            <div class="playground-block bg-white rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-white hover:border-spa-secondary/30 transition-all duration-300 relative group"
+                                data-role="system">
+                                <div class="absolute -left-3 top-6 w-1.5 h-12 bg-spa-secondary rounded-full opacity-60">
+                                </div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-xs font-bold tracking-widest uppercase text-spa-secondary">Sistema</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <select
+                                            class="block-role bg-spa-bg/50 text-spa-text/80 text-xs font-medium rounded-lg px-3 py-1.5 border-none focus:ring-1 focus:ring-spa-secondary cursor-pointer hover:bg-spa-bg transition-colors">
+                                            <option value="system" selected>system</option>
+                                            <option value="user">user</option>
+                                            <option value="assistant">assistant</option>
+                                        </select>
+                                        <button
+                                            class="btn-delete-block p-1.5 text-spa-text/30 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <textarea
+                                    class="block-content w-full bg-spa-light/50 text-spa-text rounded-2xl p-5 border-none focus:ring-2 focus:ring-spa-primary/30 resize-y min-h-[120px] text-base leading-relaxed placeholder-spa-text/30 shadow-inner"
+                                    placeholder="Conteúdo da mensagem...">You are a helpful AI assistant specialized in wellness and beauty.</textarea>
+                            </div>
+
+                            <!-- Initial User Block -->
+                            <div class="playground-block bg-white rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-white hover:border-spa-primary/30 transition-all duration-300 relative group"
+                                data-role="user">
+                                <div class="absolute -left-3 top-6 w-1.5 h-12 bg-spa-primary rounded-full opacity-60">
+                                </div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-xs font-bold tracking-widest uppercase text-spa-primary">Usuário</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <select
+                                            class="block-role bg-spa-bg/50 text-spa-text/80 text-xs font-medium rounded-lg px-3 py-1.5 border-none focus:ring-1 focus:ring-spa-primary cursor-pointer hover:bg-spa-bg transition-colors">
+                                            <option value="system">system</option>
+                                            <option value="user" selected>user</option>
+                                            <option value="assistant">assistant</option>
+                                        </select>
+                                        <button
+                                            class="btn-delete-block p-1.5 text-spa-text/30 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <textarea
+                                    class="block-content w-full bg-spa-light/50 text-spa-text rounded-2xl p-5 border-none focus:ring-2 focus:ring-spa-primary/30 resize-y min-h-[120px] text-base leading-relaxed placeholder-spa-text/30 shadow-inner"
+                                    placeholder="Escreva seu prompt aqui..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Add Block Button -->
+                        <div class="flex justify-center">
+                            <button id="btn-add-block"
+                                class="flex items-center gap-2 px-6 py-3 bg-white hover:bg-spa-primary/10 text-spa-text/70 rounded-full border border-dashed border-spa-text/20 hover:border-spa-primary transition-all duration-300 group">
+                                <span
+                                    class="material-symbols-outlined text-spa-secondary group-hover:scale-110 transition-transform">add_circle</span>
+                                <span class="text-sm font-medium">Adicionar Bloco</span>
+                            </button>
+                        </div>
+
+                        <!-- Output Area -->
+                        <div
+                            class="mt-8 bg-white/80 backdrop-blur rounded-3xl border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.08)] p-8 overflow-hidden relative">
+                            <div
+                                class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-spa-secondary via-spa-primary to-spa-cta opacity-50">
+                            </div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <span class="material-symbols-outlined text-spa-cta text-2xl">auto_awesome</span>
+                                <h3 class="text-xl font-spa-serif font-bold text-spa-text">Resultado</h3>
+                            </div>
+                            <div id="playground-output"
+                                class="bg-spa-bg/50 rounded-2xl p-6 min-h-[150px] text-spa-text text-base leading-7 whitespace-pre-wrap border border-spa-primary/10">
+                                <span class="text-spa-text/40 italic flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-lg animate-pulse">history_edu</span>
+                                    A magia acontecerá aqui...
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Parameters Panel -->
+                    <div class="space-y-6">
+                        <div
+                            class="bg-white rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-white p-8 sticky top-6">
+                            <h2
+                                class="text-2xl font-spa-serif font-bold text-spa-text mb-8 border-b border-spa-text/5 pb-4">
+                                Personalização</h2>
+
+                            <!-- Temperature -->
+                            <div class="mb-8">
+                                <div class="flex justify-between items-end mb-4">
+                                    <label class="text-spa-text/80 font-medium text-sm">Criatividade
+                                        (Temp)</label>
+                                    <span id="temp-value"
+                                        class="text-spa-primary font-bold text-lg bg-spa-bg px-2 rounded-lg">0.70</span>
+                                </div>
+                                <input type="range" id="param-temperature" min="0" max="2" step="0.01" value="0.7"
+                                    class="w-full h-1.5 bg-spa-bg rounded-lg appearance-none cursor-pointer accent-spa-primary hover:accent-spa-cta transition-all">
+                            </div>
+
+                            <!-- Max Tokens -->
+                            <div class="mb-8">
+                                <div class="flex justify-between items-center mb-4">
+                                    <label class="text-spa-text/80 font-medium text-sm">Extensão
+                                        (Tokens)</label>
+                                </div>
+                                <div class="flex items-center gap-2 bg-spa-bg p-1 rounded-xl">
+                                    <button onclick="document.getElementById('param-max-tokens').stepDown(256)"
+                                        class="w-8 h-8 flex items-center justify-center bg-white text-spa-text rounded-lg shadow-sm hover:text-spa-primary transition-colors">−</button>
+                                    <input type="number" id="param-max-tokens" value="2048" min="1" max="32000"
+                                        class="flex-1 bg-transparent text-center text-spa-text font-medium border-none focus:ring-0 text-sm">
+                                    <button onclick="document.getElementById('param-max-tokens').stepUp(256)"
+                                        class="w-8 h-8 flex items-center justify-center bg-white text-spa-text rounded-lg shadow-sm hover:text-spa-primary transition-colors">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Top P -->
+                            <div class="mb-10">
+                                <div class="flex justify-between items-end mb-4">
+                                    <label class="text-spa-text/80 font-medium text-sm">Foco (Top P)</label>
+                                    <span id="topp-value"
+                                        class="text-spa-secondary font-bold text-lg bg-spa-bg px-2 rounded-lg">0.90</span>
+                                </div>
+                                <input type="range" id="param-top-p" min="0" max="1" step="0.01" value="0.9"
+                                    class="w-full h-1.5 bg-spa-bg rounded-lg appearance-none cursor-pointer accent-spa-secondary hover:accent-spa-cta transition-all">
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="space-y-4 pt-4 border-t border-spa-text/5">
+                                <button id="btn-playground-run"
+                                    class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-spa-cta text-white rounded-xl font-semibold shadow-lg shadow-spa-cta/30 hover:bg-spa-cta/90 hover:-translate-y-1 transition-all duration-300">
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                    Gerar Design
+                                </button>
+                                <button id="btn-playground-reset"
+                                    class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent hover:bg-spa-bg text-spa-text/60 hover:text-spa-text rounded-xl font-medium transition-colors">
+                                    <span class="material-symbols-outlined text-lg">refresh</span>
+                                    Reiniciar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" id="admin-login-backdrop"></div>
+
+        <!-- Modal Content -->
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+            <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                <!-- Header -->
+                <div class="p-8 pb-0 text-center">
+                    <div class="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-3xl text-primary">admin_panel_settings</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Acesso Restrito</h2>
+                    <p class="text-slate-500 text-sm">Entre com suas credenciais de administrador</p>
+                </div>
+
+                <!-- Form -->
+                <div class="p-8 space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Email
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">mail</span>
+                            <input id="admin-email" type="email"
+                                class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-700 border-none rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-primary/50"
+                                placeholder="admin@exemplo.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Senha
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
+                            <input id="admin-password" type="password"
+                                class="w-full pl-12 pr-12 py-3 bg-slate-100 dark:bg-slate-700 border-none rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-primary/50"
+                                placeholder="••••••••">
+                            <button type="button" id="toggle-password"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="admin-login-error"
+                        class="hidden p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-500 text-sm text-center">
+                        Email ou senha incorretos
+                    </div>
+
+                    <button id="btn-admin-login"
+                        class="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold transition-colors shadow-lg shadow-primary/20">
+                        Entrar
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-8 pb-8 text-center">
+                    <button id="btn-cancel-admin-login"
+                        class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 text-sm transition-colors">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (Protected) -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" id="settings-backdrop"></div>
+
+        <!-- Modal Content -->
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+            <div
+                class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-2xl text-primary">settings</span>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Configurações</h2>
+                    </div>
+                    <button id="btn-close-settings"
+                        class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-slate-500">close</span>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 overflow-y-auto max-h-[60vh]">
+                    <!-- Tabs -->
+                    <div class="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-700">
+                        <button
+                            class="settings-tab active px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary"
+                            data-tab="connection">
+                            Conexão
+                        </button>
+                        <button
+                            class="settings-tab px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                            data-tab="model">
+                            Modelo
+                        </button>
+                        <button
+                            class="settings-tab px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                            data-tab="interface">
+                            Interface
+                        </button>
+                    </div>
+
+                    <!-- Connection Tab -->
+                    <div id="tab-connection" class="settings-tab-content space-y-6">
+                        <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
+                            <span class="material-symbols-outlined text-amber-500">shield</span>
+                            <div>
+                                <h4 class="font-medium text-amber-600 dark:text-amber-400">Dados Protegidos</h4>
+                                <p class="text-sm text-amber-600/80 dark:text-amber-400/80">As credenciais de conexão
+                                    estão seguras e criptografadas.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Servidor Ollama
+                            </label>
+                            <div class="flex items-center gap-3 p-4 bg-slate-100 dark:bg-slate-700 rounded-xl">
+                                <span class="material-symbols-outlined text-slate-400">cloud</span>
+                                <span class="text-slate-600 dark:text-slate-300 font-mono">••••••••••••:••••</span>
+                                <span
+                                    class="ml-auto px-2 py-1 bg-emerald-500/20 text-emerald-500 text-xs rounded-lg">Conectado</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">URL mascarada por segurança</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Status da Conexão
+                            </label>
+                            <div class="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-xl">
+                                <span class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+                                <span class="text-emerald-600 dark:text-emerald-400 font-medium">Conectado ao Servidor
+                                    Remoto</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Model Tab -->
+                    <div id="tab-model" class="settings-tab-content hidden space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Modelo Atual
+                            </label>
+                            <select id="setting-model"
+                                class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 border-none rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+                                <option value="qwen2.5-coder:7b" selected>qwen2.5-coder:7b</option>
+                                <option value="llama3:8b">llama3:8b</option>
+                                <option value="mistral:7b">mistral:7b</option>
+                                <option value="deepseek-coder:6.7b">deepseek-coder:6.7b</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Temperatura Padrão
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <input id="setting-temperature" type="range" min="0" max="2" step="0.1" value="0.7"
+                                    class="flex-1 h-2 bg-slate-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-primary">
+                                <span id="setting-temp-value" class="text-sm font-mono text-primary w-12">0.7</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Contexto Máximo (Tokens)
+                            </label>
+                            <input id="setting-context" type="number" value="4096" min="512" max="32000"
+                                class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 border-none rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+                        </div>
+                    </div>
+
+                    <!-- Interface Tab -->
+                    <div id="tab-interface" class="settings-tab-content hidden space-y-6">
+                        <div class="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-700 rounded-xl">
+                            <div>
+                                <h3 class="font-medium text-slate-800 dark:text-white">Usar RAG automaticamente</h3>
+                                <p class="text-sm text-slate-500">Buscar contexto na memória a cada mensagem</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="setting-auto-rag" class="sr-only peer" checked>
+                                <div
+                                    class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-700 rounded-xl">
+                            <div>
+                                <h3 class="font-medium text-slate-800 dark:text-white">Histórico Automático</h3>
+                                <p class="text-sm text-slate-500">Salvar conversas automaticamente</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="setting-auto-save" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Tema
+                            </label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button
+                                    class="theme-option p-4 bg-slate-100 dark:bg-slate-700 rounded-xl border-2 border-transparent hover:border-primary/50 transition-all text-center"
+                                    data-theme="light">
+                                    <span
+                                        class="material-symbols-outlined text-2xl text-amber-500 mb-1">light_mode</span>
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Claro</p>
+                                </button>
+                                <button
+                                    class="theme-option p-4 bg-slate-100 dark:bg-slate-700 rounded-xl border-2 border-primary transition-all text-center"
+                                    data-theme="dark">
+                                    <span
+                                        class="material-symbols-outlined text-2xl text-indigo-500 mb-1">dark_mode</span>
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Escuro</p>
+                                </button>
+                                <button
+                                    class="theme-option p-4 bg-slate-100 dark:bg-slate-700 rounded-xl border-2 border-transparent hover:border-primary/50 transition-all text-center"
+                                    data-theme="system">
+                                    <span class="material-symbols-outlined text-2xl text-slate-500 mb-1">computer</span>
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Sistema</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
+                    <button id="btn-reset-settings"
+                        class="px-6 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-medium transition-colors">
+                        Restaurar Padrões
+                    </button>
+                    <button id="btn-save-settings"
+                        class="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold transition-colors shadow-lg shadow-primary/20">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
