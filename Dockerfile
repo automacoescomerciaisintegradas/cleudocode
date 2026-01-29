@@ -32,11 +32,22 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copiar código da aplicação
-COPY . .
+# Copiar código da aplicação de forma seletiva para otimizar o cache
+COPY app.py .
+COPY web_app.py .
+COPY streamlit_app.py .
+COPY gerenciador_contatos.py .
+COPY agent_loop.py .
+COPY tool_box.py .
+COPY core ./core
+COPY skills ./skills
+COPY gateways ./gateways
+COPY integrations ./integrations
+COPY web ./web
+COPY agents ./agents
+COPY docs ./docs
 
-# Criar diretórios necessários
-RUN mkdir -p /app/exports /app/uploads /app/memory_db /app/agents /app/docs
+# A criação de diretórios foi removida, pois agora são gerenciados por volumes no docker-compose.yml
 
 # Expor porta do Streamlit
 EXPOSE 8501

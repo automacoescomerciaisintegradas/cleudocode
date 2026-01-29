@@ -183,56 +183,32 @@ def chat_with_ollama_stream(messages):
         yield f"❌ Erro de Conexão: {str(e)}"
 
 import re
-import subprocess
+from core import sandbox_manager
 
-def parse_and_execute_tools(llm_response):
-    """Executa tags <tool code="...">...</tool> encontradas na resposta"""
-    pattern = r'<tool code="([^"]+)">\s*(.*?)\s*</tool>'
-    matches = re.finditer(pattern, llm_response, re.DOTALL)
+def parse_and_execute_tools_in_sandbox(llm_response):
+    """
+    Encontra tags <tool>, extrai seu conteúdo e o envia para execução no sandbox.
+    """
+    # A regex agora só precisa encontrar se existe alguma tag <tool>
+    pattern = r'<tool code="[^"]+">.*?</tool>'
+    match = re.search(pattern, llm_response, re.DOTALL)
+
+    if not match:
+        return None # Nenhuma ferramenta encontrada
+
+    # Se encontrarmos, não nos importamos com o conteúdo aqui.
+    # Enviamos a string *completa* da resposta do LLM para o sandbox.
+    # O `sandbox_runner` fará o parsing detalhado.
     
-    log = ""
-    found = False
-    for match in matches:
-        found = True
-        code = match.group(1)
-        arg = match.group(2).strip()
-        
-        if code == "run_shell":
-            log += f"\n> Executando comando: {arg}\n"
-            # Tenta usar o venv se existir
-            venv_python = os.path.join(os.getcwd(), "venv", "Scripts", "python.exe")
-            cmd = arg
-            if os.path.exists(venv_python) and "python " in arg:
-                cmd = arg.replace("python ", f'"{venv_python}" ')
-            
-            try:
-                res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=60)
-                if res.stdout: log += f"STDOUT:\n{res.stdout}\n"
-                if res.stderr: log += f"STDERR:\n{res.stderr}\n"
-                log += f"Retorno: {res.returncode}\n"
-            except Exception as e:
-                log += f"Erro: {str(e)}\n"
-                
-        elif code == "write_file":
-            parts = arg.split('\n', 1)
-            if len(parts) >= 2:
-                filename = parts[0].strip()
-                content = parts[1]
-                try:
-                    with open(filename, 'w', encoding='utf-8') as f:
-                        f.write(content)
-                    log += f"✅ Arquivo '{filename}' gravado.\n"
-                except Exception as e:
-                    log += f"❌ Erro ao gravar: {str(e)}\n"
-        
-        elif code == "read_file":
-            try:
-                with open(arg, 'r', encoding='utf-8') as f:
-                    log += f"📄 Conteúdo de {arg}:\n{f.read()}\n"
-            except Exception as e:
-                log += f"❌ Erro ao ler: {str(e)}\n"
-
-    return log if found else None
+    with st.spinner("Executando ferramentas no ambiente seguro (sandbox)..."):
+        result = sandbox_manager.execute_in_sandbox(llm_response)
+    
+    if result["success"]:
+        return result["log"]
+    else:
+        # Se falhar, retorna o log de erro do próprio sandbox manager
+        st.error(f"Falha na execução do Sandbox: {result['log']}")
+        return f"Erro no Sandbox: {result['log']}"
 
 def save_history():
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -423,10 +399,10 @@ with tab1:
             full_response = st.write_stream(response_stream)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
             
-            # --- EXECUÇÃO DE TOOLS ---
-            tool_log = parse_and_execute_tools(full_response)
+            # --- EXECUÇÃO DE TOOLS NO SANDBOX ---
+            tool_log = parse_and_execute_tools_in_sandbox(full_response)
             if tool_log:
-                with st.expander("🛠️ Ações do Agente", expanded=True):
+                with st.expander("🛠️ Ações do Agente (Executado no Sandbox)", expanded=True):
                     st.code(tool_log)
                 
                 # Opcional: Enviar resultado de volta para o agente

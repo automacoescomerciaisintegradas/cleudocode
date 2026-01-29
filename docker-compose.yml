@@ -28,6 +28,7 @@ services:
       - ./memory_db:/app/memory_db
       - ./agents:/app/agents
       - ./docs:/app/docs
+      - sandbox_io:/app/sandbox_io # Volume compartilhado para comunicação
     networks:
       - cleudocode-network
     healthcheck:
@@ -36,6 +37,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  # Sandbox para execução segura de agentes
+  agent-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    container_name: cleudocode-sandbox
+    restart: unless-stopped
+    volumes:
+      - sandbox_io:/app/sandbox # Monta o volume no diretório de trabalho do sandbox
+    networks:
+      - cleudocode-network
+    # O sandbox não precisa de portas expostas.
+    # Ele é mantido em execução pelo CMD no Dockerfile.sandbox
+    # e as tarefas são executadas via 'docker exec' ou outro mecanismo.
 
   # Opcional: Ollama local (descomente se quiser rodar Ollama no Docker)
   # ollama:
@@ -59,5 +75,7 @@ services:
 networks:
   cleudocode-network:
     driver: bridge
-# volumes:
-#   ollama-data:
+
+volumes:
+  sandbox_io: # Define o volume nomeado
+  # ollama-data:

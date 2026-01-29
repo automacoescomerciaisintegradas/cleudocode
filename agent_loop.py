@@ -2,9 +2,8 @@ import os
 import sys
 import json
 import re
-import requests
 from dotenv import load_dotenv
-import tool_box  # Nosso novo módulo
+from core.tool_parser import parse_and_execute_tools
 
 # Carregar ambiente
 load_dotenv()
@@ -13,69 +12,12 @@ load_dotenv()
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip('/')
 MODEL = os.getenv("DEEPSEEK_MODEL", "qwen2.5-coder:7b")
 
-def parse_and_execute_tools(llm_response):
-    """
-    Busca por tags <tool code="...">...</tool> na resposta e executa.
-    Retorna um log de execução para ser enviado de volta ao LLM se necessário.
-    """
-    execution_log = ""
-    
-    # Regex para capturar <tool code="comando">argumento</tool>
-    # Suporta multiline e atributos
-    pattern = r'<tool code="([^"]+)">\s*(.*?)\s*</tool>'
-    matches = re.finditer(pattern, llm_response, re.DOTALL)
-    
-    found_tools = False
-    for match in matches:
-        found_tools = True
-        tool_code = match.group(1)
-        tool_arg = match.group(2).strip()
-        
-        print(f"\n[AGENT] Executando ferramenta: {tool_code}")
-        
-        if tool_code == "run_shell":
-            res = tool_box.run_shell(tool_arg)
-            out_msg = f"STDOUT:\n{res['stdout']}\nSTDERR:\n{res['stderr']}\nReturn Code: {res['returncode']}"
-            execution_log += f"--- Resultado de {tool_code} ---\n{out_msg}\n"
-            print(f"[SHELL] Retorno: {res['returncode']}")
-            
-        elif tool_code == "write_file":
-            # Espera formato: PRIMEIRO LINHA = ARQUIVO, RESTO = CONTEUDO
-            parts = tool_arg.split('\n', 1)
-            if len(parts) >= 2:
-                filename = parts[0].strip()
-                content = parts[1]
-                res = tool_box.write_file(filename, content)
-                execution_log += f"--- Resultado de {tool_code} ({filename}) ---\n{res['message']}\n"
-                print(f"[FILE] {res['message']}")
-            else:
-                execution_log += f"Erro: write_file requer filename na primeira linha e conteudo depois.\n"
-
-        elif tool_code == "read_file":
-            res = tool_box.read_file(tool_arg)
-            if res['success']:
-                execution_log += f"--- Conteúdo de {tool_arg} ---\n{res['content']}\n"
-            else:
-                execution_log += f"--- Erro ao ler {tool_arg} ---\n{res['message']}\n"
-        
-        elif tool_code == "fetch_url":
-            res = tool_box.fetch_url(tool_arg)
-            if res['success']:
-                execution_log += f"--- Conteúdo Web de {tool_arg} ---\n{res['content']}\n"
-            else:
-                execution_log += f"--- Erro ao baixar URL ---\n{res['message']}\n"
-                
-    if not found_tools:
-        return None
-        
-    return execution_log
-
 def run_agent_iteration(iteration, max_iterations):
     print(f"\n=== Iteração {iteration} / {max_iterations} [Modelo: {MODEL}] ===")
     
     # Contexto Dinâmico
+    # O tool_box é usado aqui para ler os arquivos de contexto
     prd_content = tool_box.read_file("docs/PRD.md").get("content", "[Erro]")
-    # Tenta ler features, cria se não existe
     if not os.path.exists("features.json"):
         tool_box.write_file("features.json", "[]")
     features_content = tool_box.read_file("features.json").get("content", "[]")
@@ -146,7 +88,7 @@ Pense passo a passo. Se for escrever código, use a ferramenta write_file.
             print(content)
             print("--------------------------")
             
-            # --- PARTE NOVA: Execução de Ferramentas ---
+            # --- Execução de Ferramentas via core.tool_parser ---
             exec_log = parse_and_execute_tools(content)
             if exec_log:
                 print("\n--- RESULTADO DAS EXECUÇÕES ---")

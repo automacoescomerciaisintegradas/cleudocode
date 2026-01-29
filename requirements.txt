@@ -33,3 +33,6 @@ Flask>=3.0.0
 flask-cors>=4.0.0
 Authlib>=1.3.0
 itsdangerous>=2.1.2
+
+# Docker SDK (para Sandbox)
+docker>=7.0.0
