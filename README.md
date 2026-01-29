@@ -53,6 +53,25 @@ Basta clicar duas vezes no arquivo **`start.bat`**.
 streamlit run web_app.py
 ```
 
+## 🤖 Instalação como Serviço de Sistema
+
+Você pode instalar o Cleudocodebot como um serviço que roda automaticamente em segundo plano:
+
+```bash
+# Instalar o daemon como serviço de sistema
+cleudocodebot onboard --install-daemon
+
+# O comando detecta automaticamente seu sistema operacional:
+# - Windows: Cria uma tarefa agendada ou serviço NSSM
+# - Linux: Cria um serviço systemd
+# - macOS: Cria um agente launchd
+```
+
+Após a instalação:
+- O daemon iniciará automaticamente com seu sistema
+- A API REST estará disponível em http://localhost:5001
+- O dashboard pode ser acessado via `streamlit run web/dashboard.py`
+
 ## 📂 Estrutura
 *   `web_app.py`: Interface Principal (Streamlit).
 *   `rag_engine.py`: Motor de Vetores e Memória.
