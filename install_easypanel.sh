@@ -115,7 +115,7 @@ services:
       - ./docs:/app/docs
       - ./data:/app/data
     ports:
-      - "3001:8501"  # Porta configurada para EasyPanel
+      - "3001:8501"  # Porta configurada para EasyPanel (3000 já usada pelo painel)
     networks:
       - cleudocode-network
 
@@ -135,7 +135,7 @@ services:
       - ./config:/app/config
       - ./logs:/app/logs
     ports:
-      - "3000:5001"  # Porta configurada para EasyPanel
+      - "3002:5001"  # Porta configurada para EasyPanel (3000 já usada pelo painel)
     networks:
       - cleudocode-network
 

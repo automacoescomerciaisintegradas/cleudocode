@@ -1,6 +1,6 @@
 # Implantação no EasyPanel
 
-Este documento descreve como implantar o Cleudocodebot no EasyPanel na porta 3000.
+Este documento descreve como implantar o Cleudocodebot no EasyPanel nas portas 3001 e 3002 (a porta 3000 já é usada pelo EasyPanel).
 
 ## Visão Geral
 
@@ -9,7 +9,7 @@ O Cleudocodebot pode ser implantado no EasyPanel para execução em ambiente de 
 ## Requisitos
 
 - Acesso SSH à VPS com EasyPanel instalado
-- Porta 3000 disponível
+- Portas 3001 e 3002 disponíveis (a porta 3000 já é usada pelo EasyPanel)
 - Servidor Ollama rodando (local ou remoto)
 - Docker e Docker Compose instalados
 
@@ -41,7 +41,7 @@ Acesse o painel de administração do EasyPanel em: https://easypanel.automacoes
 - **Branch**: main
 - **Working Directory**: (deixe vazio ou use ./)
 - **Docker Compose File**: docker-compose.easypanel.yml
-- **Port**: 3000
+- **Port**: 3001
 
 ### 3. Configure Variáveis de Ambiente
 
@@ -67,7 +67,7 @@ Clique em "Deploy" e o sistema será iniciado automaticamente.
 ### 1. Acesso ao Sistema
 Após o deploy bem-sucedido, o sistema estará disponível em:
 
-- **API REST**: http://seu-ip:3000
+- **API REST**: http://seu-ip:3002
 - **Interface Web**: http://seu-ip:3001
 - **Dashboard de Monitoramento**: http://seu-ip:3001/dashboard
 
@@ -115,7 +115,7 @@ Para atualizar o sistema com as últimas alterações:
    - Verifique se o modelo especificado em `DEEPSEEK_MODEL` está instalado
 
 2. **Portas já em uso**
-   - Verifique se as portas 3000 e 3001 estão disponíveis
+   - Verifique se as portas 3001 e 3002 estão disponíveis (a porta 3000 já é usada pelo EasyPanel)
    - Verifique se não há outros containers usando essas portas
 
 3. **Permissões de Docker**

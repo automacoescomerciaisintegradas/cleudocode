@@ -74,7 +74,7 @@ Após a instalação:
 
 ## ☁️ Instalação na EasyPanel
 
-Para instalar o Cleudocodebot na sua VPS com EasyPanel na porta 3000:
+Para instalar o Cleudocodebot na sua VPS com EasyPanel (a porta 3000 já é usada pelo EasyPanel):
 
 1. Execute o script de instalação:
 ```bash
@@ -89,10 +89,10 @@ chmod +x install_easypanel.sh
    - Use o repositório: https://github.com/automacoescomerciaisintegradas/cleudocode.git
    - Branch: main
    - Docker Compose File: docker-compose.easypanel.yml
-   - Port: 3000
+   - Port: 3001 (a porta 3000 já é usada pelo EasyPanel)
 
 Após a instalação:
-- A API REST estará disponível em http://seu-ip:3000
+- A API REST estará disponível em http://seu-ip:3002
 - A interface web estará em http://seu-ip:3001
 - O daemon rodará como serviço em segundo plano
 

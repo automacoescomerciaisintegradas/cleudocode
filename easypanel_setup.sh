@@ -10,7 +10,7 @@ echo "==========================================="
 
 PROJECT_NAME="cleudocodebot"
 PROJECT_DIR="/home/container/$PROJECT_NAME"
-PORT=3000
+PORT=3001  # Usando porta 3001 em vez de 3000 (3000 já usada pelo EasyPanel)
 
 echo "Criando estrutura de diretórios..."
 mkdir -p $PROJECT_DIR
