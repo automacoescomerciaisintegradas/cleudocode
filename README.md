@@ -72,29 +72,26 @@ Após a instalação:
 - A API REST estará disponível em http://localhost:5001
 - O dashboard pode ser acessado via `streamlit run web/dashboard.py`
 
-## ☁️ Instalação na EasyPanel
+## ☁️ Instalação 
 
-Para instalar o Cleudocodebot na sua VPS com EasyPanel (a porta 3000 já é usada pelo EasyPanel):
+Para instalar o Cleudocodebot na sua VPS:
+
+# Linux / macOS
+$ curl -fsSL https://cleudocode/install.sh | bash
 
 1. Execute o script de instalação:
 ```bash
-# Baixar e executar o script de instalação para EasyPanel
-wget https://raw.githubusercontent.com/automacoescomerciaisintegradas/cleudocode/main/install_easypanel.sh
-chmod +x install_easypanel.sh
-./install_easypanel.sh
-```
+# Baixar e executar o script de instalação
 
-2. Ou use diretamente no EasyPanel:
-   - Acesse: https://easypanel.automacoescomerciais.com.br/projects/vibecoding/create
-   - Use o repositório: https://github.com/automacoescomerciaisintegradas/cleudocode.git
-   - Branch: main
-   - Docker Compose File: docker-compose.easypanel.yml
-   - Port: 3001 (a porta 3000 já é usada pelo EasyPanel)
+curl -fsSL https://cleudocode/install.sh | bash
+
+# Windows (PowerShell)
+$ irm -useb https://cleudo.bot/install.ps1 | iex
+
+
 
 Após a instalação:
-- A API REST estará disponível em http://seu-ip:3002
-- A interface web estará em http://seu-ip:3001
-- O daemon rodará como serviço em segundo plano
+
 
 ## 📂 Estrutura
 *   `web_app.py`: Interface Principal (Streamlit).
