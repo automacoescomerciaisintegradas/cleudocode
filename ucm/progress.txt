@@ -17,9 +17,18 @@
 - [x] Testes realizados com sucesso
 
 ### 🔄 Em Progresso
-- [ ] Implementação do comando `cleudocode init`
 - [ ] Sistema de skills/plugins
 - [ ] Gateway multi-canal
+- [ ] Integração Stitch no Dashboard
+
+### ✅ Recém Concluído
+- [x] Comando `cleudocode init` implementado
+  - Wizard interativo completo
+  - Verificação de dependências
+  - Configuração de LLM providers
+  - Configuração de MCP (Stitch)
+  - Validação de instalação
+  - Guia de próximos passos
 
 ### 📋 Próximas Tarefas (do features.json)
 1. **init-002**: Implementar comando `cleudocode init` (wizard de setup)

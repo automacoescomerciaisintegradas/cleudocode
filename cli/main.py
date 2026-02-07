@@ -29,6 +29,21 @@ def cli():
     pass
 
 @cli.command()
+def init():
+    """Wizard de configuração inicial do Cleudocode"""
+    try:
+        from cli.init_command import InitWizard
+        wizard = InitWizard()
+        wizard.run()
+    except ImportError as e:
+        console.print(f"[red]❌ Erro ao importar wizard: {e}[/red]")
+        console.print("[yellow]Certifique-se de que está no diretório do projeto.[/yellow]")
+    except Exception as e:
+        console.print(f"[red]❌ Erro ao executar wizard: {e}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+
+@cli.command()
 @click.option('--no-install-daemon', is_flag=True, help='Pula instalação do Daemon')
 @click.option('--force', is_flag=True, help='Força reconfiguração')
 def onboard(no_install_daemon, force):
