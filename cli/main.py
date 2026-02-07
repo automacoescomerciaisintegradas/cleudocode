@@ -3,10 +3,25 @@ import os
 import sys
 import json
 import subprocess
+import webbrowser
+import time
+from pathlib import Path
+
+# Fix encoding for Windows
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 from rich.console import Console
 from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 console = Console()
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 @click.group()
 def cli():
@@ -84,6 +99,116 @@ def start():
 
     console.print("\n[bold green]✅ Todos os serviços foram disparados![/bold green]")
     console.print("Acesse a interface em: [bold]http://localhost:18900[/bold]")
+
+@cli.command()
+@click.option('--port', default=8501, help='Porta do dashboard (padrão: 8501)')
+@click.option('--no-browser', is_flag=True, help='Não abre o navegador automaticamente')
+def dashboard(port, no_browser):
+    """Abre o Dashboard Web com autenticação automática"""
+    try:
+        # Import config manager
+        from core.config_manager import get_config_manager
+        
+        console.print("[bold blue]🚀 Iniciando Cleudocode Dashboard...[/bold blue]\n")
+        
+        # Get or create token
+        config_manager = get_config_manager()
+        token = config_manager.get_or_create_token()
+        
+        console.print(f"[green]✓[/green] Token de autenticação: [cyan]{token[:8]}...{token[-4:]}[/cyan]")
+        
+        # Check if dashboard is already running
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('localhost', port))
+        sock.close()
+        
+        dashboard_url = f"http://localhost:{port}?token={token}"
+        
+        if result == 0:
+            # Dashboard already running
+            console.print(f"[yellow]⚠[/yellow]  Dashboard já está rodando na porta {port}")
+            console.print(f"[green]✓[/green] URL: [link={dashboard_url}]{dashboard_url}[/link]\n")
+            
+            if not no_browser:
+                console.print("[blue]🌐 Abrindo navegador...[/blue]")
+                webbrowser.open(dashboard_url)
+        else:
+            # Start dashboard
+            console.print(f"[blue]📊 Iniciando dashboard na porta {port}...[/blue]")
+            
+            # Find streamlit app
+            streamlit_app = project_root / "web_app.py"
+            if not streamlit_app.exists():
+                streamlit_app = project_root / "streamlit_app.py"
+            
+            if not streamlit_app.exists():
+                console.print("[red]❌ Arquivo do dashboard não encontrado![/red]")
+                console.print("[yellow]Procurado em:[/yellow]")
+                console.print(f"  - {project_root / 'web_app.py'}")
+                console.print(f"  - {project_root / 'streamlit_app.py'}")
+                return
+            
+            # Start streamlit in background
+            cmd = [
+                sys.executable, "-m", "streamlit", "run",
+                str(streamlit_app),
+                "--server.port", str(port),
+                "--server.headless", "true",
+                "--browser.gatherUsageStats", "false"
+            ]
+            
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=str(project_root)
+            )
+            
+            console.print(f"[green]✓[/green] Dashboard iniciado (PID: {process.pid})")
+            
+            # Wait for dashboard to be ready
+            console.print("[blue]⏳ Aguardando dashboard ficar pronto...[/blue]")
+            
+            max_attempts = 30
+            for attempt in range(max_attempts):
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(('localhost', port))
+                sock.close()
+                
+                if result == 0:
+                    console.print(f"[green]✓[/green] Dashboard pronto!\n")
+                    break
+                
+                time.sleep(1)
+            else:
+                console.print("[yellow]⚠[/yellow]  Dashboard demorou para iniciar, mas pode estar funcionando...\n")
+            
+            console.print(f"[green]✓[/green] URL: [link={dashboard_url}]{dashboard_url}[/link]\n")
+            
+            if not no_browser:
+                console.print("[blue]🌐 Abrindo navegador...[/blue]")
+                time.sleep(2)  # Give it a bit more time
+                webbrowser.open(dashboard_url)
+            
+            console.print("\n[bold green]✅ Dashboard rodando![/bold green]")
+            console.print("[dim]Pressione Ctrl+C para parar o dashboard[/dim]")
+            
+            try:
+                process.wait()
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Parando dashboard...[/yellow]")
+                process.terminate()
+                process.wait()
+                console.print("[green]Dashboard parado.[/green]")
+    
+    except ImportError as e:
+        console.print(f"[red]❌ Erro ao importar módulos: {e}[/red]")
+        console.print("[yellow]Certifique-se de que está no diretório do projeto.[/yellow]")
+    except Exception as e:
+        console.print(f"[red]❌ Erro ao iniciar dashboard: {e}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
 
 @cli.command()
 def stop():

@@ -1,21 +1,63 @@
-# Checklist de Execução
+# TODO: Transformar Cleudocode em OpenClaw-like
 
-- [x] 1. Validar host OS (Ubuntu 24.04 Detectado: 24.04.3 LTS)
-- [x] 2. Instalar/Validar Docker CE + Compose plugin (Docker 29.2.1, Compose v5.0.2)
-- [x] 3. Garantir dockerd rodando (Validado via version)
-- [x] 4. Validar e preparar Repositório (Presente em /root/cleudocode)
-- [x] 5. Ajustar Dockerfile para base `ubuntu:24.04` (Base Ubuntu + Venv configurado)
-- [x] 6. Build da imagem `cleudocode:local` (Sucesso em Ubuntu 24.04)
-- [ ] 7. Preparar volumes e configurações (env, permissions)
-- [x] 8. Subir `cleudocode-gateway` (Reiniciado com suporte a Whisper)
-- [x] 9. Executar Onboarding (OpenAI API Key configurada com sucesso)
-- [x] 10. Configurar e Parear Telegram (Token configurado e serviço reiniciado)
-- [x] 11. Instalar dependências Whisper (ffmpeg, faster-whisper adicionados)
-- [x] 12. Integrar Whisper nos Gateways (Telegram/WhatsApp) para áudio
+## Fase 1: Estrutura Base ✅
+- [x] Criar arquivos UCM (context.md, todos.md, insights.md)
+- [x] Criar diretório ~/.cleudocode/
+- [x] Criar config.yaml base
+- [x] Gerar gateway token seguro
+- [x] Criar estrutura de workspace
 
-## 🚀 Fase: Controle de Missão (Esquadrão de Agentes)
-- [x] 13. Criar Agente Jarvis (Líder do Controle de Missão) em `agents/jarvis.md`
-- [x] 14. Implementar Protocolo de Comunicação Inter-Agentes (Orchestrator Delegation)
-- [x] 15. Criar Dashboard de Status dos Agentes na Interface Web
-- [x] 16. Automatizar Loop de Tarefas (Delegação e Consenso via Jarvis)
+## Fase 2: CLI Aprimorado ⏳
+- [x] Adicionar comando `cleudocode dashboard`
+- [x] Implementar autenticação via token no CLI
+- [ ] Adicionar comando `cleudocode init` (setup inicial)
+- [ ] Adicionar comando `cleudocode skills` (gerenciar skills)
+- [ ] Adicionar comando `cleudocode chat` (chat direto no terminal)
+- [ ] Melhorar comando `cleudocode config` para editar config.yaml
 
+## Fase 3: Sistema de Configuração ✅
+- [x] Criar parser de config.yaml
+- [x] Migrar configurações de .env para config.yaml
+- [x] Implementar validação de configuração
+- [x] Adicionar suporte a múltiplos perfis
+
+## Fase 4: Dashboard com Autenticação ✅
+- [x] Implementar autenticação via token no dashboard
+- [x] Criar endpoint /auth com validação de token
+- [x] Adicionar middleware de autenticação
+- [x] Criar página de login/token input
+- [x] Implementar auto-login via URL com token
+
+## Fase 5: Gateway Multi-Canal
+- [ ] Refatorar gateway para suportar múltiplos canais
+- [ ] Implementar adaptadores para cada canal (Telegram, Discord, WhatsApp)
+- [ ] Adicionar sistema de roteamento de mensagens
+- [ ] Implementar fila de mensagens
+
+## Fase 6: Skills/Plugins System
+- [ ] Criar estrutura de skills
+- [ ] Implementar skill loader
+- [ ] Adicionar marketplace de skills
+- [ ] Criar sistema de versionamento de skills
+- [ ] Implementar sandboxing para skills
+
+## Fase 7: Melhorias de UX
+- [ ] Adicionar progress bars e spinners no CLI
+- [ ] Melhorar mensagens de erro
+- [ ] Adicionar modo verbose/debug
+- [ ] Criar wizard interativo de setup
+- [ ] Adicionar auto-complete para comandos
+
+## Fase 8: Documentação
+- [ ] Atualizar README.md
+- [ ] Criar guia de início rápido
+- [ ] Documentar API do gateway
+- [ ] Criar guia de desenvolvimento de skills
+- [ ] Adicionar exemplos de uso
+
+## Prioridade Imediata (Hoje)
+1. Criar estrutura ~/.cleudocode/
+2. Implementar config.yaml
+3. Gerar gateway token
+4. Adicionar comando `cleudocode dashboard`
+5. Implementar autenticação no dashboard

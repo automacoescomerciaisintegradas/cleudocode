@@ -10,6 +10,17 @@ import rag_engine
 # Carregar variáveis de ambiente
 load_dotenv()
 
+# === AUTENTICAÇÃO (OpenClaw-like) ===
+# Importar middleware de autenticação
+try:
+    from core.auth_middleware import require_authentication, show_auth_status
+    # Verificar autenticação antes de carregar o app
+    require_authentication()
+except ImportError:
+    # Se não conseguir importar, continuar sem autenticação (fallback)
+    st.warning("⚠️ Módulo de autenticação não encontrado. Rodando sem autenticação.")
+    pass
+
 # Configurações
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip('/')
 MODEL = os.getenv("DEEPSEEK_MODEL", "qwen2.5-coder:7b")
@@ -184,12 +195,22 @@ def chat_with_ollama_stream(messages):
         yield f"❌ Erro de Conexão: {str(e)}"
 
 import re
-from core import sandbox_manager
+
+# Importar sandbox_manager opcionalmente (requer Docker)
+try:
+    from core import sandbox_manager
+    SANDBOX_AVAILABLE = True
+except ImportError:
+    SANDBOX_AVAILABLE = False
+    sandbox_manager = None
 
 def parse_and_execute_tools_in_sandbox(llm_response):
     """
     Encontra tags <tool>, extrai seu conteúdo e o envia para execução no sandbox.
     """
+    if not SANDBOX_AVAILABLE:
+        return None  # Sandbox não disponível
+    
     # A regex agora só precisa encontrar se existe alguma tag <tool>
     pattern = r'<tool code="[^"]+">.*?</tool>'
     match = re.search(pattern, llm_response, re.DOTALL)
@@ -221,6 +242,13 @@ def save_history():
 # --- Sidebar (Controles) ---
 with st.sidebar:
     st.title("⚙️ Controles")
+    
+    # Mostrar status de autenticação
+    try:
+        from core.auth_middleware import show_auth_status
+        show_auth_status()
+    except:
+        pass
     
     # Mascarar dados sensíveis
     display_host = "cleudocode.automacoescomerciais.com.br"
