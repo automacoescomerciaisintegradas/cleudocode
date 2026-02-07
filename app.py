@@ -14,34 +14,13 @@ MODEL = os.getenv("DEEPSEEK_MODEL", "qwen2.5:14b")
 # Histórico da conversa em memória
 conversation_history = []
 
-def chat_with_ollama(messages):
+def chat_with_llm(messages):
     """
-    Envia o histórico completo de mensagens para o Ollama (Padrão Open Responses)
+    Envia o histórico de mensagens para o Hub de LLMs (OpenAI/Ollama)
     """
-    url = f"{OLLAMA_HOST}/v1/chat/completions"
-    
-    payload = {
-        "model": MODEL,
-        "messages": messages,
-        "stream": False
-    }
-    
     try:
-        # print(f"DEBUG: Enviando {len(messages)} mensagens...")
-        response = requests.post(url, json=payload)
-        response.raise_for_status()
-        
-        data = response.json()
-        
-        if "choices" in data and len(data["choices"]) > 0:
-            return data["choices"][0]["message"]["content"]
-        else:
-            return f"Erro: Formato inesperado: {json.dumps(data, indent=2)}"
-            
-    except requests.exceptions.ConnectionError:
-        return "Erro: Falha na conexão com o servidor Ollama."
-    except requests.exceptions.HTTPError as e:
-        return f"Erro HTTP {e.response.status_code}: {e.response.text}"
+        from core.llm_providers import llm_hub
+        return llm_hub.query(messages)
     except Exception as e:
         return f"Erro: {str(e)}"
 
@@ -130,7 +109,7 @@ if __name__ == "__main__":
             conversation_history.append({"role": "user", "content": user_input})
             
             print("Processando...")
-            response_content = chat_with_ollama(conversation_history)
+            response_content = chat_with_llm(conversation_history)
             
             print(f"Assistente: {response_content}")
             

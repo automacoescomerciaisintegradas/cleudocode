@@ -1,0 +1,75 @@
+:root {
+  /* Palette */
+  --primary-main: #E54D42;
+  --primary-contrast: #FFFFFF;
+
+  --bg-default: #F9FAFB;
+  --bg-paper: #FFFFFF;
+  --bg-sidebar: #F3F4F6;
+
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-disabled: #9CA3AF;
+
+  --status-success: #10B981;
+  --status-error-bg: #FEE2E2;
+  --status-error-text: #991B1B;
+
+  --border-color: #E5E7EB;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing */
+  --radius-button: 6px;
+  --radius-card: 8px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-default);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.card {
+  background: var(--bg-paper);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--primary-main);
+  color: var(--primary-contrast);
+  border: none;
+  border-radius: var(--radius-button);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+}
+
+.btn-ghost.active {
+  background-color: var(--status-error-bg);
+  color: var(--primary-main);
+  border-radius: var(--radius-button);
+}

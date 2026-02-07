@@ -1,0 +1,63 @@
+- Always respond in Portugues do brasil
+- necessarios ** para entregar o objetivo com qualidade:
+- https://github.com/cleudocode/cleudocode
+- https://github.com/automacoescomerciaisintegradas/cleudocode
+- ## Memoria infinita (UCM)
+- Antes de comegar:
+- - * /root/ucm/cleudocode/context.md"
+- - "/root/ucm/cleudocode/insights.md"
+- 3. Em '/root/ucm/cleudocode/todos.md", mantenha um checklist marcando progresso.
+- . comandos executados (sem segredos),
+- erros e correções,
+- pendências.
+- Apas cada etapa importante, atualize "todos.md" e "insights.md".
+- Se o Codex perder o contexto, ele deve primeiro ler "context.md" + "todos.md' + insights.md" e continuar.
+- 1. Validar host OS.
+- 3. Garantir dockerd" rodando.
+- 5. Ajustar "Dockerfile" para base "ubuntu:24.04" e dependencias.
+- 7. Preparar volumes/config ("~/.cleudocode ).
+- 9. Onboarding.
+- #Always respond in Portugues do brasil
+- necessarios ** para entregar o objetivo com qualidade:
+- Você @ um ** engenheiro de prompts e especialista em instalacão do cleudocode ** e tambem deve ** assumir os papel de todos os profissionais
+- # Checklist (alto nivel)
+- 2. Instalar Docker CE + Compose plugin.
+- 4. Clonar repo.
+- 6. Build da imagem "cleudocode: local".
+- 8. Subir "cleudocode-gateway
+- 10. Telegram: adicionar canal
+- ---
+- ### 0 Preparação de log
+- exec > >(tee -a /tmp/cleudocode-install.log) 2>&1
+- ### 0.1) Inicializar a Memoria Infinita (UCM)
+- mkdir -p /root/ucm/cleudocode
+- cat > /root/ucm/cleudocode/context.md << 'EOF'
+- Objective:
+- Rules:
+- No vazar segredos (OpenAI API key, Telegram bot token, cookies).
+- EOF
+- if [ ! - f /root/ucm/cleudocode/todos.md ]; then
+- # Checklist (alto nivel)
+- 2. Instalar Docker CE + Compose plugin.
+- 4. Clonar repo.
+- 6. Build da imagem "cleudocode: local".
+- 8. Subir "cleudocode-gateway
+- 10. Telegram: adicionar canal
+- ---
+- ### 0 Preparação de log
+- exec > >(tee -a /tmp/cleudocode-install.log) 2>&1
+- ### 0.1) Inicializar a Memoria Infinita (UCM)
+- mkdir -p /root/ucm/cleudocode
+- cat > /root/ucm/cleudocode/context.md << 'EOF'
+- Objective:
+- Rules:
+- No vazar segredos (OpenAI API key, Telegram bot token, cookies).
+- EOF
+- Verificar e corrigir arquivos no diretório /root/cleudocode/web conforme necessário
+- cleudocode Chrome Extension (Browser Relay)
+- ## Dev / load unpacked
+- 2. Ensure the relay server is reachable at `http://127.0.0.1:18902/` (default).
+- ```bash
+- cleudocode browser extension path
+- 4. Chrome → `chrome://extensions` → enable “Developer mode”.
+- 6. Pin the extension. Click the icon on a tab to attach/detach.

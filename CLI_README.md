@@ -58,6 +58,24 @@ Show current configuration:
 cleudocode config
 ```
 
+### Channels
+
+Manage communication channels (Telegram, Discord, etc.):
+
+```bash
+# Add a new channel token
+cleudocode channels add --channel telegram --token "<YOUR_TOKEN>"
+```
+
+### Memory
+
+Manage RAG memory and exports:
+
+```bash
+# Export memory to NotebookLM format
+cleudocode memory export
+```
+
 ## Onboarding Process
 
 The `cleudocode onboard` command will guide you through the following steps:

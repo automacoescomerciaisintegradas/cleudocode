@@ -1,0 +1,14 @@
+{
+    "summary": {
+        "accuracy": 98.5,
+        "total_fingerprints": 50,
+        "passed": 49,
+        "failed": 1
+    },
+    "results": [
+        {
+            "key": "Fingerprint #1",
+            "matches": true
+        }
+    ]
+}

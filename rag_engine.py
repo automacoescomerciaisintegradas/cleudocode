@@ -1,7 +1,13 @@
 import os
 import requests
-import chromadb
-from chromadb.utils import embedding_functions
+try:
+    import chromadb
+    from chromadb.utils import embedding_functions
+    HAS_CHROMADB = True
+except ImportError:
+    HAS_CHROMADB = False
+    print("chromadb não encontrado ou incompatível. RAG estará desativado.")
+
 from pypdf import PdfReader
 import uuid
 
@@ -12,34 +18,77 @@ COLLECTION_NAME = "llmp2p_memory"
 
 class RAGBrain:
     def __init__(self):
+        if not HAS_CHROMADB:
+            self.collection = None
+            print("RAGBrain em modo STUB (chromadb ausente).")
+            return
+
+        # Auto-correção de host
+        global OLLAMA_HOST
+        if os.path.exists('/.dockerenv'):
+            if "localhost" in OLLAMA_HOST or "127.0.0.1" in OLLAMA_HOST:
+                OLLAMA_HOST = OLLAMA_HOST.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
+        else:
+            if "host.docker.internal" in OLLAMA_HOST:
+                OLLAMA_HOST = OLLAMA_HOST.replace("host.docker.internal", "localhost")
+
         # ChromaDB Persistente na pasta 'memory_db'
         self.client = chromadb.PersistentClient(path="memory_db")
-        
-        # Como o Chroma não tem func nativa para Ollama, faremos manual ou usaremos requests simples
-        # vamos criar uma collection. Nota: Chroma requer uma embedding function por padrão.
-        # Vamos implementar uma classe customizada simples para o Ollama.
-        self.collection = self.client.get_or_create_collection(
-            name=COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine"} # Cosine similarity é bom para texto
-        )
+        # ... rest of init logic (omitted for brevity in replacement, but I will include it)
+        try:
+            self.collection = self.client.get_collection(name=COLLECTION_NAME)
+            test_embedding = self._generate_embedding("test")
+            if test_embedding:
+                try:
+                    query_result = self.collection.query(
+                        query_embeddings=[test_embedding],
+                        n_results=1
+                    )
+                except Exception as e:
+                    if "dimension" in str(e).lower():
+                        print(f"Dimensão de embedding incompatível detectada: {str(e)}")
+                        print("Recriando collection...")
+                        self.client.delete_collection(COLLECTION_NAME)
+                        self.collection = self.client.get_or_create_collection(
+                            name=COLLECTION_NAME,
+                            metadata={"hnsw:space": "cosine"}
+                        )
+                    else:
+                        raise e
+        except:
+            self.collection = self.client.get_or_create_collection(
+                name=COLLECTION_NAME,
+                metadata={"hnsw:space": "cosine"}
+            )
         
     def _generate_embedding(self, text):
-        """Gera embedding usando a API do Ollama"""
+        """Gera embedding usando a API do Ollama com fallback local"""
         url = f"{OLLAMA_HOST}/api/embeddings"
         payload = {
             "model": MODEL,
             "prompt": text
         }
+        
+        # 1. Tenta via Ollama
         try:
-            response = requests.post(url, json=payload)
+            response = requests.post(url, json=payload, timeout=2) # Timeout curto para fallback rápido
             if response.status_code == 200:
                 data = response.json()
                 return data["embedding"]
-            else:
-                print(f"Erro no Embedding: {response.text}")
-                return None
+        except Exception:
+            pass # Silencia erro para tentar o fallback
+            
+        # 2. Fallback Local (Usando a função padrão do ChromaDB)
+        # Nota: Isso pode baixar um modelo pequeno (~20MB) na primeira vez
+        try:
+            if not hasattr(self, 'local_ef'):
+                from chromadb.utils import embedding_functions
+                self.local_ef = embedding_functions.DefaultEmbeddingFunction()
+                print("Usando Fallback Local para Embeddings (Ollama Offline)")
+            
+            return self.local_ef([text])[0]
         except Exception as e:
-            print(f"Exceção no Embedding: {e}")
+            print(f"Falha crítica em ambos os métodos de embedding: {e}")
             return None
 
     def add_document(self, content, filename, doc_type):
@@ -81,6 +130,9 @@ class RAGBrain:
 
     def search(self, query, n_results=3):
         """Busca contexto relevante para a query"""
+        if not HAS_CHROMADB or not self.collection:
+            return []
+            
         query_vector = self._generate_embedding(query)
         if not query_vector:
             return []
@@ -138,3 +190,55 @@ def extract_text_from_pdf(file_stream):
         return text
     except Exception as e:
         return str(e)
+
+import os
+import datetime
+
+def export_memory_for_notebooklm(rag_brain):
+    """
+    Exporta todo o conteúdo do RAG (ChromaDB) para um único arquivo Markdown/Texto
+    otimizado para importação no Google NotebookLM.
+    """
+    output_dir = "exports"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{output_dir}/NotebookLM_Sync_{timestamp}.txt"
+    
+    try:
+        # Pega todos os documentos da coleção
+        # Nota: ChromaDB permite pegar via .get()
+        data = rag_brain.collection.get()
+        
+        documents = data['documents']
+        metadatas = data['metadatas']
+        
+        if not documents:
+            return False, "Nenhum documento encontrado na memória para sincronizar."
+            
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(f"# Sincronização LLM P2P Chat -> NotebookLM\n")
+            f.write(f"Data: {timestamp}\n")
+            f.write(f"Total de Fragmentos: {len(documents)}\n\n")
+            
+            # Agrupa por Fonte para ficar organizado
+            sources = {}
+            for doc, meta in zip(documents, metadatas):
+                source_name = meta.get('source', 'Desconhecido')
+                if source_name not in sources:
+                    sources[source_name] = []
+                sources[source_name].append(doc)
+            
+            for source, docs in sources.items():
+                f.write(f"--- INICIO FONTE: {source} ---\n")
+                # Junta os chunks e escreve
+                full_text = "\n".join(docs)
+                f.write(full_text)
+                f.write(f"\n--- FIM FONTE: {source} ---\n\n")
+                
+        return True, f"Arquivo de Sincronização gerado: {os.path.abspath(filename)}"
+        
+    except Exception as e:
+        return False, f"Erro na exportação: {str(e)}"
+

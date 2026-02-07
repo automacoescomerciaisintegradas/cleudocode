@@ -98,7 +98,13 @@ def executar_workflow(workflow_name: str, variables: dict = None):
     # Executar
     print(f"Iniciando execução...\n")
     
-    result = lobster.execute(workflow_name, variables=variables)
+    # Merge environment variables
+    import os
+    env_vars = dict(os.environ)
+    if variables:
+        env_vars.update(variables)
+        
+    result = lobster.execute(workflow_name, variables=env_vars)
     
     # Exibir resultados
     print("\n" + "="*70)

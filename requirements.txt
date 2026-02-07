@@ -1,6 +1,6 @@
 # ============================================
 # CLEUDO CODE - Requirements
-# CLEUDO CODE System v0.50.0
+# CLEUDO CODE System v0.50.1
 # ============================================
 
 # Web Framework
@@ -36,3 +36,11 @@ itsdangerous>=2.1.2
 
 # Docker SDK (para Sandbox)
 docker>=7.0.0
+
+# Chat Bots & Gateways
+python-telegram-bot>=20.0.0
+discord.py>=2.3.0
+openai>=1.0.0
+# Audio Transcription (Whisper)
+faster-whisper>=1.0.0
+pydub>=0.25.1

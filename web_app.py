@@ -5,6 +5,7 @@ import os
 import datetime
 from dotenv import load_dotenv
 import base64
+import rag_engine
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -299,7 +300,6 @@ with st.sidebar:
                 "content": f"Conteúdo do arquivo '{uploaded_file.name}':\n\n{content}"
             })
             st.success(f"Arquivo '{uploaded_file.name}' adicionado!")
-import rag_engine
 
 # --- Inicialização RAG Brain ---
 if "rag_brain" not in st.session_state:

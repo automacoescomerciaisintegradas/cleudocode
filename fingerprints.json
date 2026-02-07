@@ -1,0 +1,14 @@
+[
+    {
+        "key": "Qual é a missão principal do CleudoCode?",
+        "target": "Ajudar você a orquestrar fluxos de trabalho inteligentes e gerenciar suas integrações de forma eficiente."
+    },
+    {
+        "key": "Como o Harbor gerencia agentes?",
+        "target": "Através da herança da classe BaseAgent e implementação dos métodos name e run."
+    },
+    {
+        "key": "[FINGERPRINT-CLI-STATUS]",
+        "target": "cleudocode status"
+    }
+]

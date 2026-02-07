@@ -15,6 +15,11 @@ class SkillManager:
     def __init__(self):
         self.skills: Dict[str, BaseSkill] = {}
         self._register_defaults()
+        self.extension_manager = None  # Será definido após inicialização
+        
+    def set_extension_manager(self, extension_manager):
+        """Define o gerenciador de extensões."""
+        self.extension_manager = extension_manager
         
     def _register_defaults(self):
         self.register(ShellSkill())

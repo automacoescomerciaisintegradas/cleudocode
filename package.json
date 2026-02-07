@@ -1,18 +1,28 @@
 {
-  "name": "cleudocode-browser-agent",
-  "version": "1.0.0",
-  "description": "Production implementation of CleudoCode Browser Automation",
-  "main": "agent_browser_cli.py",
+  "name": "cleudocode",
+  "version": "2026.2.4",
+  "description": "CleudoCode Unified CLI & Gateway",
+  "bin": {
+    "cleudocode": "./dist/cli/index.js"
+  },
   "scripts": {
-    "setup": "python agent-browser/scripts/setup_production.py",
-    "start": "python agent-browser/agent_browser_cli.py IA",
-    "test": "playwright test"
+    "build": "tsc",
+    "start": "node dist/cli/index.js",
+    "dev": "ts-node src/cli/index.ts"
   },
   "dependencies": {
-    "playwright": "latest"
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "conf": "^10.2.0",
+    "inquirer": "^8.2.5",
+    "open": "^11.0.0",
+    "ora": "^5.4.1"
   },
-  "engines": {
-    "node": ">=18.0.0",
-    "python": ">=3.10.0"
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }

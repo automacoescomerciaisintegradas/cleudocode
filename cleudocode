@@ -1,0 +1,3 @@
+#!/bin/bash
+# Wrapper script to run Cleudocode CLI
+node /root/cleudocode/dist/cli/index.js "$@"

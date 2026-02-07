@@ -1,886 +1,635 @@
+// CLEUDOCODE - Modern Web Interface
+// JavaScript para controlar a interface HTML moderna
 
-// State
-let currentChatHistory = [];
+class CleudoApp {
+    constructor() {
+        this.currentView = 'chat';
+        this.messages = [];
+        this.playgroundBlocks = [
+            { role: 'system', content: 'You are a helpful AI assistant.' },
+            { role: 'user', content: '' }
+        ];
 
-document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    // DOM Elements
-    const viewDashboard = document.getElementById('view-dashboard');
-    const viewChat = document.getElementById('view-chat');
-    const viewPlayground = document.getElementById('view-playground');
-    const viewLock = document.getElementById('view-lock');
+        this.init();
+    }
 
-    const btnNavChat = document.getElementById('nav-chat');
-    const btnNavMemory = document.getElementById('nav-memory');
-    const btnNavPlayground = document.getElementById('nav-playground');
-    const btnNewChat = document.getElementById('btn-new-chat');
+    init() {
+        this.setupNavigation();
+        this.setupChat();
+        this.setupMemory();
+        this.setupPlayground();
+        this.setupSquad();
+        this.setupPulse(); // New
+        this.setupMarket(); // New
+        this.setupTerminalTabs();
+        this.loadInitialView();
+        this.pollSentientStatus();
+        this.pollSquadStatus();
+        this.pollSystemPulse(); // New
+        this.fetchLocalSkills(); // New
+    }
 
-    // Header Auth Elements
-    const btnLoginHeader = document.getElementById('btn-login-header');
-    const userProfileGroup = document.getElementById('user-profile-group');
+    async pollSentientStatus() {
+        const updateStatus = async () => {
+            try {
+                const res = await fetch('/api/sentient/status');
+                const data = await res.json();
+                const statusEl = document.getElementById('sentient-status');
+                if (statusEl) {
+                    const color = data.oml_loyalty === 'verified' ? 'text-indigo-400' : 'text-amber-400';
+                    const dotColor = data.oml_loyalty === 'verified' ? 'bg-indigo-500' : 'bg-amber-500';
+                    statusEl.innerHTML = `
+                        <span class="w-1.5 h-1.5 ${dotColor} rounded-full"></span>
+                        OML ${data.oml_loyalty.toUpperCase()} // ${data.node_id}
+                    `;
+                    statusEl.className = `flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-widest ${color} mt-1`;
+                }
+            } catch (e) { console.error('Sentient Status Error:', e); }
+        };
+        updateStatus();
+        setInterval(updateStatus, 10000);
+    }
 
-    const chatContainer = document.getElementById('chat-container');
-    const chatInput = document.getElementById('chat-input');
-    const btnSend = document.getElementById('btn-send');
+    async pollSquadStatus() {
+        const updateSquad = async () => {
+            try {
+                const res = await fetch('/api/mission-control/status');
+                const data = await res.json();
+                this.renderSquadStatus(data);
+            } catch (e) { console.error('Squad Status Error:', e); }
+        };
+        updateSquad();
+        setInterval(updateSquad, 5000);
+    }
 
-    // All nav buttons for easier management
-    const allNavButtons = [btnNavChat, btnNavMemory, btnNavPlayground];
-    const allViews = [viewDashboard, viewChat, viewPlayground];
+    async pollSystemPulse() {
+        const updatePulse = async () => {
+            if (this.currentView !== 'pulse') return;
+            try {
+                const res = await fetch('/api/system/pulse');
+                const data = await res.json();
+                this.renderPulse(data);
+            } catch (e) { console.error('Pulse Error:', e); }
+        };
+        updatePulse();
+        setInterval(updatePulse, 3000);
+    }
 
-    // View Switching
-    function switchView(viewName) {
-        // Hide all views
-        allViews.forEach(v => {
-            if (v) {
-                v.classList.add('hidden');
-                v.classList.remove('flex');
-            }
-        });
+    renderPulse(data) {
+        const cpuBar = document.getElementById('metric-cpu-bar');
+        const cpuText = document.getElementById('metric-cpu-text');
+        const ramBar = document.getElementById('metric-ram-bar');
+        const ramText = document.getElementById('metric-ram-text');
+        const ollamaStatus = document.getElementById('metric-ollama-status');
+        const ollamaDot = document.getElementById('metric-ollama-dot');
+        const uptimeEl = document.getElementById('pulse-uptime');
 
-        // Reset all nav buttons
-        allNavButtons.forEach(btn => {
-            if (btn) {
-                btn.classList.remove('text-primary', 'border-b-2', 'border-primary', 'font-semibold');
-                btn.classList.add('text-slate-500', 'dark:text-slate-400');
-            }
-        });
+        if (cpuBar) {
+            cpuBar.style.width = `${data.telemetry.cpu}%`;
+            cpuText.textContent = `${data.telemetry.cpu}%`;
+            if (data.telemetry.cpu > 80) cpuBar.className = 'h-full bg-red-500 transition-all duration-1000';
+            else cpuBar.className = 'h-full bg-emerald-500 transition-all duration-1000';
+        }
 
-        // Show selected view and highlight nav
-        if (viewName === 'chat') {
-            viewChat.classList.remove('hidden');
-            viewChat.classList.add('flex');
-            btnNavChat.classList.add('text-primary', 'border-b-2', 'border-primary', 'font-semibold');
-            btnNavChat.classList.remove('text-slate-500', 'dark:text-slate-400');
-        } else if (viewName === 'playground') {
-            viewPlayground.classList.remove('hidden');
-            btnNavPlayground.classList.add('text-primary', 'border-b-2', 'border-primary', 'font-semibold');
-            btnNavPlayground.classList.remove('text-slate-500', 'dark:text-slate-400');
-        } else {
-            // dashboard (memory)
-            viewDashboard.classList.remove('hidden');
-            btnNavMemory.classList.add('text-primary', 'border-b-2', 'border-primary', 'font-semibold');
-            btnNavMemory.classList.remove('text-slate-500', 'dark:text-slate-400');
+        if (ramBar) {
+            ramBar.style.width = `${data.telemetry.ram}%`;
+            ramText.textContent = `${data.telemetry.ram}%`;
+        }
+
+        if (ollamaStatus) {
+            const isOnline = data.telemetry.ollama === 'running';
+            ollamaStatus.textContent = data.telemetry.ollama;
+            ollamaStatus.className = `text-xs font-mono uppercase ${isOnline ? 'text-emerald-400' : 'text-red-400'}`;
+            ollamaDot.className = `w-4 h-4 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`;
+        }
+
+        if (uptimeEl) {
+            uptimeEl.textContent = 'STABLE';
         }
     }
 
-    // Event Listeners for Nav
-    btnNavChat.addEventListener('click', (e) => { e.preventDefault(); switchView('chat'); });
-    btnNavMemory.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
-    if (btnNavPlayground) {
-        btnNavPlayground.addEventListener('click', (e) => { e.preventDefault(); switchView('playground'); });
-    }
-    btnNewChat.addEventListener('click', (e) => {
-        e.preventDefault();
-        switchView('chat');
-        resetChat();
-    });
-
-    // Chat Logic
-    async function sendMessage() {
-        const text = chatInput.value.trim();
-        if (!text) return;
-
-        // UI Optimistic Update
-        addMessageToUI('user', text);
-        chatInput.value = '';
-
-        // Show Loading
-        const loadingId = addLoadingIndicator();
-
+    async fetchLocalSkills() {
         try {
-            const systemPrompt = document.getElementById('system-prompt').value;
-            const useRag = true; // Defaulting to on for now, or add toggle
+            const res = await fetch('/api/skills/local');
+            const data = await res.json();
+            this.renderLocalSkills(data.skills);
+        } catch (e) {
+            console.error('Local Skills Error:', e);
+            const statusEl = document.getElementById('local-skills-status');
+            if (statusEl) statusEl.textContent = 'Erro ao carregar habilidades localmente.';
+        }
+    }
 
+    renderLocalSkills(skills) {
+        const grid = document.getElementById('local-skills-grid');
+        const statusEl = document.getElementById('local-skills-status');
+        if (!grid) return;
+
+        if (statusEl) statusEl.textContent = `${skills.length} Habilidades Encontradas`;
+
+        grid.innerHTML = skills.map(skill => `
+            <div class="p-8 rounded-[2rem] bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                        <span class="material-symbols-outlined">${skill.type === 'Core' ? 'memory' : 'auto_fix'}</span>
+                    </div>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">${skill.type}</span>
+                </div>
+                <h4 class="text-lg font-black text-white uppercase tracking-tighter mb-2">${skill.name}</h4>
+                <p class="text-[10px] text-slate-500 font-mono mb-6">${skill.id}</p>
+                <button class="w-full py-3 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all border border-white/10 hover:bg-white/10">Ver Código</button>
+            </div>
+        `).join('');
+    }
+
+    setupMarket() {
+        console.log("Skill Marketplace initialized.");
+    }
+
+    renderSquadStatus(data) {
+        const grid = document.getElementById('agent-grid');
+        const log = document.getElementById('mission-log');
+        const activeCountEl = document.getElementById('stat-active-agents');
+        const totalCountEl = document.getElementById('stat-total-agents');
+
+        if (!grid || !log) return;
+
+        // Render Grid
+        const agents = data.agents || {};
+        const agentNames = Object.keys(agents);
+        totalCountEl.textContent = agentNames.length;
+
+        let activeCount = 0;
+        grid.innerHTML = agentNames.map(name => {
+            const status = agents[name];
+            const isActive = status.state === 'busy';
+            if (isActive) activeCount++;
+
+            const colorClass = isActive ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-white/5 bg-white/[0.02]';
+            const dotClass = isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-700';
+
+            return `
+                <div class="p-6 rounded-3xl border ${colorClass} transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                             <div class="w-2 h-2 rounded-full ${dotClass}"></div>
+                             <span class="text-[10px] font-black uppercase tracking-widest text-white">${name}</span>
+                        </div>
+                        <span class="text-[8px] font-bold uppercase ${isActive ? 'text-emerald-400' : 'text-slate-600'}">${status.state}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-mono line-clamp-2 min-h-[32px]">
+                        ${status.last_task || 'Waiting for mission...'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        activeCountEl.textContent = activeCount;
+
+        // Render Log
+        const history = data.mission_history || [];
+        if (history.length > 0) {
+            log.innerHTML = history.reverse().map(m => `
+                <div class="p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-[#FF5F5F]">
+                            <span class="material-symbols-outlined text-sm">rocket_launch</span>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black text-white uppercase tracking-widest">${m.task}</div>
+                            <div class="text-[8px] font-medium text-slate-600 uppercase mt-0.5">Assigned to: ${m.agent} // Status: ${m.status}</div>
+                        </div>
+                    </div>
+                    <div class="text-[8px] font-mono text-slate-700">${new Date(m.timestamp * 1000).toLocaleTimeString()}</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    setupNavigation() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const viewId = link.id.replace('nav-', '');
+                this.switchView(viewId);
+
+                // Update active state
+                navLinks.forEach(l => l.classList.remove('active', 'border-b-2', 'border-[#FF5F5F]', 'text-[#FF5F5F]'));
+                navLinks.forEach(l => l.classList.add('text-slate-500'));
+
+                link.classList.remove('text-slate-500');
+                link.classList.add('active', 'border-b-2', 'border-[#FF5F5F]', 'text-[#FF5F5F]');
+            });
+        });
+    }
+
+    switchView(viewId) {
+        // Hide all views
+        const views = ['view-chat', 'view-squad', 'view-memory', 'view-playground', 'view-market', 'view-pulse'];
+        views.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.add('hidden');
+            }
+        });
+
+        // Show selected view
+        const targetView = document.getElementById(`view-${viewId}`);
+        if (targetView) {
+            targetView.classList.remove('hidden');
+            this.currentView = viewId;
+        }
+    }
+
+    setupChat() {
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('btn-send');
+        const chatContainer = document.getElementById('chat-container');
+
+        const sendMessage = () => {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            this.addMessage('user', message);
+            chatInput.value = '';
+
+            // Simulate AI response
+            setTimeout(async () => {
+                const response = await this.generateResponse(message);
+                this.addMessage('assistant', response);
+            }, 1000);
+        };
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
+        });
+    }
+
+    addMessage(role, content) {
+        const chatContainer = document.getElementById('chat-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex gap-4';
+
+        const isUser = role === 'user';
+        const icon = isUser ? 'person' : 'smart_toy';
+        const bgColor = isUser ? 'bg-[#FF5F5F]' : 'bg-emerald-500';
+
+        messageDiv.innerHTML = `
+            <div class="w-8 h-8 rounded-full ${bgColor} text-white flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-sm">${icon}</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 ${isUser ? 'rounded-br-none' : 'rounded-bl-none'} shadow-sm flex-1">
+                <div class="text-sm text-white leading-relaxed font-mono">
+                    ${this.formatMessage(content)}
+                </div>
+            </div>
+        `;
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        this.messages.push({ role, content });
+    }
+
+    formatMessage(content) {
+        // Basic formatting for code blocks and commands
+        return content
+            .replace(/`([^`]+)`/g, '<code class="bg-black/30 px-1 py-0.5 rounded text-[#FF5F5F]">$1</code>')
+            .replace(/\n/g, '<br>');
+    }
+
+    async generateResponse(message) {
+        try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: text,
-                    use_rag: useRag,
-                    system_prompt: systemPrompt
-                })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            return data.success ? data.response : 'Erro ao processar mensagem.';
+        } catch (error) {
+            console.error('Erro na API:', error);
+            return 'Erro de conexão com o servidor.';
+        }
+    }
+
+    setupMemory() {
+        const dropArea = document.getElementById('drop-area-main');
+        const fileInput = document.getElementById('file-input-main');
+        const scrapeBtn = document.getElementById('btn-scrape');
+        const scrapeUrl = document.getElementById('scraping-url');
+
+        // File upload
+        dropArea.addEventListener('click', () => fileInput.click());
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('border-[#FF5F5F]/50', 'bg-[#FF5F5F]/5');
+        });
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('border-[#FF5F5F]/50', 'bg-[#FF5F5F]/5');
+        });
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('border-[#FF5F5F]/50', 'bg-[#FF5F5F]/5');
+            this.handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            this.handleFiles(e.target.files);
+        });
+
+        // URL scraping
+        scrapeBtn.addEventListener('click', () => {
+            const url = scrapeUrl.value.trim();
+            if (url) {
+                this.scrapeUrl(url);
+            }
+        });
+    }
+
+    async handleFiles(files) {
+        const statusEl = document.getElementById('scrape-status');
+        statusEl.textContent = `Processando ${files.length} arquivo(s)...`;
+        statusEl.classList.remove('hidden');
+
+        try {
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append('files', file);
+            });
+
+            const response = await fetch('/api/memory/upload', {
+                method: 'POST',
+                body: formData
             });
 
             const data = await response.json();
 
-            // Remove Loading
-            removeMessage(loadingId);
-
-            if (data.reply) {
-                addMessageToUI('assistant', data.reply);
-                if (data.context) {
-                    console.log("RAG Context:", data.context);
-                }
+            if (data.success) {
+                statusEl.textContent = `✅ ${data.message}`;
+                this.updateStats();
             } else {
-                addMessageToUI('assistant', 'Erro: ' + (data.error || 'Desconhecido'));
+                statusEl.textContent = `❌ ${data.message}`;
             }
-
         } catch (error) {
-            removeMessage(loadingId);
-            addMessageToUI('assistant', 'Erro de conexão: ' + error.message);
+            statusEl.textContent = '❌ Erro ao processar arquivos';
+            console.error('Erro:', error);
         }
     }
 
-    // Enter Key to Send
-    chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+    async scrapeUrl(url) {
+        const statusEl = document.getElementById('scrape-status');
+        statusEl.textContent = 'Extraindo conteúdo da URL...';
+        statusEl.classList.remove('hidden');
 
-    btnSend.addEventListener('click', sendMessage);
-
-    // --- ATTACH FILE IN CHAT ---
-    const btnAttachChat = document.getElementById('btn-attach-chat');
-    const chatFileInput = document.getElementById('chat-file-input');
-
-    if (btnAttachChat && chatFileInput) {
-        btnAttachChat.addEventListener('click', () => chatFileInput.click());
-
-        chatFileInput.addEventListener('change', async (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                const formData = new FormData();
-                formData.append('file', file);
-
-                // Show uploading state
-                addMessageToUI('user', `📎 Enviando arquivo: ${file.name}...`);
-
-                try {
-                    const res = await fetch('/api/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await res.json();
-
-                    if (data.filename) {
-                        addMessageToUI('assistant', `✅ Arquivo "${data.filename}" indexado com sucesso! Agora você pode fazer perguntas sobre ele.`);
-                    } else {
-                        addMessageToUI('assistant', `❌ Erro ao processar arquivo: ${data.error}`);
-                    }
-                } catch (err) {
-                    addMessageToUI('assistant', `❌ Erro de conexão: ${err.message}`);
-                }
-
-                chatFileInput.value = '';
-            }
-        });
-    }
-
-    // --- VOICE INPUT (SPEECH-TO-TEXT) ---
-    const btnMic = document.getElementById('btn-mic');
-    let isListening = false;
-    let recognition = null;
-
-    // Check if browser supports Speech Recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-        recognition.interimResults = true;
-
-        recognition.onstart = () => {
-            isListening = true;
-            btnMic.classList.add('bg-rose-500', 'text-white');
-            btnMic.classList.remove('text-slate-400');
-            btnMic.innerHTML = '<span class="material-symbols-outlined animate-pulse">mic</span>';
-            chatInput.placeholder = '🎤 Ouvindo... Fale agora!';
-        };
-
-        recognition.onend = () => {
-            isListening = false;
-            btnMic.classList.remove('bg-rose-500', 'text-white');
-            btnMic.classList.add('text-slate-400');
-            btnMic.innerHTML = '<span class="material-symbols-outlined">mic</span>';
-            chatInput.placeholder = 'Digite sua mensagem... (Enter para enviar)';
-        };
-
-        recognition.onresult = (event) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
-            }
-            chatInput.value = transcript;
-
-            // Auto-resize textarea
-            chatInput.style.height = 'auto';
-            chatInput.style.height = chatInput.scrollHeight + 'px';
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            if (event.error === 'not-allowed') {
-                alert('Permissão de microfone negada. Por favor, permita o acesso ao microfone nas configurações do navegador.');
-            }
-        };
-
-        btnMic.addEventListener('click', () => {
-            if (isListening) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
-        });
-    } else {
-        // Browser doesn't support speech recognition
-        btnMic.addEventListener('click', () => {
-            alert('Seu navegador não suporta reconhecimento de voz. Tente usar Chrome ou Edge.');
-        });
-        btnMic.title = 'Navegador não suportado';
-    }
-
-
-    // Helper: Add Message
-    function addMessageToUI(role, content) {
-        const div = document.createElement('div');
-        const isUser = role === 'user';
-
-        div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
-
-        const avatar = document.createElement('div');
-        avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-indigo-500 text-white' : 'bg-emerald-500 text-white'}`;
-        avatar.innerHTML = `<span class="material-symbols-outlined text-sm">${isUser ? 'person' : 'smart_toy'}</span>`;
-
-        const bubble = document.createElement('div');
-        bubble.className = `max-w-[80%] rounded-2xl p-4 ${isUser ? 'bg-indigo-500 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-bl-none shadow-sm'}`;
-
-        // Markdown parsing could go here, for now plain text
-        bubble.innerHTML = `<div class="prose ${isUser ? 'prose-invert' : 'dark:prose-invert'} text-sm max-w-none">${content.replace(/\n/g, '<br>')}</div>`;
-
-        div.appendChild(avatar);
-        div.appendChild(bubble);
-
-        chatContainer.appendChild(div);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        return div;
-    }
-
-    function addLoadingIndicator() {
-        const id = 'loading-' + Date.now();
-        const div = document.createElement('div');
-        div.id = id;
-        div.className = `flex gap-4`;
-        div.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-sm animate-spin">sync</span>
-            </div>
-            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 rounded-bl-none shadow-sm">
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></div>
-                    <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></div>
-                </div>
-            </div>
-        `;
-        chatContainer.appendChild(div);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        return id;
-    }
-
-    function removeMessage(id) {
-        const el = document.getElementById(id);
-        if (el) el.remove();
-    }
-
-    function resetChat() {
-        chatContainer.innerHTML = '';
-        // Could call API to reset history too
-        fetch('/api/reset', { method: 'POST' });
-        addMessageToUI('assistant', 'Olá! Como posso ajudar você hoje com seus projetos?');
-    }
-
-    // --- FEATURES RESTORATION ---
-
-    // 1. Load Agents
-    const agentSelect = document.getElementById('agent-select');
-    const systemPromptArea = document.getElementById('system-prompt');
-
-    async function loadAgents() {
-        if (!agentSelect) return;
         try {
-            const res = await fetch('/api/agents');
-            const data = await res.json();
-
-            // Clear except first option
-            agentSelect.innerHTML = '<option value="custom">Personalizado</option>';
-
-            data.agents.forEach(agent => {
-                const opt = document.createElement('option');
-                opt.value = agent;
-                opt.textContent = agent; // e.g., "qa.md"
-                agentSelect.appendChild(opt);
+            const response = await fetch('/api/memory/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url })
             });
-        } catch (e) {
-            console.error("Erro ao carregar agentes:", e);
+
+            const data = await response.json();
+
+            if (data.success) {
+                statusEl.textContent = `✅ ${data.message}`;
+                this.updateStats();
+            } else {
+                statusEl.textContent = `❌ ${data.message}`;
+            }
+        } catch (error) {
+            statusEl.textContent = '❌ Erro ao processar URL';
+            console.error('Erro:', error);
         }
     }
 
-    // Agent Selection Event
-    if (agentSelect) {
-        agentSelect.addEventListener('change', async (e) => {
-            const val = e.target.value;
-            if (val === 'custom') return;
+    updateStats() {
+        const docsEl = document.getElementById('stat-docs');
+        const tokensEl = document.getElementById('stat-tokens');
 
-            try {
-                const res = await fetch(`/api/agent/${val}`);
-                const data = await res.json();
-                if (data.content) {
-                    systemPromptArea.value = data.content;
-                    // Optional: Notify user
-                    const originalText = systemPromptArea.getAttribute('placeholder');
-                    systemPromptArea.setAttribute('placeholder', `Agente ${val} carregado...`);
-                    setTimeout(() => systemPromptArea.setAttribute('placeholder', originalText), 2000);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        });
-    }
-
-    // 2. Button Logic (Save & Clear)
-    const btnSaveHistory = document.getElementById('btn-save-history');
-    if (btnSaveHistory) {
-        btnSaveHistory.addEventListener('click', async () => {
-            const res = await fetch('/api/history', { method: 'POST' });
-            const data = await res.json();
-            alert(data.message || data.error);
-        });
-    }
-
-    const btnClearChat = document.getElementById('btn-clear-chat');
-    if (btnClearChat) {
-        btnClearChat.addEventListener('click', () => {
-            if (confirm("Tem certeza que deseja limpar toda a conversa?")) {
-                resetChat();
-            }
-        });
-    }
-
-    // 3. Update Memory Stats (Real) on Dashboard Load
-    async function updateStats() {
-        try {
-            const res = await fetch('/api/memory/stats');
-            const data = await res.json();
-
-            // Update UI elements if they exist (We need IDs in HTML)
-            const elDocs = document.getElementById('stat-docs');
-            const elTokens = document.getElementById('stat-tokens');
-
-            if (elDocs) elDocs.textContent = data.documents;
-            if (elTokens) elTokens.textContent = data.tokens_approx;
-        } catch (e) { console.warn(e); }
-    }
-
-    // Nav Click triggers stats update
-    btnNavMemory.addEventListener('click', updateStats);
-
-    // 4. NotebookLM Export
-    const btnExportNotebook = document.getElementById('btn-export-notebooklm');
-    if (btnExportNotebook) {
-        btnExportNotebook.addEventListener('click', async () => {
-            const originalText = btnExportNotebook.innerHTML;
-            btnExportNotebook.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Gerando...';
-            btnExportNotebook.disabled = true;
-
-            try {
-                const res = await fetch('/api/integrations/notebooklm', { method: 'POST' });
-                const data = await res.json();
-                alert(data.message || data.error);
-            } catch (err) {
-                alert('Erro ao exportar: ' + err.message);
-            }
-
-            btnExportNotebook.innerHTML = originalText;
-            btnExportNotebook.disabled = false;
-        });
-    }
-
-    // 5. Scraping Logic
-    const btnScrape = document.getElementById('btn-scrape');
-    const scrapingUrlInput = document.getElementById('scraping-url');
-    const scrapeStatus = document.getElementById('scrape-status');
-
-    if (btnScrape && scrapingUrlInput) {
-        btnScrape.addEventListener('click', async () => {
-            const url = scrapingUrlInput.value.trim();
-            if (!url) {
-                alert('Insira uma URL válida');
-                return;
-            }
-
-            // Show status
-            if (scrapeStatus) {
-                scrapeStatus.classList.remove('hidden', 'text-emerald-500', 'text-rose-500');
-                scrapeStatus.textContent = 'Processando URL...';
-            }
-
-            const originalText = btnScrape.innerHTML;
-            btnScrape.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Processando...';
-            btnScrape.disabled = true;
-
-            try {
-                const res = await fetch('/api/scrape', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
-                });
-                const data = await res.json();
-
-                if (scrapeStatus) {
-                    if (data.message) {
-                        scrapeStatus.textContent = "✓ Sucesso: " + data.message;
-                        scrapeStatus.classList.add('text-emerald-500');
-                        scrapingUrlInput.value = ''; // Clear input on success
-                    } else {
-                        scrapeStatus.textContent = "✗ Erro: " + (data.error || 'Desconhecido');
-                        scrapeStatus.classList.add('text-rose-500');
-                    }
-                }
-            } catch (err) {
-                if (scrapeStatus) {
-                    scrapeStatus.textContent = "✗ Erro de conexão: " + err.message;
-                    scrapeStatus.classList.add('text-rose-500');
-                }
-            }
-
-            // Restore button
-            btnScrape.innerHTML = originalText;
-            btnScrape.disabled = false;
-
-            // Refresh stats
-            updateStats();
-        });
-    }
-
-    // 6. Main Area Upload Logic (Drag & Drop + Button)
-    const dropAreaMain = document.getElementById('drop-area-main');
-    const fileInputMain = document.getElementById('file-input-main');
-    const btnProcessFiles = document.getElementById('btn-process-files');
-
-    // Reusable Upload Function
-    async function handleFileUpload(files) {
-        if (files.length === 0) return;
-
-        const originalText = dropAreaMain.innerHTML;
-        dropAreaMain.innerHTML = '<div class="flex flex-col items-center"><span class="material-symbols-outlined text-4xl animate-spin text-primary">sync</span><p class="mt-2 text-slate-500">Processando ' + files.length + ' arquivo(s)...</p></div>';
-
-        let successCount = 0;
-        let failCount = 0;
-
-        for (let i = 0; i < files.length; i++) {
-            const formData = new FormData();
-            formData.append('file', files[i]);
-
-            try {
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.filename) successCount++;
-                else failCount++;
-            } catch (e) { failCount++; }
+        if (docsEl) {
+            const currentDocs = parseInt(docsEl.textContent) || 0;
+            docsEl.textContent = currentDocs + 1;
         }
 
-        // Feedback
-        dropAreaMain.innerHTML = `<div class="flex flex-col items-center"><span class="material-symbols-outlined text-4xl text-emerald-500">check_circle</span><p class="mt-2 text-slate-600 font-bold">Concluído!</p><p class="text-xs text-slate-400">${successCount} sucesso(s), ${failCount} falha(s).</p></div>`;
-
-        // Refresh Stats
-        updateStats();
-
-        // Reset UI after 3s
-        setTimeout(() => {
-            dropAreaMain.innerHTML = originalText;
-        }, 3000);
-
-        fileInputMain.value = ''; // Reset input
+        if (tokensEl) {
+            const currentTokens = parseInt(tokensEl.textContent.replace('K', '')) || 0;
+            tokensEl.textContent = (currentTokens + Math.floor(Math.random() * 50) + 10) + 'K';
+        }
     }
 
-    if (dropAreaMain && fileInputMain) {
-        // Click behavior
-        dropAreaMain.addEventListener('click', () => fileInputMain.click());
+    setupPlayground() {
+        const runBtn = document.getElementById('btn-playground-run');
+        const addBtn = document.getElementById('btn-add-block');
+        const blocksContainer = document.getElementById('playground-blocks');
+        const outputContainer = document.getElementById('playground-output');
 
-        // Button behavior
-        if (btnProcessFiles) {
-            btnProcessFiles.addEventListener('click', () => fileInputMain.click());
+        if (runBtn) {
+            runBtn.addEventListener('click', () => this.runPlayground());
         }
 
-        // File Input Change
-        fileInputMain.addEventListener('change', (e) => {
-            handleFileUpload(e.target.files);
-        });
-
-        // Drag & Drop Events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropAreaMain.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        if (addBtn) {
+            addBtn.addEventListener('click', () => this.addPlaygroundBlock());
         }
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropAreaMain.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropAreaMain.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropAreaMain.classList.add('border-primary', 'bg-slate-50', 'dark:bg-slate-700');
-            dropAreaMain.classList.remove('border-slate-300', 'dark:border-slate-600');
-        }
-
-        function unhighlight(e) {
-            dropAreaMain.classList.remove('border-primary', 'bg-slate-50', 'dark:bg-slate-700');
-            dropAreaMain.classList.add('border-slate-300', 'dark:border-slate-600');
-        }
-
-        dropAreaMain.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFileUpload(files);
-        });
+        this.renderPlaygroundBlocks();
     }
 
-    // Initial Load
-    loadAgents();
-    updateStats();
+    renderPlaygroundBlocks() {
+        const container = document.getElementById('playground-blocks');
+        if (!container) return;
 
-    // Upload Logic (Existing...)
-    const uploadBtn = document.getElementById('btn-upload-trigger');
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.multiple = true;
-    fileInput.style.display = 'none';
-    document.body.appendChild(fileInput);
+        container.innerHTML = '';
 
-    uploadBtn.addEventListener('click', () => fileInput.click());
+        this.playgroundBlocks.forEach((block, index) => {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'bg-surface border border-white/10 rounded-2xl p-6';
 
-    fileInput.addEventListener('change', async (e) => {
-        if (e.target.files.length > 0) {
-            const formData = new FormData();
-            formData.append('file', e.target.files[0]);
-
-            const originalText = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<span class="material-symbols-outlined text-3xl animate-spin">sync</span><p class="text-xs">Enviando...</p>';
-
-            try {
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.filename) {
-                    alert('Arquivo ' + data.filename + ' indexado com sucesso!');
-                } else {
-                    alert('Erro: ' + data.error);
-                }
-            } catch (err) {
-                alert('Erro no upload: ' + err.message);
-            }
-
-            uploadBtn.innerHTML = originalText;
-            fileInput.value = ''; // Reset
-        }
-    });
-
-    // ===== PLAYGROUND LOGIC =====
-    const playgroundBlocks = document.getElementById('playground-blocks');
-    const btnAddBlock = document.getElementById('btn-add-block');
-    const btnPlaygroundRun = document.getElementById('btn-playground-run');
-    const btnPlaygroundReset = document.getElementById('btn-playground-reset');
-    const playgroundOutput = document.getElementById('playground-output');
-    const paramTemperature = document.getElementById('param-temperature');
-    const paramMaxTokens = document.getElementById('param-max-tokens');
-    const paramTopP = document.getElementById('param-top-p');
-    const tempValue = document.getElementById('temp-value');
-    const toppValue = document.getElementById('topp-value');
-
-    // Update slider display values
-    if (paramTemperature && tempValue) {
-        paramTemperature.addEventListener('input', () => {
-            tempValue.textContent = parseFloat(paramTemperature.value).toFixed(2);
-        });
-    }
-    if (paramTopP && toppValue) {
-        paramTopP.addEventListener('input', () => {
-            toppValue.textContent = parseFloat(paramTopP.value).toFixed(2);
-        });
-    }
-
-    // Add Block
-    if (btnAddBlock && playgroundBlocks) {
-        btnAddBlock.addEventListener('click', () => {
-            const newBlock = document.createElement('div');
-            newBlock.className = 'playground-block bg-slate-800 rounded-xl border border-slate-700 p-4';
-            newBlock.dataset.role = 'user';
-            newBlock.innerHTML = `
-                <div class="flex items-center gap-3 mb-3">
-                    <select class="block-role bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border-none focus:ring-primary">
-                        <option value="system">system</option>
-                        <option value="user" selected>user</option>
-                        <option value="assistant">assistant</option>
+            blockDiv.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <select class="bg-black border border-white/10 rounded-lg px-3 py-2 text-white text-sm" onchange="app.updateBlockRole(${index}, this.value)">
+                        <option value="system" ${block.role === 'system' ? 'selected' : ''}>System</option>
+                        <option value="user" ${block.role === 'user' ? 'selected' : ''}>User</option>
+                        <option value="assistant" ${block.role === 'assistant' ? 'selected' : ''}>Assistant</option>
                     </select>
-                    <button class="btn-delete-block p-1.5 text-slate-500 hover:text-rose-500 hover:bg-slate-700 rounded-lg transition-colors">
-                        <span class="material-symbols-outlined text-lg">delete</span>
+                    <button onclick="app.removePlaygroundBlock(${index})" class="text-slate-500 hover:text-red-400 transition-colors">
+                        <span class="material-symbols-outlined">delete</span>
                     </button>
                 </div>
-                <textarea class="block-content w-full bg-slate-900 text-slate-100 rounded-lg p-4 border border-slate-600 focus:ring-2 focus:ring-primary/50 resize-y min-h-[100px] text-sm font-mono" placeholder="Digite a mensagem..."></textarea>
-            `;
-            playgroundBlocks.appendChild(newBlock);
-            attachDeleteListener(newBlock.querySelector('.btn-delete-block'));
-        });
-    }
-
-    // Delete Block Function
-    function attachDeleteListener(btn) {
-        if (btn) {
-            btn.addEventListener('click', () => {
-                btn.closest('.playground-block').remove();
-            });
-        }
-    }
-
-    // Attach delete listeners to initial blocks
-    document.querySelectorAll('.btn-delete-block').forEach(attachDeleteListener);
-
-    // Execute Playground
-    if (btnPlaygroundRun && playgroundBlocks && playgroundOutput) {
-        btnPlaygroundRun.addEventListener('click', async () => {
-            // Collect messages
-            const blocks = playgroundBlocks.querySelectorAll('.playground-block');
-            const messages = [];
-
-            blocks.forEach(block => {
-                const role = block.querySelector('.block-role').value;
-                const content = block.querySelector('.block-content').value.trim();
-                if (content) {
-                    messages.push({ role, content });
-                }
-            });
-
-            if (messages.length === 0) {
-                alert('Adicione pelo menos uma mensagem com conteúdo.');
-                return;
-            }
-
-            // Get parameters
-            const temperature = paramTemperature ? parseFloat(paramTemperature.value) : 0.7;
-            const maxTokens = paramMaxTokens ? parseInt(paramMaxTokens.value) : 2048;
-            const topP = paramTopP ? parseFloat(paramTopP.value) : 0.9;
-
-            // Update UI
-            const originalBtnText = btnPlaygroundRun.innerHTML;
-            btnPlaygroundRun.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Executando...';
-            btnPlaygroundRun.disabled = true;
-            playgroundOutput.innerHTML = '<span class="text-amber-400">⏳ Gerando resposta...</span>';
-
-            try {
-                const res = await fetch('/api/playground', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages,
-                        options: { temperature, num_predict: maxTokens, top_p: topP }
-                    })
-                });
-                const data = await res.json();
-
-                if (data.reply) {
-                    playgroundOutput.innerHTML = data.reply.replace(/\n/g, '<br>');
-                } else {
-                    playgroundOutput.innerHTML = '<span class="text-rose-400">❌ Erro: ' + (data.error || 'Desconhecido') + '</span>';
-                }
-            } catch (err) {
-                playgroundOutput.innerHTML = '<span class="text-rose-400">❌ Erro de conexão: ' + err.message + '</span>';
-            }
-
-            btnPlaygroundRun.innerHTML = originalBtnText;
-            btnPlaygroundRun.disabled = false;
-        });
-    }
-
-    // Reset Playground
-    if (btnPlaygroundReset && playgroundBlocks && playgroundOutput) {
-        btnPlaygroundReset.addEventListener('click', () => {
-            // Reset to default blocks
-            playgroundBlocks.innerHTML = `
-                <div class="playground-block bg-slate-800 rounded-xl border border-slate-700 p-4" data-role="system">
-                    <div class="flex items-center gap-3 mb-3">
-                        <select class="block-role bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border-none focus:ring-primary">
-                            <option value="system" selected>system</option>
-                            <option value="user">user</option>
-                            <option value="assistant">assistant</option>
-                        </select>
-                        <button class="btn-delete-block p-1.5 text-slate-500 hover:text-rose-500 hover:bg-slate-700 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined text-lg">delete</span>
-                        </button>
-                    </div>
-                    <textarea class="block-content w-full bg-slate-900 text-slate-100 rounded-lg p-4 border border-slate-600 focus:ring-2 focus:ring-primary/50 resize-y min-h-[100px] text-sm font-mono" placeholder="Conteúdo da mensagem...">You are a helpful AI assistant.</textarea>
-                </div>
-                <div class="playground-block bg-slate-800 rounded-xl border border-slate-700 p-4" data-role="user">
-                    <div class="flex items-center gap-3 mb-3">
-                        <select class="block-role bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border-none focus:ring-primary">
-                            <option value="system">system</option>
-                            <option value="user" selected>user</option>
-                            <option value="assistant">assistant</option>
-                        </select>
-                        <button class="btn-delete-block p-1.5 text-slate-500 hover:text-rose-500 hover:bg-slate-700 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined text-lg">delete</span>
-                        </button>
-                    </div>
-                    <textarea class="block-content w-full bg-slate-900 text-slate-100 rounded-lg p-4 border border-slate-600 focus:ring-2 focus:ring-primary/50 resize-y min-h-[100px] text-sm font-mono" placeholder="Digite a mensagem do usuário..."></textarea>
-                </div>
+                <textarea 
+                    class="w-full h-32 bg-black border border-white/10 rounded-lg p-4 text-white text-sm font-mono resize-none focus:ring-2 focus:ring-[#FF5F5F]/50 outline-none"
+                    placeholder="Digite o conteúdo da mensagem..."
+                    onchange="app.updateBlockContent(${index}, this.value)"
+                >${block.content}</textarea>
             `;
 
-            // Re-attach delete listeners
-            document.querySelectorAll('.btn-delete-block').forEach(attachDeleteListener);
-
-            // Reset output
-            playgroundOutput.innerHTML = '<span class="text-slate-500 italic">A resposta aparecerá aqui...</span>';
-
-            // Reset parameters
-            if (paramTemperature) { paramTemperature.value = 0.7; tempValue.textContent = '0.70'; }
-            if (paramMaxTokens) paramMaxTokens.value = 2048;
-            if (paramTopP) { paramTopP.value = 0.9; toppValue.textContent = '0.90'; }
+            container.appendChild(blockDiv);
         });
     }
 
-    // ===== AUTHENTICATION LOGIC =====
-    let currentUser = null;
+    updateBlockRole(index, role) {
+        this.playgroundBlocks[index].role = role;
+    }
 
-    async function checkAuth() {
+    updateBlockContent(index, content) {
+        this.playgroundBlocks[index].content = content;
+    }
+
+    addPlaygroundBlock() {
+        this.playgroundBlocks.push({ role: 'user', content: '' });
+        this.renderPlaygroundBlocks();
+    }
+
+    removePlaygroundBlock(index) {
+        this.playgroundBlocks.splice(index, 1);
+        this.renderPlaygroundBlocks();
+    }
+
+    async runPlayground() {
+        const outputContainer = document.getElementById('playground-output');
+        if (!outputContainer) return;
+
+        outputContainer.innerHTML = `
+            <span class="text-slate-700 font-bold uppercase tracking-widest text-[10px]">OUTPUT CONSOLE //</span>
+            <div class="mt-4 text-[#FF5F5F]">Executando prompt...</div>
+        `;
+
         try {
-            const res = await fetch('/api/user');
-            if (res.ok) {
-                const user = await res.json();
-                currentUser = user;
+            const response = await fetch('/api/playground/run', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ blocks: this.playgroundBlocks })
+            });
 
-                // Show Main Interface
-                if (viewLock) viewLock.classList.add('hidden');
-                if (viewDashboard) viewDashboard.classList.remove('hidden'); // Default view
+            const data = await response.json();
 
-                // Header: Show Profile, Hide Login
-                if (btnLoginHeader) btnLoginHeader.classList.add('hidden');
-                if (userProfileGroup) userProfileGroup.classList.remove('hidden');
-
-                // Update UI with User Info
-                updateUserProfile(user);
-
-                console.log("Logged in as:", user.email);
+            if (data.success) {
+                outputContainer.innerHTML = `
+                    <span class="text-slate-700 font-bold uppercase tracking-widest text-[10px]">OUTPUT CONSOLE //</span>
+                    <div class="mt-4 text-white leading-relaxed">${data.response}</div>
+                `;
             } else {
-                // Show Lock Screen (Guest)
-                if (viewLock) viewLock.classList.remove('hidden');
-
-                // Hide other views (Security)
-                [viewDashboard, viewChat, viewPlayground].forEach(v => v && v.classList.add('hidden'));
-
-                // Header: Show Login, Hide Profile
-                if (btnLoginHeader) btnLoginHeader.classList.remove('hidden');
-                if (userProfileGroup) userProfileGroup.classList.add('hidden');
+                outputContainer.innerHTML = `
+                    <span class="text-slate-700 font-bold uppercase tracking-widest text-[10px]">OUTPUT CONSOLE //</span>
+                    <div class="mt-4 text-red-400">Erro: ${data.message}</div>
+                `;
             }
-        } catch (e) {
-            console.error("Auth check failed", e);
-            // Default to Lock Screen on error
-            if (viewLock) viewLock.classList.remove('hidden');
-            [viewDashboard, viewChat, viewPlayground].forEach(v => v && v.classList.add('hidden'));
+        } catch (error) {
+            outputContainer.innerHTML = `
+                <span class="text-slate-700 font-bold uppercase tracking-widest text-[10px]">OUTPUT CONSOLE //</span>
+                <div class="mt-4 text-red-400">Erro de conexão com o servidor</div>
+            `;
+            console.error('Erro:', error);
         }
     }
 
-    function updateUserProfile(user) {
-        // Find avatar elements and update them
-        // This assumes generic selectors or you might need to add IDs to HTML first
-        // For now, let's console log, or find the "JD" circle
-        const avatarCircles = document.querySelectorAll('.rounded-full.bg-primary.text-white');
-        avatarCircles.forEach(el => {
-            if (el.textContent.trim() === 'JD') {
-                if (user.picture) {
-                    el.innerHTML = `<img src="${user.picture}" class="w-full h-full rounded-full object-cover">`;
-                    el.classList.remove('bg-primary', 'text-white'); // Remove fallback styles
-                } else {
-                    el.textContent = user.name ? user.name.charAt(0).toUpperCase() : 'U';
-                }
-            }
-        });
+    generatePlaygroundResponse() {
+        return `Olá! Analisei seu prompt e estou pronto para ajudar.
 
-        // Update Name/Email in dropdown
-        const emailEl = document.getElementById('user-profile-email');
-        if (emailEl) emailEl.textContent = user.email;
+Com base nas mensagens fornecidas, posso:
+• Executar comandos e scripts
+• Analisar e criar código
+• Gerenciar projetos e automações
+• Acessar documentação indexada
+
+Como posso ser mais útil para você hoje?`;
     }
 
-    // Run Auth Check immediately
-    checkAuth();
-
-    // ===== SETTINGS MODAL LOGIC (New) =====
-    const settingsModal = document.getElementById('settings-modal');
-    const btnSettings = document.getElementById('btn-settings');
-    const btnCloseSettings = document.getElementById('btn-close-settings');
-    const settingsBackdrop = document.getElementById('settings-backdrop');
-    const btnSaveSettings = document.getElementById('btn-save-settings');
-    const btnResetSettings = document.getElementById('btn-reset-settings');
-
-    if (btnSettings) {
-        btnSettings.addEventListener('click', () => {
-            if (settingsModal) settingsModal.classList.remove('hidden');
-        });
+    setupSquad() {
+        console.log("Mission Control Dashboard Initialized");
     }
 
-    if (btnCloseSettings) {
-        btnCloseSettings.addEventListener('click', () => {
-            if (settingsModal) settingsModal.classList.add('hidden');
-        });
+    setupPulse() {
+        console.log("Kernel Pulse Monitoring Initialized");
     }
 
-    if (settingsBackdrop) {
-        settingsBackdrop.addEventListener('click', () => {
-            if (settingsModal) settingsModal.classList.add('hidden');
-        });
-    }
+    setupTerminalTabs() {
+        const promptTab = document.getElementById('term-prompt');
+        const logsTab = document.getElementById('term-logs');
+        const memoryTab = document.getElementById('term-memory');
+        const chatContainer = document.getElementById('chat-container');
+        const logsContainer = document.getElementById('logs-container');
 
-    // Temperature Slider in Settings
-    const settingTemperature = document.getElementById('setting-temperature');
-    const settingTempValue = document.getElementById('setting-temp-value');
-    if (settingTemperature && settingTempValue) {
-        settingTemperature.addEventListener('input', () => {
-            settingTempValue.textContent = parseFloat(settingTemperature.value).toFixed(1);
-        });
-    }
+        const tabs = [promptTab, logsTab, memoryTab];
+        const containers = [chatContainer, logsContainer];
 
-    // Save Settings
-    if (btnSaveSettings) {
-        btnSaveSettings.addEventListener('click', () => {
-            const settings = {
-                ollamaUrl: document.getElementById('setting-ollama-url')?.value,
-                model: document.getElementById('setting-model')?.value,
-                temperature: document.getElementById('setting-temperature')?.value,
-            };
-            localStorage.setItem('llm-p2p-settings', JSON.stringify(settings));
+        tabs.forEach(tab => {
+            if (tab) {
+                tab.addEventListener('click', () => {
+                    // Reset all tabs
+                    tabs.forEach(t => {
+                        if (t) {
+                            t.classList.remove('text-[#FF5F5F]', 'border-b-2', 'border-[#FF5F5F]');
+                            t.classList.add('text-slate-500');
+                        }
+                    });
 
-            btnSaveSettings.innerHTML = '<span class="material-symbols-outlined">check</span> Salvo!';
-            btnSaveSettings.classList.add('bg-emerald-600');
-            setTimeout(() => {
-                btnSaveSettings.innerHTML = 'Salvar Alterações';
-                btnSaveSettings.classList.remove('bg-emerald-600');
-                if (settingsModal) settingsModal.classList.add('hidden');
-            }, 1500);
-        });
-    }
+                    // Activate clicked tab
+                    tab.classList.remove('text-slate-500');
+                    tab.classList.add('text-[#FF5F5F]', 'border-b-2', 'border-[#FF5F5F]');
 
-    // Reset Settings
-    if (btnResetSettings) {
-        btnResetSettings.addEventListener('click', () => {
-            if (confirm('Restaurar configurações padrão?')) {
-                localStorage.removeItem('llm-p2p-settings');
-                alert('Configurações restauradas!');
+                    // Show/hide containers
+                    if (tab.id === 'term-logs') {
+                        chatContainer?.classList.add('hidden');
+                        logsContainer?.classList.remove('hidden');
+                    } else {
+                        chatContainer?.classList.remove('hidden');
+                        logsContainer?.classList.add('hidden');
+                    }
+                });
             }
         });
     }
 
+    loadInitialView() {
+        // Start with chat view
+        this.switchView('chat');
+
+        // Add welcome message
+        setTimeout(() => {
+            this.addMessage('assistant', 'Seja bem-vindo ao Cleudocode! Sou seu assistente de IA para desenvolvimento e automação. Como posso ajudar você hoje?');
+        }, 500);
+    }
+}
+
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new CleudoApp();
 });
 
+// Global functions for playground (needed for inline event handlers)
+function updateBlockRole(index, role) {
+    if (window.app) {
+        window.app.updateBlockRole(index, role);
+    }
+}
+
+function updateBlockContent(index, content) {
+    if (window.app) {
+        window.app.updateBlockContent(index, content);
+    }
+}
+
+function removePlaygroundBlock(index) {
+    if (window.app) {
+        window.app.removePlaygroundBlock(index);
+    }
+}
