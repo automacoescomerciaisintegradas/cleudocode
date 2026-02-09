@@ -16,8 +16,9 @@ services:
       # Configurações do Gateway
       - CLEUDOCODE_CONFIG_DIR=${CLEUDOCODE_CONFIG_DIR:-/root/.cleudocode}
       - CLEUDOCODE_WORKSPACE_DIR=${CLEUDOCODE_WORKSPACE_DIR:-/root/.cleudocode/workspace}
+      - CLEUDOCODE_GATEWAY_PORT=8501
       - CLEUDOCODE_GATEWAY_TOKEN=${CLEUDOCODE_GATEWAY_TOKEN}
-      - CLEUDOCODE_GATEWAY_BIND=${CLEUDOCODE_GATEWAY_BIND:-127.0.0.1}
+      - CLEUDOCODE_GATEWAY_BIND=${CLEUDOCODE_GATEWAY_BIND:-0.0.0.0}
       # Configurações do navegador (Browser Relay)
       - CLEUDOCODE_BROWSER_RELAY_PORT=${CLEUDOCODE_BROWSER_RELAY_PORT:-18902}
       - CLEUDOCODE_BROWSER_CONTROL=true
@@ -26,6 +27,20 @@ services:
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
       - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
       - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      # LLM & AI
+      - DEFAULT_PROVIDER=${DEFAULT_PROVIDER:-ollama}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-qwen2.5-coder:1.5b}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      # WhatsApp (Evolution API)
+      - WHATSAPP_BASE_URL=${WHATSAPP_BASE_URL:-}
+      - WHATSAPP_INSTANCE_NAME=${WHATSAPP_INSTANCE_NAME:-cleudocode}
+      - WHATSAPP_API_TOKEN_INSTANCE=${WHATSAPP_API_TOKEN_INSTANCE:-}
+      # Telegram
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      # RAG
+      - RAG_ENABLED=${RAG_ENABLED:-true}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

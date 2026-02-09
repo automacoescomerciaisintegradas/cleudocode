@@ -40,7 +40,11 @@ docker>=7.0.0
 # Chat Bots & Gateways
 python-telegram-bot>=20.0.0
 discord.py>=2.3.0
+# LLM SDKs
 openai>=1.0.0
+anthropic>=0.18.0
+google-generativeai>=0.3.0
+
 # Audio Transcription (Whisper)
 faster-whisper>=1.0.0
 pydub>=0.25.1

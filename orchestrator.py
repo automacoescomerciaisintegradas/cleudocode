@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import time
 from pathlib import Path
 from core.daemon import CleudoDaemon
 from core.llm_providers import llm_hub
@@ -128,7 +129,6 @@ class Orchestrator:
         se delega ou se inicia um debate entre agentes.
         """
         text = msg.get("text", "")
-        import time # Ensure time is available
         
         logger.info(f"Recebendo comando: {text}")
 

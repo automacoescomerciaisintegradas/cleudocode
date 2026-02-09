@@ -1,0 +1,14 @@
+{
+    "webhook": {
+        "enabled": true,
+        "url": "https://cleudocode.automacoescomerciais.com.br/webhooks/whatsapp",
+        "webhookByEvents": false,
+        "webhookBase64": false,
+        "events": [
+            "MESSAGES_UPSERT",
+            "MESSAGES_UPDATE",
+            "CONNECTION_UPDATE",
+            "SEND_MESSAGE"
+        ]
+    }
+}

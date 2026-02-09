@@ -78,7 +78,7 @@ class EvolutionGateway(BaseGateway):
 
         try:
             resp = requests.post(url, json=payload, headers=headers, timeout=10)
-            if resp.status_code == 200:
+            if resp.status_code in [200, 201]:
                 logger.info(f"Mensagem enviada para {chat_id}")
                 return True
             else:

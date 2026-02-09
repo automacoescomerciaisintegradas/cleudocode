@@ -17,20 +17,33 @@ class LLMHub:
             return self._dispatch_query(messages, model, provider, temperature, **kwargs)
 
         # 2. Caso contrário, tentamos a sequência de fallback do .env
-        fallback_str = os.getenv("LLM_FALLBACK_SEQUENCE", "anthropic,zai,ollama,openai")
+        # Incluindo 'google' e 'openrouter' na sequência padrão se não definido
+        default_seq = "ollama,anthropic,zai,google,openrouter,openai"
+        fallback_str = os.getenv("LLM_FALLBACK_SEQUENCE", default_seq)
         sequence = [p.strip() for p in fallback_str.split(",")]
         
-        last_error = None
+        errors = []
         for p in sequence:
             try:
+                # Verificar se temos chave para provedores cloud antes de tentar
+                if p == "openai" and not os.getenv("OPENAI_API_KEY"): continue
+                if p == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"): continue
+                if p == "google" and not os.getenv("GOOGLE_API_KEY"): continue
+                if p == "openrouter" and not os.getenv("OPENROUTER_API_KEY"): continue
+                if p == "zai" and not os.getenv("ZAI_API_KEY"): continue
+                if p == "groq" and not os.getenv("GROQ_API_KEY"): continue
+                if p == "moonshot" and not os.getenv("MOONSHOT_API_KEY"): continue
+
                 logger.info(f"Tentando provedor: {p}")
                 return self._dispatch_query(messages, model, p, temperature, **kwargs)
             except Exception as e:
-                logger.warning(f"Provedor {p} falhou: {e}. Tentando próximo...")
-                last_error = e
+                err_msg = f"{p}: {str(e)}"
+                logger.warning(f"Falha no provedor {err_msg}")
+                errors.append(err_msg)
                 continue
         
-        raise RuntimeError(f"Todos os provedores de LLM falharam. Último erro: {last_error}")
+        error_report = " | ".join(errors)
+        raise RuntimeError(f"Todos os provedores de LLM falharam. Relatório: [{error_report}]")
 
     def _dispatch_query(self, messages, model, provider, temperature, **kwargs):
         """Roteia a query para o método do provedor correto."""
@@ -42,10 +55,16 @@ class LLMHub:
             return self._query_zai(messages, model or os.getenv("ZAI_MODEL", "glm-4-32b-0414-128k"), temperature, **kwargs)
         elif provider == "openrouter":
             return self._query_openrouter(messages, model or "google/gemini-flash-2.0", temperature, **kwargs)
+        elif provider == "google":
+            return self._query_google(messages, model or "gemini-1.5-pro", temperature, **kwargs)
         elif provider == "google-antigravity":
             return self._query_google_antigravity(messages, model or "google/antigravity-v1", temperature, **kwargs)
         elif provider == "ollama":
             return self._query_ollama(messages, model or os.getenv("DEEPSEEK_MODEL", "qwen2.5:7b"), temperature, **kwargs)
+        elif provider == "groq":
+            return self._query_groq(messages, model or "openai/gpt-oss-20b", temperature, **kwargs)
+        elif provider == "moonshot":
+            return self._query_moonshot(messages, model or "kimi-k2.5", temperature, **kwargs)
         else:
             raise ValueError(f"Provedor desconhecido: {provider}")
 
@@ -147,13 +166,16 @@ class LLMHub:
         ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip('/')
         
         # Lista de hosts para tentar
-        hosts_to_try = [ollama_host]
+        hosts_to_try = []
         
         # Sugerir alternativas baseadas no ambiente
         if os.path.exists('/.dockerenv'):
+            # No Docker, host.docker.internal é o host real (onde o Ollama costuma estar)
             alt = ollama_host.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
-            if alt not in hosts_to_try: hosts_to_try.append(alt)
+            hosts_to_try.append(alt)
+            if ollama_host not in hosts_to_try: hosts_to_try.append(ollama_host)
         else:
+            hosts_to_try.append(ollama_host)
             alt = ollama_host.replace("host.docker.internal", "localhost")
             if alt not in hosts_to_try: hosts_to_try.append(alt)
 
@@ -201,6 +223,111 @@ class LLMHub:
         }
         
         response = requests.post(gateway_url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
+    def _query_openrouter(self, messages, model, temperature, **kwargs):
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            raise ValueError("OPENROUTER_API_KEY não configurada")
+            
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "https://cleudocode.com.br",
+            "X-Title": "Cleudocode",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            **kwargs
+        }
+        
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
+    def _query_google(self, messages, model, temperature, **kwargs):
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY não configurada")
+            
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        headers = {"Content-Type": "application/json"}
+        
+        # Converter mensagens para formato Google
+        contents = []
+        system_instruction = None
+        
+        for m in messages:
+            if m["role"] == "system":
+                system_instruction = {"parts": [{"text": m["content"]}]}
+            else:
+                role = "user" if m["role"] == "user" else "model"
+                contents.append({
+                    "role": role,
+                    "parts": [{"text": m["content"]}]
+                })
+        
+        payload = {
+            "contents": contents,
+            "generationConfig": {
+                "temperature": temperature,
+                "maxOutputTokens": 4096,
+            }
+        }
+        if system_instruction:
+            payload["system_instruction"] = system_instruction
+            
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        
+        data = response.json()
+        if "candidates" in data and data["candidates"]:
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        return "Erro: Resposta vazia do Google Gemini"
+
+    def _query_groq(self, messages, model, temperature, **kwargs):
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY não configurada")
+        
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            **kwargs
+        }
+        
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
+    def _query_moonshot(self, messages, model, temperature, **kwargs):
+        api_key = os.getenv("MOONSHOT_API_KEY")
+        if not api_key:
+            raise ValueError("MOONSHOT_API_KEY não configurada")
+        
+        url = "https://api.moonshot.ai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            **kwargs
+        }
+        
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
 

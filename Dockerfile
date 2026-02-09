@@ -7,7 +7,7 @@ FROM ubuntu:24.04
 
 # Metadados
 LABEL maintainer="cleudocode.automacoescomerciais.com.br"
-LABEL version="0.50.3"
+LABEL version="0.51.0"
 LABEL description="CLEUDO CODE - LLM P2P Chat System"
 
 # Variáveis de ambiente
@@ -72,6 +72,8 @@ COPY gateways ./gateways
 COPY integrations ./integrations
 COPY web ./web
 COPY agents ./agents
+COPY cli ./cli
+COPY orchestrator.py .
 COPY docs ./docs
 COPY agent-browser ./agent-browser
 

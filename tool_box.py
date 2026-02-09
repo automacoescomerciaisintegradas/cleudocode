@@ -83,3 +83,30 @@ def list_dir(path="."):
         return {"success": True, "files": files}
     except Exception as e:
         return {"success": False, "message": str(e)}
+
+def search_web(query):
+    """Realiza uma busca na web usando o Search engine configurado"""
+    api_key = os.getenv("SEARCH_API_KEY")
+    if not api_key or api_key == "sk-":
+        return {"success": False, "message": "SEARCH_API_KEY não configurada corretamente."}
+    
+    # Exemplo: Tavily API (comum em agentes)
+    try:
+        url = "https://api.tavily.com/search"
+        payload = {
+            "api_key": api_key,
+            "query": query,
+            "search_depth": "basic",
+            "max_results": 5
+        }
+        resp = requests.post(url, json=payload, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        
+        results = []
+        for res in data.get("results", []):
+            results.append(f"Title: {res['title']}\nURL: {res['url']}\nSnippet: {res['content']}\n")
+            
+        return {"success": True, "content": "\n".join(results)}
+    except Exception as e:
+        return {"success": False, "message": f"Erro na busca: {str(e)}"}

@@ -103,14 +103,17 @@ class InitWizard:
     
     def check_dependencies(self) -> Dict[str, bool]:
         """Verifica dependências do sistema"""
-        self.print_step(1, 7, "Verificando dependências...")
+        self.print_step(1, 8, "Verificando dependências...")
         
         dependencies = {
             "python3": False,
             "pip": False,
             "git": False,
             "docker": False,
-            "gcloud": False
+            "gcloud": False,
+            "ffmpeg": False,
+            "playwright": False,
+            "chromium": False
         }
         
         # Python
@@ -118,39 +121,31 @@ class InitWizard:
             result = subprocess.run(["python3", "--version"], capture_output=True, text=True)
             if result.returncode == 0:
                 dependencies["python3"] = True
-                version = result.stdout.strip()
-                self.print_success(f"Python: {version}")
-        except FileNotFoundError:
-            self.print_error("Python 3 não encontrado")
+                self.print_success(f"Python: {result.stdout.strip()}")
+        except: pass
         
-        # Pip
+        # FFmpeg
         try:
-            result = subprocess.run(["pip3", "--version"], capture_output=True, text=True)
+            result = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
             if result.returncode == 0:
-                dependencies["pip"] = True
-                self.print_success("pip instalado")
-        except FileNotFoundError:
-            self.print_error("pip não encontrado")
-        
-        # Git
+                dependencies["ffmpeg"] = True
+                self.print_success("FFmpeg instalado")
+        except: self.print_warning("FFmpeg não encontrado (necessário para voz/vídeo)")
+
+        # Playwright module check
         try:
-            result = subprocess.run(["git", "--version"], capture_output=True, text=True)
-            if result.returncode == 0:
-                dependencies["git"] = True
-                version = result.stdout.strip()
-                self.print_success(f"Git: {version}")
-        except FileNotFoundError:
-            self.print_warning("Git não encontrado (opcional)")
+            import playwright
+            dependencies["playwright"] = True
+            self.print_success("Biblioteca Playwright instalada")
+        except: self.print_warning("Biblioteca Playwright não encontrada")
         
         # Docker
         try:
             result = subprocess.run(["docker", "--version"], capture_output=True, text=True)
             if result.returncode == 0:
                 dependencies["docker"] = True
-                version = result.stdout.strip()
-                self.print_success(f"Docker: {version}")
-        except FileNotFoundError:
-            self.print_warning("Docker não encontrado (opcional)")
+                self.print_success(f"Docker: {result.stdout.strip()}")
+        except: pass
         
         # Google Cloud SDK
         try:
@@ -158,8 +153,7 @@ class InitWizard:
             if result.returncode == 0:
                 dependencies["gcloud"] = True
                 self.print_success("Google Cloud SDK instalado")
-        except FileNotFoundError:
-            self.print_warning("Google Cloud SDK não encontrado (opcional para Stitch MCP)")
+        except: pass
         
         return dependencies
     
@@ -215,6 +209,7 @@ class InitWizard:
             "OpenAI",
             "Anthropic (Claude)",
             "Google (Gemini)",
+            "OpenRouter",
             "Pular configuração"
         ]
         
@@ -223,7 +218,7 @@ class InitWizard:
         if choice == "Ollama (Local)":
             self.config["llm"] = {
                 "default_provider": "ollama",
-                "default_model": "qwen2.5-coder",
+                "default_model": "qwen2.5-coder:7b",
                 "providers": {
                     "ollama": {
                         "host": self.ask_input("URL do Ollama", "http://localhost:11434"),
@@ -234,52 +229,76 @@ class InitWizard:
             self.print_success("Ollama configurado")
         
         elif choice == "OpenAI":
-            api_key = self.ask_input("OpenAI API Key (deixe vazio para usar variável de ambiente)")
+            api_key = self.ask_input("OpenAI API Key")
             self.config["llm"] = {
                 "default_provider": "openai",
-                "default_model": "gpt-4",
+                "default_model": "gpt-4o",
                 "providers": {
                     "openai": {
-                        "api_key": api_key or "${OPENAI_API_KEY}",
-                        "enabled": True,
-                        "model": "gpt-4"
+                        "api_key": api_key,
+                        "enabled": True
                     }
                 }
             }
             self.print_success("OpenAI configurado")
         
         elif choice == "Anthropic (Claude)":
-            api_key = self.ask_input("Anthropic API Key (deixe vazio para usar variável de ambiente)")
+            api_key = self.ask_input("Anthropic API Key")
             self.config["llm"] = {
                 "default_provider": "anthropic",
-                "default_model": "claude-3-sonnet-20240229",
+                "default_model": "claude-3-5-sonnet-20241022",
                 "providers": {
                     "anthropic": {
-                        "api_key": api_key or "${ANTHROPIC_API_KEY}",
-                        "enabled": True,
-                        "model": "claude-3-sonnet-20240229"
+                        "api_key": api_key,
+                        "enabled": True
                     }
                 }
             }
             self.print_success("Anthropic configurado")
         
         elif choice == "Google (Gemini)":
-            api_key = self.ask_input("Google API Key (deixe vazio para usar variável de ambiente)")
+            api_key = self.ask_input("Google API Key")
             self.config["llm"] = {
                 "default_provider": "google",
-                "default_model": "gemini-pro",
+                "default_model": "gemini-1.5-pro",
                 "providers": {
                     "google": {
-                        "api_key": api_key or "${GOOGLE_API_KEY}",
-                        "enabled": True,
-                        "model": "gemini-pro"
+                        "api_key": api_key,
+                        "enabled": True
                     }
                 }
             }
             self.print_success("Google Gemini configurado")
+
+        elif choice == "OpenRouter":
+            api_key = self.ask_input("OpenRouter API Key")
+            self.config["llm"] = {
+                "default_provider": "openrouter",
+                "default_model": "google/gemini-2.0-flash-001",
+                "providers": {
+                    "openrouter": {
+                        "api_key": api_key,
+                        "enabled": True
+                    }
+                }
+            }
+            self.print_success("OpenRouter configurado")
         
         else:
             self.print_info("Configuração de LLM pulada")
+
+    def configure_gog_auth(self):
+        """Configura Autenticação Google OAuth Gateway (GOG)"""
+        self.print_step(5, 8, "Configurando Autenticação Google Antigravity...")
+        
+        if self.ask_yes_no("Deseja configurar o Google Antigravity (GOG)?", default=True):
+            token = self.ask_input("Google Antigravity Token (deixe vazio se for autorizar via CLI)")
+            if token:
+                self.config["auth"] = self.config.get("auth", {})
+                self.config["auth"]["google_antigravity_token"] = token
+                self.print_success("Token GOG definido manualment")
+            else:
+                self.print_info("Você poderá autorizar depois usando: 'cleudocode models auth login --provider google-antigravity'")
     
     def configure_mcp(self, has_gcloud: bool):
         """Configura MCP (Stitch)"""
@@ -416,16 +435,19 @@ class InitWizard:
             print(f"    {desc}\n")
         
         print(f"{Colors.BOLD}Documentação:{Colors.ENDC}")
-        print(f"  📖 README: https://github.com/cleudocode/cleudocode")
+        print(f"  📖 README: https://github.com/automacoescomerciaisintegradas/cleudocode")
         print(f"  📚 Docs: ./docs/")
         print(f"  💡 NotebookLM: https://notebooklm.google.com/notebook/8dc6916e-a1b0-4cdd-b6f7-50e4dafb5c69\n")
+        print(f"{Colors.BOLD}Desenvolvido por:{Colors.ENDC}")
+        print("  \"© Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados.\"")
+        print("  contato@automacoescomerciais.com.br")
     
     def run(self):
         """Executa wizard completo"""
         self.print_header("CLEUDOCODE - WIZARD DE INICIALIZAÇÃO")
         
         print(f"{Colors.BOLD}Bem-vindo ao Cleudocode!{Colors.ENDC}")
-        print("Este wizard irá configurar seu ambiente.\n")
+        print("Este wizard irá configurar seu ambiente seguindo os padrões Cleudocode!\n")
         
         if not self.ask_yes_no("Deseja continuar?", default=True):
             print("\n👋 Até logo!")
@@ -444,13 +466,16 @@ class InitWizard:
             # 4. Configurar LLM
             self.configure_llm_provider()
             
-            # 5. Configurar MCP
+            # 5. Configurar GOG (Google Antigravity Auth)
+            self.configure_gog_auth()
+            
+            # 6. Configurar MCP (Stitch)
             self.configure_mcp(deps.get("gcloud", False))
             
-            # 6. Salvar config
+            # 7. Salvar config
             self.save_config()
             
-            # 7. Validar
+            # 8. Validar Instalação
             if self.validate_installation():
                 self.show_next_steps()
             

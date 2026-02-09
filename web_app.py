@@ -10,7 +10,7 @@ import rag_engine
 # Carregar variáveis de ambiente
 load_dotenv()
 
-# === AUTENTICAÇÃO (OpenClaw-like) ===
+# === AUTENTICAÇÃO ===
 # Importar middleware de autenticação
 try:
     from core.auth_middleware import require_authentication, show_auth_status
@@ -250,10 +250,16 @@ with st.sidebar:
     except:
         pass
     
-    # Mascarar dados sensíveis
-    display_host = "cleudocode.automacoescomerciais.com.br"
-    st.write(f"**Servidor:** `{display_host}`")
-    st.write(f"**Modelo:** `{MODEL}`")
+    # Branding Sidebar
+    st.markdown("---")
+    st.markdown("""
+    <div style='text-align: center; color: #888; font-size: 0.8em;'>
+        <b>Cleudocode 🤖🚀</b><br>
+        <span style='font-size: 0.9em;'>"© Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados."</span><br>
+        <a href='https://github.com/automacoescomerciaisintegradas/cleudocode' style='color: #888; text-decoration: none;'>GitHub Project</a><br>
+        contato@automacoescomerciais.com.br
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     st.subheader("🎭 Personalidade")
@@ -997,7 +1003,7 @@ with tab4:
                     st.markdown(entry["content"])
         else:
             st.markdown("""
-**🚀 Bem-vindo ao cleudocode CLI Terminal!**
+**🚀 Bem-vindo ao Cleudocode Terminal!**
 
 Este terminal permite executar comandos de forma interativa.
 Digite `/help` para ver os comandos disponíveis.

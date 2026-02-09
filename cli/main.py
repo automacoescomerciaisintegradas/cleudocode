@@ -1,6 +1,8 @@
 import click
 import os
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 import json
 import subprocess
 import webbrowser
@@ -25,8 +27,39 @@ sys.path.insert(0, str(project_root))
 
 @click.group()
 def cli():
-    """Cleudocode CLI - Gerenciador do Assistente"""
+    """Cleudocode CLI 🤖🚀 - Gerenciador do Ecossistema Cleudocode!"""
     pass
+
+# Importar Novos Comandos
+from cli.gateway_command import gateway
+from cli.doctor import run_doctor
+from cli.message_command import message
+from cli.browser_command import browser
+
+@cli.command()
+def doctor():
+    """Realiza check-up de saúde do sistema e dependências"""
+    run_doctor()
+
+cli.add_command(gateway)
+cli.add_command(message)
+cli.add_command(browser)
+
+@cli.command()
+@click.option('--to', help='Destinatário do agente')
+@click.option('--message', 'text', help='Comando inicial')
+def agent(to, text):
+    """Executa um turno do agente via Orchestrator"""
+    console.print(f"[bold blue]Iniciando interação com o agente...[/bold blue]")
+    try:
+        from orchestrator import orchestrator
+        result = orchestrator.receive_message({"text": text or "Olá", "from": "cli"})
+        if result["status"] == "success":
+            console.print(Panel(result["result"]["output"], title="Agente Cleudo"))
+        else:
+            console.print(f"[red]Erro no agente: {result.get('message')}[/red]")
+    except Exception as e:
+        console.print(f"[red]Erro ao carregar orquestrador: {e}[/red]")
 
 @cli.command()
 def init():
@@ -84,6 +117,8 @@ def onboard(no_install_daemon, force):
 
     console.print("\n[bold green]Onboarding concluído com sucesso![/bold green]")
     console.print("Execute [bold]cleudocode start[/bold] para iniciar o sistema.")
+    console.print("\n[dim]\"© Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados.\"[/dim]")
+    console.print("[dim]contato@automacoescomerciais.com.br[/dim]")
 
 @cli.command()
 def start():
@@ -455,3 +490,7 @@ def update_env(key, value):
 
 if __name__ == '__main__':
     cli()
+    # Branded Footer on Exit
+    if len(sys.argv) > 1 and sys.argv[1] not in ['dashboard', 'start']:
+        console.print("\n[dim]\"© Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados.\"[/dim]")
+        console.print("[dim]contato@automacoescomerciais.com.br[/dim]")

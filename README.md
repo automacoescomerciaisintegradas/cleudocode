@@ -103,10 +103,13 @@ Após a instalação:
 
 ---
 
+---
+
 ## 📞 Contato e Suporte 
 📱 WhatsApp [+55 88 92156-7214](https://wa.me/558894227586)
 
 ## Desenvolvido por
 **Automações Comerciais Integradas! ⚙️** - contato@automacoescomerciais.com.br
+https://github.com/automacoescomerciaisintegradas/cleudocode
 
-© 2025 Automações Comerciais Integradas. Todos os direitos reservados.
+"© Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados."

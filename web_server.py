@@ -576,6 +576,8 @@ def handle_messages_api():
     response_text = "Sem resposta."
     if mission_result["status"] == "success":
          response_text = mission_result["result"]["output"]
+    else:
+         response_text = f"⚠️ Erro no Mission Control: {mission_result.get('message', 'Falha na orquestração')}"
          
     return jsonify({"reply": response_text})
 
