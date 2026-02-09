@@ -1,0 +1,92 @@
+# ============================================
+# CLEUDOCODE - Docker Compose Production
+# Deploy na VPS 144.91.118.78
+# ============================================
+
+services:
+  cleudocode:
+    image: automacoescomerciais/cleudocode:latest
+    container_name: cleudocode
+    restart: unless-stopped
+    ports:
+      - "18900:8501"
+    environment:
+      # ═══════════════════════════════════════════
+      # Gateway & Server
+      # ═══════════════════════════════════════════
+      - CLEUDOCODE_GATEWAY_PORT=8501
+      - CLEUDOCODE_GATEWAY_BIND=0.0.0.0
+      - CLEUDOCODE_GATEWAY_TOKEN=${CLEUDOCODE_GATEWAY_TOKEN:-cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce}
+      
+      # ═══════════════════════════════════════════
+      # LLM / Ollama
+      # ═══════════════════════════════════════════
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - DEFAULT_PROVIDER=ollama
+      - DEEPSEEK_MODEL=qwen2.5-coder:1.5b
+      
+      # ═══════════════════════════════════════════
+      # AI API Keys (opcional - fallback)
+      # ═══════════════════════════════════════════
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      
+      # ═══════════════════════════════════════════
+      # WhatsApp (Evolution API)
+      # ═══════════════════════════════════════════
+      - WHATSAPP_BASE_URL=https://evolution.automacoescomerciais.com.br
+      - WHATSAPP_INSTANCE_NAME=cleudocode
+      - WHATSAPP_API_TOKEN_INSTANCE=${WHATSAPP_API_TOKEN_INSTANCE}
+      
+      # ═══════════════════════════════════════════
+      # Telegram
+      # ═══════════════════════════════════════════
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      
+      # ═══════════════════════════════════════════
+      # RAG & Features
+      # ═══════════════════════════════════════════
+      - RAG_ENABLED=true
+      - SENTIENT_GRID_ENABLED=false
+      
+      # ═══════════════════════════════════════════
+      # Streamlit
+      # ═══════════════════════════════════════════
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+      
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # Persistência de dados
+      - cleudocode_config:/root/.cleudocode
+      - cleudocode_memory:/app/memory_db
+      - cleudocode_exports:/app/exports
+      - cleudocode_uploads:/app/uploads
+    networks:
+      - cleudocode-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      # Labels para Traefik (se usar)
+      - "traefik.enable=true"
+      - "traefik.http.routers.cleudocode.rule=Host(`cleudocode.automacoescomerciais.com.br`)"
+      - "traefik.http.routers.cleudocode.entrypoints=websecure"
+      - "traefik.http.routers.cleudocode.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cleudocode.loadbalancer.server.port=8501"
+
+volumes:
+  cleudocode_config:
+  cleudocode_memory:
+  cleudocode_exports:
+  cleudocode_uploads:
+
+networks:
+  cleudocode-network:
+    driver: bridge
