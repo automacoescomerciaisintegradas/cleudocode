@@ -225,7 +225,7 @@ class CleudoApp {
 
     switchView(viewId) {
         // Hide all views
-        const views = ['view-chat', 'view-squad', 'view-memory', 'view-playground', 'view-market', 'view-pulse'];
+        const views = ['view-chat', 'view-squad', 'view-memory', 'view-playground', 'view-market', 'view-pulse', 'view-contato'];
         views.forEach(id => {
             const element = document.getElementById(id);
             if (element) {

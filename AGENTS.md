@@ -1,63 +1,80 @@
-- Always respond in Portugues do brasil
-- necessarios ** para entregar o objetivo com qualidade:
-- https://github.com/cleudocode/cleudocode
-- https://github.com/automacoescomerciaisintegradas/cleudocode
-- ## Memoria infinita (UCM)
-- Antes de comegar:
-- - * /root/ucm/cleudocode/context.md"
-- - "/root/ucm/cleudocode/insights.md"
-- 3. Em '/root/ucm/cleudocode/todos.md", mantenha um checklist marcando progresso.
-- . comandos executados (sem segredos),
-- erros e correções,
-- pendências.
-- Apas cada etapa importante, atualize "todos.md" e "insights.md".
-- Se o Codex perder o contexto, ele deve primeiro ler "context.md" + "todos.md' + insights.md" e continuar.
-- 1. Validar host OS.
-- 3. Garantir dockerd" rodando.
-- 5. Ajustar "Dockerfile" para base "ubuntu:24.04" e dependencias.
-- 7. Preparar volumes/config ("~/.cleudocode ).
-- 9. Onboarding.
-- #Always respond in Portugues do brasil
-- necessarios ** para entregar o objetivo com qualidade:
-- Você @ um ** engenheiro de prompts e especialista em instalacão do cleudocode ** e tambem deve ** assumir os papel de todos os profissionais
-- # Checklist (alto nivel)
-- 2. Instalar Docker CE + Compose plugin.
-- 4. Clonar repo.
-- 6. Build da imagem "cleudocode: local".
-- 8. Subir "cleudocode-gateway
-- 10. Telegram: adicionar canal
-- ---
-- ### 0 Preparação de log
-- exec > >(tee -a /tmp/cleudocode-install.log) 2>&1
-- ### 0.1) Inicializar a Memoria Infinita (UCM)
-- mkdir -p /root/ucm/cleudocode
-- cat > /root/ucm/cleudocode/context.md << 'EOF'
-- Objective:
-- Rules:
-- No vazar segredos (OpenAI API key, Telegram bot token, cookies).
-- EOF
-- if [ ! - f /root/ucm/cleudocode/todos.md ]; then
-- # Checklist (alto nivel)
-- 2. Instalar Docker CE + Compose plugin.
-- 4. Clonar repo.
-- 6. Build da imagem "cleudocode: local".
-- 8. Subir "cleudocode-gateway
-- 10. Telegram: adicionar canal
-- ---
-- ### 0 Preparação de log
-- exec > >(tee -a /tmp/cleudocode-install.log) 2>&1
-- ### 0.1) Inicializar a Memoria Infinita (UCM)
-- mkdir -p /root/ucm/cleudocode
-- cat > /root/ucm/cleudocode/context.md << 'EOF'
-- Objective:
-- Rules:
-- No vazar segredos (OpenAI API key, Telegram bot token, cookies).
-- EOF
-- Verificar e corrigir arquivos no diretório /root/cleudocode/web conforme necessário
-- cleudocode Chrome Extension (Browser Relay)
-- ## Dev / load unpacked
-- 2. Ensure the relay server is reachable at `http://127.0.0.1:18902/` (default).
-- ```bash
-- cleudocode browser extension path
-- 4. Chrome → `chrome://extensions` → enable “Developer mode”.
-- 6. Pin the extension. Click the icon on a tab to attach/detach.
+# AGENTS.md - Cleudocode
+
+Minimal operating guide for AI coding agents in the Cleudocode repository.
+
+## Before Implementing
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+
+## Code Changes
+- Minimum code that solves the problem. No speculative features.
+- No abstractions for single-use code.
+- Surgical edits: touch only what the task requires.
+- Match existing style (Python/Rich for CLI, Flask/Streamlit for Web).
+- Remove imports/variables YOUR changes made unused; don't touch pre-existing dead code.
+
+## Verification
+- Transform tasks into verifiable goals with clear success criteria.
+- For multi-step tasks, state a brief plan with verification checkpoints.
+
+## Scope
+- Solve issues with the smallest context read.
+- Keep changes scoped to one command family or module group.
+- Read at most 3 files first:
+  - the owning handler/module (e.g., `cli/main.py`, `web_server.py`)
+  - one shared helper used by that handler (e.g., `core/config_manager.py`)
+  - one downstream integration file if needed
+- Expand only when contracts cross module boundaries.
+
+## Architecture
+
+- **CLI (`cli/main.py`)**: Entry point for command-line operations.
+  - Subcommands: `init`, `onboard`, `plugins`, `models`, `start`.
+  - Plugins logic: Managed via `.env` (`ENABLED_PLUGINS`).
+- **Core (`core/`)**: Business logic and shared components.
+  - `auth_middleware.py`: Authentication logic.
+  - `config_manager.py`: Configuration handling.
+  - `llm_providers.py`: LLM integration.
+- **Web Server (`web_server.py`)**: Flask backend API.
+- **Frontend (`web_app.py`, `streamlit_app.py`)**: Streamlit dashboard.
+- **OAuth (`oauth_listener.py`)**: Helper for authentication flows.
+
+## Routing
+- Keep `cli/main.py` as a router for CLI commands.
+- Put command logic in handler modules inside `cli/` or `core/`:
+  - `cli/gateway_command.py`: Managed via `cli/gateway_command.py`.
+  - `cli/init_command.py`: Managed via `cli/init_command.py`.
+
+## Hard Rules
+
+- **Use `core/config_manager.py`** to handle `.env` reads/writes. Do not parse `.env` manually unless bootstrapping.
+- **Use `check=True`** with `subprocess.run` unless failure is expected.
+- **Do not hardcode** API keys or tokens; use `.env`.
+- **Verify platform** specific paths (Windows vs Linux) where applicable (`os.name == 'nt'`).
+
+## Key Files
+- CLI: `cli/main.py`
+- Configuration: `.env`, `core/config_manager.py`
+- Auth: `oauth_listener.py`, `core/auth_middleware.py`
+- Plugins: `plugins/` (if extended), `cli/main.py` (enable logic)
+- Dashboard: `web_server.py`, `web_app.py`
+
+## Capability Source Of Truth
+
+- Supported LLM providers specific logic resides in `core/llm_providers.py`.
+- Plugin enablement is tracked in `.env` variable `ENABLED_PLUGINS`.
+
+## Testing
+- Unit tests under `tests/` or colocated if preferred.
+- Run generic tests: `python run_all_tests.py`.
+- Run specific module tests: `python -m unittest tests/test_module.py`.
+
+## Local Commands
+
+- Run CLI: `python cli/main.py <command>` OR `cleudocode <command>` (if installed)
+- Start Dashboard: `cleudocode dashboard`
+- Enable Plugin: `cleudocode plugins enable <name>`
+- Verify Health: `cleudocode doctor`
+
+

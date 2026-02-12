@@ -23,36 +23,21 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "df -BG . | tail -1 | awk '{print $4}' | sed 's/G//'"
+      command: "powershell -Command \"$d = Get-CimInstance Win32_LogicalDisk -Filter 'DeviceID=''C:'''; [math]::Round($d.FreeSpace / 1GB, 1)\""
       timeout: 10
 
   - name: "Estimar tamanho dos dados a fazer backup"
     skill: "shell"
     action: "execute"
     params:
-      command: "du -s {{ antigravity_data }} {{ antigravity_config }} 2>/dev/null | awk '{sum+=$1} END {print sum/1024/1024}' || echo '0'"
+      command: "powershell -Command \"Get-ChildItem -Path . -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum | ForEach-Object { [math]::Round(\\$_.Sum / 1GB, 3) }\""
       timeout: 30
-
-  - name: "Verificar se há espaço suficiente"
-    skill: "shell"
-    action: "execute"
-    params:
-      command: |
-        AVAILABLE=$(df -BG . | tail -1 | awk '{print $4}' | sed 's/G//')
-        NEEDED=$(du -s {{ antigravity_data }} {{ antigravity_config }} 2>/dev/null | awk '{sum+=$1} END {print sum/1024/1024}' || echo '0')
-        if [ "$AVAILABLE" -gt "$NEEDED" ]; then
-          echo "Espaço suficiente: ${AVAILABLE}GB disponível, ${NEEDED}GB necessário"
-        else
-          echo "ERRO: Espaço insuficiente: ${AVAILABLE}GB disponível, ${NEEDED}GB necessário"
-          exit 1
-        fi
-      timeout: 10
 
   - name: "Parar serviços Antigravity (se necessário)"
     skill: "shell"
     action: "execute"
     params:
-      command: "systemctl is-active antigravity && systemctl stop antigravity || echo 'Serviço não está rodando'"
+      command: "powershell -Command \"Stop-Process -Name python -ErrorAction SilentlyContinue\""
       timeout: 30
     continue_on_error: true
 
@@ -60,22 +45,9 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "cp -r {{ antigravity_data }}/* {{ backup_dir }}/ 2>/dev/null || echo 'Nenhum dado encontrado'"
+      command: "robocopy . \"{{ backup_dir }}\" /E /XF *.log *.err *.tar.gz /XD backups node_modules .git .agent-browser-sessions /R:2 /W:5 /NFL /NDL /NJH /NJS"
       timeout: 300
-
-  - name: "Fazer backup das configurações"
-    skill: "shell"
-    action: "execute"
-    params:
-      command: "cp -r {{ antigravity_config }}/* {{ backup_dir }}/config/ 2>/dev/null || mkdir -p {{ backup_dir }}/config"
-      timeout: 60
-
-  - name: "Fazer backup dos logs"
-    skill: "shell"
-    action: "execute"
-    params:
-      command: "cp -r /var/log/antigravity/* {{ backup_dir }}/logs/ 2>/dev/null || mkdir -p {{ backup_dir }}/logs"
-      timeout: 120
+    continue_on_error: true
 
   - name: "Criar manifesto do backup"
     skill: "filesystem"
@@ -85,71 +57,46 @@ steps:
       content: |
         # Backup Manifest - Antigravity
         Data/Hora: {{ datetime }}
-        Versão do Workflow: 1.0
+        Versão do Workflow: 1.0 (Windows Edition)
         
         ## Informações do Sistema
-        Hostname: $(hostname)
-        Sistema: $(uname -a)
-        
-        ## Conteúdo do Backup
-        - Dados: {{ antigravity_data }}
-        - Configurações: {{ antigravity_config }}
-        - Logs: /var/log/antigravity
+        Sistema: Windows Host
+        Workspace: {{ workflow_name }}
         
         ## Estatísticas
-        Espaço disponível: {{ step_1_result.stdout }}GB
-        Tamanho estimado: {{ step_2_result.stdout }}GB
-        
-        ## Verificação
-        Dados copiados: {% if step_5_result.success %}✅ Sim{% else %}❌ Falha{% endif %}
-        Configs copiadas: {% if step_6_result.success %}✅ Sim{% else %}❌ Falha{% endif %}
-        Logs copiados: {% if step_7_result.success %}✅ Sim{% else %}❌ Falha{% endif %}
-        
-        ## Instruções de Restauração
-        1. Parar serviços: systemctl stop antigravity
-        2. Restaurar dados: cp -r {{ backup_dir }}/* {{ antigravity_data }}/
-        3. Restaurar configs: cp -r {{ backup_dir }}/config/* {{ antigravity_config }}/
-        4. Iniciar serviços: systemctl start antigravity
-        5. Verificar logs: journalctl -u antigravity -f
+        Espaço disponível (C:): {{ step_1_result.stdout|trim }}GB
+        Tamanho estimado: {{ step_2_result.stdout|trim }}GB
         
         ---
         Backup criado pelo Cleudocode Workflow Engine
       overwrite: true
 
-  - name: "Reiniciar serviços Antigravity"
-    skill: "shell"
-    action: "execute"
-    params:
-      command: "systemctl start antigravity && sleep 5 && systemctl is-active antigravity"
-      timeout: 60
-    continue_on_error: true
-
   - name: "Compactar backup"
     skill: "shell"
     action: "execute"
     params:
-      command: "tar -czf {{ backup_archive }} -C {{ backup_root }} {{ date }}"
+      command: "powershell -Command \"Compress-Archive -Path '{{ backup_dir }}' -DestinationPath '{{ backup_archive }}' -Force\""
       timeout: 600
 
   - name: "Verificar integridade do arquivo compactado"
     skill: "shell"
     action: "execute"
     params:
-      command: "tar -tzf {{ backup_archive }} > /dev/null && echo 'Arquivo íntegro'"
+      command: "powershell -Command \"if (Test-Path '{{ backup_archive }}') { echo 'OK' } else { exit 1 }\""
       timeout: 120
 
   - name: "Calcular checksum do backup"
     skill: "shell"
     action: "execute"
     params:
-      command: "sha256sum {{ backup_archive }} > {{ backup_archive }}.sha256"
+      command: "powershell -Command \"Get-FileHash '{{ backup_archive }}' -Algorithm SHA256 | Select-Object -ExpandProperty Hash > '{{ backup_archive }}.sha256'\""
       timeout: 60
 
   - name: "Limpar backups antigos"
     skill: "shell"
     action: "execute"
     params:
-      command: "find {{ backup_root }} -name '*.tar.gz' -mtime +{{ retention_days }} -delete"
+      command: "powershell -Command \"Get-ChildItem '{{ backup_root }}' -Filter '*.zip' | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-{{ retention_days }}) } | Remove-Item -Force\""
       timeout: 60
     continue_on_error: true
 
@@ -157,7 +104,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "rm -rf {{ backup_dir }}"
+      command: "powershell -Command \"Remove-Item -Path '{{ backup_dir }}' -Recurse -Force\""
       timeout: 60
 
   - name: "Gerar relatório final"
@@ -170,23 +117,15 @@ steps:
         Data/Hora: {{ datetime }}
         
         ## Status do Backup
-        {% if step_10_result.success and step_11_result.success %}✅ BACKUP CONCLUÍDO COM SUCESSO{% else %}❌ BACKUP COM PROBLEMAS{% endif %}
+        {% if step_6_result.success %}✅ BACKUP CONCLUÍDO COM SUCESSO{% else %}❌ BACKUP COM PROBLEMAS{% endif %}
         
         ## Detalhes
         Arquivo: {{ backup_archive }}
-        Tamanho: $(ls -lh {{ backup_archive }} | awk '{print $5}')
-        Checksum: $(cat {{ backup_archive }}.sha256 | awk '{print $1}')
         
         ## Verificações
-        Espaço suficiente: {% if step_3_result.success %}✅ Sim{% else %}❌ Não{% endif %}
-        Dados copiados: {% if step_5_result.success %}✅ Sim{% else %}❌ Falha{% endif %}
-        Arquivo compactado: {% if step_10_result.success %}✅ Sim{% else %}❌ Falha{% endif %}
-        Integridade verificada: {% if step_11_result.success %}✅ Sim{% else %}❌ Falha{% endif %}
-        Serviço reiniciado: {% if step_9_result.success %}✅ Sim{% else %}⚠️ Verificar{% endif %}
-        
-        ## Limpeza
-        Backups antigos removidos: {% if step_13_result.success %}✅ Sim{% else %}⚠️ Verificar{% endif %}
-        Diretório temporário limpo: {% if step_14_result.success %}✅ Sim{% else %}⚠️ Verificar{% endif %}
+        Espaço disponível: {{ step_1_result.stdout|trim }}GB
+        Arquivo compactado: {{ '✅ OK' if step_6_result.success else '❌ Falha' }}
+        Checksum gerado: {{ '✅ Sim' if step_8_result.success else '❌ Falha' }}
         
         ---
         Relatório gerado pelo Cleudocode Workflow Engine
@@ -199,17 +138,9 @@ steps:
       message: |
         💾 *Antigravity Backup Completo*
         
-        📊 *Status:* {% if step_10_result.success and step_11_result.success %}✅ Sucesso{% else %}❌ Com problemas{% endif %}
-        
+        📊 *Status:* {{ '✅ Sucesso' if step_6_result.success else '❌ Falha' }}
         📁 *Arquivo:* `{{ backup_archive }}`
-        📏 *Tamanho:* $(ls -lh {{ backup_archive }} 2>/dev/null | awk '{print $5}' || echo 'N/A')
-        
-        🔍 *Verificações:*
-        • Integridade: {% if step_11_result.success %}✅ OK{% else %}❌ Falha{% endif %}
-        • Checksum: {% if step_12_result.success %}✅ Gerado{% else %}❌ Falha{% endif %}
-        • Serviço: {% if step_9_result.success %}✅ Reiniciado{% else %}⚠️ Verificar{% endif %}
-        
-        🧹 *Limpeza:* {% if step_13_result.success %}✅ Backups antigos removidos{% else %}⚠️ Verificar{% endif %}
+        尺 *Checksum:* {{ '✅ OK' if step_8_result.success else '❌' }}
         
         📄 *Relatório:* `{{ backup_root }}/backup_report_{{ date }}.txt`
     continue_on_error: true

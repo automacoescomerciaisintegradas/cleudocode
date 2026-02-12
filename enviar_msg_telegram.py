@@ -16,15 +16,22 @@ def enviar_mensagem_boas_vindas():
     telegram_gateway.start()
     
     # Mensagem de boas-vindas
-    mensagem = """Até Breve 💎✨🃏
-Ajude a 🚀📰Newsletter a crescer convidando mais pessoas, mais pessoas mais motivação para trazer mais conteúdo.
+    mensagem = """🎉 Bem-vindo(a) ao nosso canal! 💎✨🃏
 
-link canal https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42"""
+🚀 Fique por dentro das últimas novidades
+📧 Newsletter exclusiva para membros
+
+🤝 Ajude a comunidade a crescer:
+Convide amigos para fazer parte desta jornada!
+
+🔔 Canal oficial: https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42
+
+✨ Obrigado por fazer essa comunidade evoluir!"""
     
-    # IDs de chat para enviar a mensagem (você precisará substituir pelos IDs reais dos chats)
-    # Estes são exemplos - você precisará obter os IDs reais dos chats
+    # IDs de chat para enviar a mensagem (substitua pelos IDs reais dos seus chats/grupos)
+    # Para obter o ID real, siga as instruções no README
     chat_ids = [
-        "5667792894",  # ID do chat que apareceu nos logs anteriores
+        # "SEU_CHAT_ID_AQUI",  # Substitua este exemplo pelo ID real do seu chat
         # Adicione outros IDs de chat conforme necessário
     ]
     
@@ -50,10 +57,17 @@ def enviar_mensagem_para_canal():
     telegram_gateway = TelegramGateway()
     telegram_gateway.start()
     
-    mensagem = """Até Breve 💎✨🃏
-Ajude a 🚀📰Newsletter a crescer convidando mais pessoas, mais pessoas mais motivação para trazer mais conteúdo.
+    mensagem = """🎉 Bem-vindo(a) ao nosso canal! 💎✨🃏
 
-link canal https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42"""
+🚀 Fique por dentro das últimas novidades
+📧 Newsletter exclusiva para membros
+
+🤝 Ajude a comunidade a crescer:
+Convide amigos para fazer parte desta jornada!
+
+🔔 Canal oficial: https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42
+
+✨ Obrigado por fazer essa comunidade evoluir!"""
     
     # ID do canal (precisa ser um ID de canal válido)
     # Exemplo: -1001234567890 (canais têm IDs negativos)
@@ -67,15 +81,5 @@ link canal https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42"""
             print(f"Erro ao enviar para o canal: {e}")
 
 if __name__ == "__main__":
-    print("Opções disponíveis:")
-    print("1. Enviar mensagem de boas-vindas para chats")
-    print("2. Enviar mensagem para canal")
-    
-    escolha = input("Escolha uma opção (1 ou 2): ")
-    
-    if escolha == "1":
-        enviar_mensagem_boas_vindas()
-    elif escolha == "2":
-        enviar_mensagem_para_canal()
-    else:
-        print("Opção inválida")
+    print("🚀 Enviando mensagem de boas-vindas para o Telegram...")
+    enviar_mensagem_boas_vindas()

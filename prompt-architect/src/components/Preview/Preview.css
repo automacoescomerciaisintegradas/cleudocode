@@ -1,0 +1,35 @@
+.preview-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.preview-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.markdown-preview {
+    flex: 1;
+    background: #1a1a1a;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    color: #e0e0e0;
+}
+
+.copy-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}

@@ -62,33 +62,18 @@ class RAGBrain:
             )
         
     def _generate_embedding(self, text):
-        """Gera embedding usando a API do Ollama com fallback local"""
-        url = f"{OLLAMA_HOST}/api/embeddings"
-        payload = {
-            "model": MODEL,
-            "prompt": text
-        }
+        """Gera embedding usando Fallback Local (ChromaDB Default)"""
+        # Removido suporte a Ollama Embeddings para estabilidade
         
-        # 1. Tenta via Ollama
-        try:
-            response = requests.post(url, json=payload, timeout=2) # Timeout curto para fallback rápido
-            if response.status_code == 200:
-                data = response.json()
-                return data["embedding"]
-        except Exception:
-            pass # Silencia erro para tentar o fallback
-            
-        # 2. Fallback Local (Usando a função padrão do ChromaDB)
-        # Nota: Isso pode baixar um modelo pequeno (~20MB) na primeira vez
+        # Fallback Local (Usando a função padrão do ChromaDB)
         try:
             if not hasattr(self, 'local_ef'):
                 from chromadb.utils import embedding_functions
                 self.local_ef = embedding_functions.DefaultEmbeddingFunction()
-                print("Usando Fallback Local para Embeddings (Ollama Offline)")
             
             return self.local_ef([text])[0]
         except Exception as e:
-            print(f"Falha crítica em ambos os métodos de embedding: {e}")
+            print(f"Falha crítica em embedding local: {e}")
             return None
 
     def add_document(self, content, filename, doc_type):

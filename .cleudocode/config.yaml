@@ -1,0 +1,115 @@
+agent:
+  autonomous_mode: false
+  max_iterations: 10
+  personas:
+  - description: Brainstorming e Requisitos
+    name: Mary
+    role: Analista
+  - description: Documentação e Visão de Produto
+    name: John
+    role: PM
+  - description: Estrutura técnica e decisões
+    name: Winston
+    role: Arquiteto
+  - description: Implementação e Código
+    name: Carl
+    role: Dev
+  - description: Busca na Web e verificação de fatos
+    name: Sherlock
+    role: Researcher
+  timeout_seconds: 300
+auth:
+  google_antigravity_token: s
+backup:
+  enabled: true
+  include:
+  - memory
+  - config
+  - skills
+  interval_hours: 24
+  max_backups: 7
+browser:
+  enabled: true
+  headless: true
+  user_data_dir: ~/.cleudocode/browser_data
+channels:
+  discord:
+    bot_token: ${DISCORD_BOT_TOKEN}
+    enabled: false
+  slack:
+    bot_token: ${SLACK_BOT_TOKEN}
+    enabled: false
+  telegram:
+    bot_token: ${TELEGRAM_BOT_TOKEN}
+    enabled: true
+  whatsapp:
+    api_url: ${WHATSAPP_API_URL}
+    enabled: false
+    instance_name: ${WHATSAPP_INSTANCE}
+dashboard:
+  auto_open_browser: true
+  enabled: true
+  port: 8501
+  theme: dark
+docker:
+  auto_start: false
+  compose_file: docker-compose.yml
+  enabled: true
+gateway:
+  allowed_origins:
+  - http://localhost:*
+  - http://127.0.0.1:*
+  cors_enabled: true
+  enable_auth: true
+  host: 0.0.0.0
+  port: 18900
+  token_file: ~/.cleudocode/.gateway_token
+llm:
+  default_model: gemini-1.5-pro
+  default_provider: google
+  providers:
+    google:
+      api_key: AIzaSyDh2k-RYu2714jAykby2dkMoBxvINvfjKs
+      enabled: true
+logging:
+  backup_count: 5
+  format: json
+  level: INFO
+  max_file_size_mb: 100
+mcp:
+  enabled: true
+  stitch:
+    auth:
+      credentials_file: ~/.config/gcloud/application_default_credentials.json
+      project_id: gen-lang-client-0700279835
+      type: oauth2_adc
+    enabled: true
+    provider: google
+    url: https://stitch.googleapis.com/mcp
+memory:
+  chunk_overlap: 200
+  chunk_size: 1000
+  collection_name: cleudocode_memory
+  embedding_model: all-MiniLM-L6-v2
+  enabled: true
+  max_results: 5
+  provider: chromadb
+security:
+  allowed_ips: []
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 60
+  require_token: true
+  token_expiry_days: 365
+skills:
+  auto_load: true
+  enabled: true
+  installed: []
+  marketplace_url: https://skills.cleudocode.com
+system:
+  logs_dir: ~/.cleudocode/logs
+  memory_dir: ~/.cleudocode/memory
+  name: Cleudocode
+  skills_dir: ~/.cleudocode/skills
+  version: 1.0.0
+  workspace_dir: ~/.cleudocode/workspace

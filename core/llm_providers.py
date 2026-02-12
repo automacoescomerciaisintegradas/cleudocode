@@ -17,8 +17,8 @@ class LLMHub:
             return self._dispatch_query(messages, model, provider, temperature, **kwargs)
 
         # 2. Caso contrário, tentamos a sequência de fallback do .env
-        # Incluindo 'google' e 'openrouter' na sequência padrão se não definido
-        default_seq = "ollama,anthropic,zai,google,openrouter,openai"
+        # Incluindo 'google', 'openrouter' e 'ollama' na sequência padrão se não definido
+        default_seq = "anthropic,zai,google,openrouter,openai,ollama"
         fallback_str = os.getenv("LLM_FALLBACK_SEQUENCE", default_seq)
         sequence = [p.strip() for p in fallback_str.split(",")]
         
@@ -33,6 +33,7 @@ class LLMHub:
                 if p == "zai" and not os.getenv("ZAI_API_KEY"): continue
                 if p == "groq" and not os.getenv("GROQ_API_KEY"): continue
                 if p == "moonshot" and not os.getenv("MOONSHOT_API_KEY"): continue
+                if p == "ollama" and not os.getenv("OLLAMA_ENABLED", "true") == "true": continue
 
                 logger.info(f"Tentando provedor: {p}")
                 return self._dispatch_query(messages, model, p, temperature, **kwargs)
@@ -56,11 +57,11 @@ class LLMHub:
         elif provider == "openrouter":
             return self._query_openrouter(messages, model or "google/gemini-flash-2.0", temperature, **kwargs)
         elif provider == "google":
-            return self._query_google(messages, model or "gemini-1.5-pro", temperature, **kwargs)
+            return self._query_google(messages, model or "gemini-1.5-flash", temperature, **kwargs)
+        elif provider == "ollama":
+            return self._query_ollama(messages, model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:1.5b"), temperature, **kwargs)
         elif provider == "google-antigravity":
             return self._query_google_antigravity(messages, model or "google/antigravity-v1", temperature, **kwargs)
-        elif provider == "ollama":
-            return self._query_ollama(messages, model or os.getenv("DEEPSEEK_MODEL", "qwen2.5:7b"), temperature, **kwargs)
         elif provider == "groq":
             return self._query_groq(messages, model or "openai/gpt-oss-20b", temperature, **kwargs)
         elif provider == "moonshot":
@@ -101,16 +102,38 @@ class LLMHub:
             "content-type": "application/json"
         }
         
-        # Converter formato OpenAI (messages) para formato Anthropic se necessário
-        # Simplificação: assume que messages já estão no formato correto ou converte sistema
+        # 1. Extract System Message
         system_msg = ""
-        anthropic_messages = []
+        filtered_msgs = []
         for m in messages:
             if m["role"] == "system":
-                system_msg = m["content"]
+                system_msg += m["content"] + "\n"
             else:
-                anthropic_messages.append({"role": m["role"], "content": m["content"]})
+                filtered_msgs.append(m)
         
+        # 2. Sanitize Messages (Must start with user, alternate user/assistant)
+        anthropic_messages = []
+        if not filtered_msgs:
+            # Fallback if no messages
+            anthropic_messages.append({"role": "user", "content": "Hello"})
+        else:
+            # Ensure first message is user
+            if filtered_msgs[0]["role"] != "user":
+                 anthropic_messages.append({"role": "user", "content": "Context:"})
+            
+            # Merge consecutive same-role messages
+            last_role = None
+            for m in filtered_msgs:
+                role = m["role"]
+                content = m["content"]
+                
+                if role == last_role:
+                    # Append to previous message content
+                    anthropic_messages[-1]["content"] += f"\n\n{content}"
+                else:
+                    anthropic_messages.append({"role": role, "content": content})
+                    last_role = role
+
         payload = {
             "model": model,
             "max_tokens": 4096,
@@ -119,112 +142,103 @@ class LLMHub:
             **kwargs
         }
         if system_msg:
-            payload["system"] = system_msg
+            payload["system"] = system_msg.strip()
             
         response = requests.post(url, headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 400:
+                 logger.error(f"Anthropic 400 Error: {response.text}")
+            raise e
+            
         return response.json()["content"][0]["text"]
 
     def _query_zai(self, messages, model, temperature, **kwargs):
-        """Provedor Z.AI (usando API compatível com Anthropic mas URL customizada)"""
+        """Provedor Z.AI / GLM-4 (usando API compatível com OpenAI)"""
         api_key = os.getenv("ZAI_API_KEY")
-        base_url = os.getenv("ZAI_BASE_URL", "https://api.z.ai/api/anthropic").rstrip('/')
+        base_url = os.getenv("ZAI_BASE_URL", "https://open.bigmodel.cn/api/paas/v4").rstrip('/')
         
         if not api_key:
             raise ValueError("ZAI_API_KEY não configurada")
-            
-        url = f"{base_url}/v1/messages"
+        
+        # GLM/BigModel usa formato OpenAI, não Anthropic
+        url = f"{base_url}/chat/completions"
         headers = {
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json"
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
         }
         
-        system_msg = ""
-        anthropic_messages = []
-        for m in messages:
-            if m["role"] == "system":
-                system_msg = m["content"]
-            else:
-                anthropic_messages.append({"role": m["role"], "content": m["content"]})
-        
-        payload = {
-            "model": model,
-            "max_tokens": 4096,
-            "messages": anthropic_messages,
-            "temperature": temperature,
-            **kwargs
-        }
-        if system_msg:
-            payload["system"] = system_msg
-            
-        response = requests.post(url, headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
-        return response.json()["content"][0]["text"]
-
-    def _query_ollama(self, messages, model, temperature, **kwargs):
-        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip('/')
-        
-        # Lista de hosts para tentar
-        hosts_to_try = []
-        
-        # Sugerir alternativas baseadas no ambiente
-        if os.path.exists('/.dockerenv'):
-            # No Docker, host.docker.internal é o host real (onde o Ollama costuma estar)
-            alt = ollama_host.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
-            hosts_to_try.append(alt)
-            if ollama_host not in hosts_to_try: hosts_to_try.append(ollama_host)
-        else:
-            hosts_to_try.append(ollama_host)
-            alt = ollama_host.replace("host.docker.internal", "localhost")
-            if alt not in hosts_to_try: hosts_to_try.append(alt)
-
-        url_path = "/v1/chat/completions"
         payload = {
             "model": model,
             "messages": messages,
             "temperature": temperature,
-            "stream": False,
             **kwargs
         }
         
-        last_err = None
-        for current_host in hosts_to_try:
-            try:
-                url = f"{current_host}{url_path}"
-                response = requests.post(url, json=payload, timeout=120)
-                response.raise_for_status()
-                return response.json()["choices"][0]["message"]["content"]
-            except Exception as e:
-                last_err = e
-                continue
-                
-        raise RuntimeError(f"Ollama offline (Tentados: {', '.join(hosts_to_try)}): {last_err}")
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
 
     def _query_google_antigravity(self, messages, model, temperature, **kwargs):
         auth_token = os.getenv("GOOGLE_ANTIGRAVITY_TOKEN")
         if not auth_token:
             raise ValueError("GOOGLE_ANTIGRAVITY_TOKEN não configurada.")
             
-        gateway_url = os.getenv("ANTIGRAVITY_GATEWAY_URL")
-        if not gateway_url:
-            base_url = "http://host.docker.internal:18900" if os.path.exists('/.dockerenv') else "http://localhost:18900"
-            gateway_url = f"{base_url}/v1/chat/completions"
+        # Use direct Google API if token is present, bypassing local gateway
+        # Map antigravity model to a real Google model
+        real_model = "gemini-2.0-flash-exp"
+        if model == "google/antigravity-v1":
+             real_model = "gemini-2.0-flash-exp" # Fast and good for agents
+        else:
+             real_model = model
 
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{real_model}:generateContent"
+        
         headers = {
             "Authorization": f"Bearer {auth_token}",
             "Content-Type": "application/json"
         }
-        payload = {
-            "model": model,
-            "messages": messages,
-            "temperature": temperature,
-            **kwargs
-        }
         
-        response = requests.post(gateway_url, headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
+        # Convert messages to Google format (same as _query_google)
+        contents = []
+        system_instruction = None
+        
+        for m in messages:
+            if m["role"] == "system":
+                system_instruction = {"parts": [{"text": m["content"]}]}
+            else:
+                role = "user" if m["role"] == "user" else "model"
+                contents.append({
+                    "role": role,
+                    "parts": [{"text": m["content"]}]
+                })
+        
+        payload = {
+            "contents": contents,
+            "generationConfig": {
+                "temperature": temperature,
+                "maxOutputTokens": 4096,
+            }
+        }
+        if system_instruction:
+            payload["system_instruction"] = system_instruction
+
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            response.raise_for_status()
+            
+            data = response.json()
+            if "candidates" in data and data["candidates"]:
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+            return "Erro: Resposta vazia do Google Antigravity"
+            
+        except requests.exceptions.HTTPError as e:
+            # Fallback to Gateway if direct API fails (e.g. invalid token scope)
+            logger.warning(f"Direct Google API failed ({e}), falling back to Gateway...")
+            raise e
+
 
     def _query_openrouter(self, messages, model, temperature, **kwargs):
         api_key = os.getenv("OPENROUTER_API_KEY")
@@ -254,7 +268,7 @@ class LLMHub:
         if not api_key:
             raise ValueError("GOOGLE_API_KEY não configurada")
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={api_key}"
         headers = {"Content-Type": "application/json"}
         
         # Converter mensagens para formato Google
@@ -330,6 +344,28 @@ class LLMHub:
         response = requests.post(url, headers=headers, json=payload, timeout=60)
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
+
+    def _query_ollama(self, messages, model, temperature, **kwargs):
+        """Provedor Ollama para execução local."""
+        host = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip('/')
+        url = f"{host}/api/chat"
+        
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "temperature": temperature
+            }
+        }
+        
+        try:
+            response = requests.post(url, json=payload, timeout=120)
+            response.raise_for_status()
+            return response.json()["message"]["content"]
+        except Exception as e:
+            logger.error(f"Erro no Ollama: {e}")
+            raise e
 
 # Instância única global
 llm_hub = LLMHub()

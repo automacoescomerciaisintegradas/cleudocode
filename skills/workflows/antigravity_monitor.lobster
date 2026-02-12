@@ -44,13 +44,13 @@ steps:
         
         ## Verificações
         
-      overwrite: false
+      overwrite: true
 
   - name: "Verificar status do serviço"
     skill: "shell"
     action: "execute"
     params:
-      command: "systemctl is-active {{ service_name }}"
+      command: "powershell -Command \"if (Get-Process python -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '*app.py*' }) { echo 'ACTIVE' } else { echo 'INACTIVE' }\""
       timeout: 10
     continue_on_error: true
 
@@ -58,7 +58,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "curl -s -o /dev/null -w '%{http_code}' {{ health_check_url }}"
+      command: "curl -s -o NUL -w \"%{http_code}\" http://localhost:18900/health"
       timeout: 15
     continue_on_error: true
 
@@ -66,7 +66,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "curl -s -o /dev/null -w '%{time_total}' {{ api_endpoint }}/status"
+      command: "powershell -Command \"$start = Get-Date; try { $res = Invoke-WebRequest -Uri http://localhost:18900/health -UseBasicParsing; (New-TimeSpan -Start $start -End (Get-Date)).TotalSeconds } catch { 0 }\""
       timeout: 20
     continue_on_error: true
 
@@ -74,7 +74,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "ps aux | grep {{ service_name }} | grep -v grep | awk '{sum+=$3} END {print sum}' || echo '0'"
+      command: "powershell -Command \"$p = Get-Process python | Where-Object { $_.Path -like '*app.py*' } | Select-Object -First 1; if ($p) { [math]::Round((Get-CimInstance Win32_Processor).LoadPercentage, 1) } else { echo 0 }\""
       timeout: 10
     continue_on_error: true
 
@@ -82,7 +82,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "ps aux | grep {{ service_name }} | grep -v grep | awk '{sum+=$4} END {print sum}' || echo '0'"
+      command: "powershell -Command \"$p = Get-Process python | Where-Object { $_.Path -like '*app.py*' } | Select-Object -First 1; if ($p) { [math]::Round($p.WorkingSet64 / 1MB, 1) } else { echo 0 }\""
       timeout: 10
     continue_on_error: true
 
@@ -90,7 +90,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "df -h /opt/antigravity | tail -1 | awk '{print $5}' | cut -d'%' -f1"
+      command: "powershell -Command \"$d = Get-CimInstance Win32_LogicalDisk -Filter 'DeviceID=''C:'''; [math]::Round(($d.Size - $d.FreeSpace) / $d.Size * 100, 1)\""
       timeout: 10
     continue_on_error: true
 
@@ -98,7 +98,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "tail -1000 {{ error_log }} 2>/dev/null | grep -c \"$(date '+%Y-%m-%d %H')\" || echo '0'"
+      command: "powershell -Command \"if (Test-Path 'web_server.err') { (Get-Content 'web_server.err' -Tail 1000 | Select-String 'ERROR' -AllMatches).Count } else { echo 0 }\""
       timeout: 15
     continue_on_error: true
 
@@ -106,7 +106,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "ping -c 3 8.8.8.8 > /dev/null && echo 'OK' || echo 'FAIL'"
+      command: "powershell -Command \"if (Test-Connection -ComputerName 8.8.8.8 -Count 1 -Quiet) { echo 'OK' } else { echo 'FAIL' }\""
       timeout: 20
     continue_on_error: true
 
@@ -114,7 +114,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "netstat -tlnp | grep {{ service_name }} | wc -l"
+      command: "powershell -Command \"(Get-NetTCPConnection -LocalPort 18900 -ErrorAction SilentlyContinue).Count\""
       timeout: 10
     continue_on_error: true
 
@@ -122,7 +122,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "tail -5 {{ log_file }} 2>/dev/null || echo 'Log não encontrado'"
+      command: "powershell -Command \"if (Test-Path 'web_server.log') { Get-Content 'web_server.log' -Tail 5 } else { echo 'Log não encontrado' }\""
       timeout: 10
     continue_on_error: true
 
@@ -130,7 +130,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "df -h / | tail -1 | awk '{print $5}' | cut -d'%' -f1"
+      command: "powershell -Command \"$d = Get-CimInstance Win32_LogicalDisk -Filter 'DeviceID=''C:'''; [math]::Round(($d.Size - $d.FreeSpace) / $d.Size * 100, 1)\""
       timeout: 10
     continue_on_error: true
 
@@ -140,120 +140,52 @@ steps:
     params:
       filepath: "{{ monitor_log }}"
       content: |
-        # Log de Monitoramento Antigravity
-        Início: {{ datetime }}
-        
-        ## Configuração
-        Serviço: {{ service_name }}
-        Health Check: {{ health_check_url }}
-        API: {{ api_endpoint }}
-        
-        ## Thresholds de Alerta
-        CPU: {{ alert_threshold_cpu }}%
-        Memória: {{ alert_threshold_memory }}%
-        Disco: {{ alert_threshold_disk }}%
-        Erros: {{ alert_threshold_errors }} por hora
-        
-        ## Verificações - {{ datetime }}
+        # Log de Monitoramento Antigravity - {{ datetime }}
         
         ### Status do Serviço
-        Serviço ativo: {% if step_2_result.success %}✅ {{ step_2_result.stdout }}{% else %}❌ INATIVO{% endif %}
-        Health check: {% if step_3_result.stdout == '200' %}✅ OK (200){% else %}❌ FALHA ({{ step_3_result.stdout }}){% endif %}
-        Tempo resposta: {{ step_4_result.stdout }}s
+        Serviço ativo: {{ step_2_result.stdout|trim }}
+        Health check: {{ step_3_result.stdout|trim }}
+        Tempo resposta: {{ step_4_result.stdout|trim }}s
         
         ### Recursos do Sistema
-        CPU processo: {{ step_5_result.stdout }}%
-        Memória processo: {{ step_6_result.stdout }}%
-        Disco aplicação: {{ step_7_result.stdout }}%
-        Disco sistema: {{ step_12_result.stdout }}%
+        Processo CPU: {{ step_5_result.stdout|trim }}%
+        Processo RAM: {{ step_6_result.stdout|trim }}MB
+        Disco C: (Aplicação): {{ step_7_result.stdout|trim }}%
         
         ### Logs e Conectividade
-        Erros última hora: {{ step_8_result.stdout }}
-        Conectividade: {% if step_9_result.stdout == 'OK' %}✅ OK{% else %}❌ FALHA{% endif %}
-        Portas ativas: {{ step_10_result.stdout }}
-        
-        ### Alertas Detectados
-        {% if step_5_result.stdout|float > alert_threshold_cpu %}🚨 ALERTA: CPU alta ({{ step_5_result.stdout }}%){% endif %}
-        {% if step_6_result.stdout|float > alert_threshold_memory %}🚨 ALERTA: Memória alta ({{ step_6_result.stdout }}%){% endif %}
-        {% if step_7_result.stdout|int > alert_threshold_disk %}🚨 ALERTA: Disco aplicação cheio ({{ step_7_result.stdout }}%){% endif %}
-        {% if step_12_result.stdout|int > alert_threshold_disk %}🚨 ALERTA: Disco sistema cheio ({{ step_12_result.stdout }}%){% endif %}
-        {% if step_8_result.stdout|int > alert_threshold_errors %}🚨 ALERTA: Muitos erros ({{ step_8_result.stdout }}){% endif %}
-        {% if step_3_result.stdout != '200' %}🚨 ALERTA: API não responde{% endif %}
-        {% if step_2_result.success == false %}🚨 ALERTA: Serviço inativo{% endif %}
-        
-        ### Últimas Linhas do Log
-        ```
-        {{ step_11_result.stdout }}
-        ```
+        Erros recentes: {{ step_8_result.stdout|trim }}
+        Conectividade: {{ step_9_result.stdout|trim }}
+        Portas ativas (18900): {{ step_10_result.stdout|trim }}
         
         ---
-        Monitoramento executado pelo Cleudocode Workflow Engine
-      overwrite: false
-
-  - name: "Determinar se alertas são necessários"
-    skill: "shell"
-    action: "execute"
-    params:
-      command: |
-        ALERTS=0
-        
-        # Verificar CPU
-        if [ "{{ step_5_result.stdout }}" != "" ] && [ "$(echo '{{ step_5_result.stdout }} > {{ alert_threshold_cpu }}' | bc -l 2>/dev/null || echo 0)" = "1" ]; then
-          ALERTS=$((ALERTS + 1))
-        fi
-        
-        # Verificar Memória
-        if [ "{{ step_6_result.stdout }}" != "" ] && [ "$(echo '{{ step_6_result.stdout }} > {{ alert_threshold_memory }}' | bc -l 2>/dev/null || echo 0)" = "1" ]; then
-          ALERTS=$((ALERTS + 1))
-        fi
-        
-        # Verificar Disco
-        if [ "{{ step_7_result.stdout }}" != "" ] && [ "{{ step_7_result.stdout }}" -gt "{{ alert_threshold_disk }}" ] 2>/dev/null; then
-          ALERTS=$((ALERTS + 1))
-        fi
-        
-        # Verificar Erros
-        if [ "{{ step_8_result.stdout }}" != "" ] && [ "{{ step_8_result.stdout }}" -gt "{{ alert_threshold_errors }}" ] 2>/dev/null; then
-          ALERTS=$((ALERTS + 1))
-        fi
-        
-        # Verificar API
-        if [ "{{ step_3_result.stdout }}" != "200" ]; then
-          ALERTS=$((ALERTS + 1))
-        fi
-        
-        # Verificar Serviço
-        if [ "{{ step_2_result.success }}" != "true" ]; then
-          ALERTS=$((ALERTS + 1))
-        fi
-        
-        echo $ALERTS
-      timeout: 10
+      overwrite: true
 
   - name: "Enviar notificação (normal ou alerta)"
     skill: "telegram"
     action: "send_message"
     params:
       message: |
-        {% if step_14_result.stdout|int > 0 %}🚨 *ALERTA - Antigravity Monitor*{% else %}📊 *Antigravity Monitor - OK*{% endif %}
+        {% set cpu = step_5_result.stdout|trim|float %}
+        {% set ram = step_6_result.stdout|trim|float %}
+        {% set errors = step_8_result.stdout|trim|int %}
+        {% set status = step_2_result.stdout|trim %}
+        
+        {% if cpu > alert_threshold_cpu or errors > alert_threshold_errors or status != 'ACTIVE' %}🚨 *ALERTA - Antigravity Monitor*{% else %}📊 *Antigravity Monitor - OK*{% endif %}
         
         🕐 *Verificação:* {{ datetime }}
         
-        🔧 *Serviço:* {% if step_2_result.success %}✅ Ativo{% else %}❌ Inativo{% endif %}
-        🌐 *API:* {% if step_3_result.stdout == '200' %}✅ OK{% else %}❌ Falha ({{ step_3_result.stdout }}){% endif %}
-        ⚡ *Resposta:* {{ step_4_result.stdout }}s
+        🔧 *Serviço:* {{ '✅ ACTIVE' if status == 'ACTIVE' else '❌ INACTIVE' }}
+        🌐 *API:* {{ '✅ OK' if step_3_result.stdout|trim == '200' else '❌ Falha' }}
+        ⚡ *Resposta:* {{ step_4_result.stdout|trim }}s
         
         💻 *Recursos:*
-        • CPU: {{ step_5_result.stdout }}%{% if step_5_result.stdout|float > alert_threshold_cpu %} 🚨{% endif %}
-        • RAM: {{ step_6_result.stdout }}%{% if step_6_result.stdout|float > alert_threshold_memory %} 🚨{% endif %}
-        • Disco: {{ step_7_result.stdout }}%{% if step_7_result.stdout|int > alert_threshold_disk %} 🚨{% endif %}
+        • CPU: {{ cpu }}% {{ '🚨' if cpu > alert_threshold_cpu }}
+        • RAM: {{ ram }}MB
+        • Disco: {{ step_7_result.stdout|trim }}%
         
         📋 *Status:*
-        • Erros/hora: {{ step_8_result.stdout }}{% if step_8_result.stdout|int > alert_threshold_errors %} 🚨{% endif %}
-        • Rede: {% if step_9_result.stdout == 'OK' %}✅{% else %}❌{% endif %}
-        • Portas: {{ step_10_result.stdout }}
-        
-        {% if step_14_result.stdout|int > 0 %}⚠️ *{{ step_14_result.stdout }} alerta(s) detectado(s)*{% endif %}
+        • Erros: {{ errors }} {{ '🚨' if errors > alert_threshold_errors }}
+        • Rede: {{ '✅' if step_9_result.stdout|trim == 'OK' else '❌' }}
         
         📄 *Log:* `{{ monitor_log }}`
     continue_on_error: true

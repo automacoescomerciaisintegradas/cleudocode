@@ -25,115 +25,19 @@ except ImportError:
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip('/')
 MODEL = os.getenv("DEEPSEEK_MODEL", "qwen2.5-coder:7b")
 
+# Importar tokens de design
+from design_tokens import generate_streamlit_css
+
 # Configuração da Página
 st.set_page_config(
-    page_title="Chat P2P LLM",
+    page_title="Cleudocode - Chat AI",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Estilização Customizada
-st.markdown("""
-<style>
-    /* === GLOBAL THEME OVERRIDES === */
-    /* Fundo Principal (Deepest Black) */
-    .stApp, [data-testid="stAppViewContainer"] {
-        background-color: #000000 !important;
-        color: #ffffff !important;
-    }
-    
-    /* Header (Transparente para fundir com o fundo) */
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-    }
-    
-    /* Sidebar (Dark Gray separado) */
-    section[data-testid="stSidebar"] {
-        background-color: #171717 !important;
-        border-right: 1px solid #333;
-    }
-    
-    /* Textos Gerais */
-    h1, h2, h3, p, span, div, label {
-        color: #ececec !important;
-    }
-    
-    /* === CHAT MESSAGES === */
-    /* Container das mensagens */
-    .stChatMessage {
-        background-color: transparent !important;
-        border: none !important; 
-        padding: 1.5rem !important; 
-    }
-    
-    /* Ícones do Usuário/Avatar */
-    .stChatMessage .stChatMessageAvatar {
-        background-color: #19c37d !important; /* ChatGPT Greenish */
-        color: white !important;
-    }
-    
-    /* Mensagem do Assistente (Fundo levemente cinza para destacar) */
-    [data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #000000 !important;
-    }
-    [data-testid="stChatMessage"]:nth-child(even) {
-        background-color: #1a1a1a !important; /* Slight contrast line */
-    }
-
-    /* === INPUTS & TEXTAREAS === */
-    /* Cor de fundo dos inputs */
-    .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-        background-color: #2f2f2f !important;
-        color: white !important;
-        border: 1px solid #444 !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Placeholder color */
-    ::placeholder {
-        color: #888 !important;
-    }
-
-    /* === BUTTONS === */
-    /* Primary Button (Enviar, Gerar) */
-    .stButton button[kind="primary"] {
-        background-color: #ececec !important;
-        color: #000 !important;
-        border: 1px solid #ececec !important;
-        font-weight: bold !important;
-    }
-    .stButton button[kind="primary"]:hover {
-        background-color: #ccc !important;
-        border-color: #ccc !important;
-    }
-
-    /* Secondary Button */
-    .stButton button[kind="secondary"] {
-        background-color: #333 !important;
-        color: #fff !important;
-        border: 1px solid #555 !important;
-    }
-    .stButton button[kind="secondary"]:hover {
-        background-color: #444 !important;
-        border-color: #666 !important;
-    }
-    
-    /* Tabs Selection */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
-        background-color: #000;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent !important;
-        color: #888 !important;
-    }
-    .stTabs [aria-selected="true"] {
-        color: #fff !important;
-        border-bottom: 2px solid white !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Aplicar Design Tokens
+st.markdown(generate_streamlit_css(), unsafe_allow_html=True)
 
 # Inicialização do Estado (Histórico)
 if "messages" not in st.session_state:
@@ -155,44 +59,18 @@ def encode_image_to_base64(uploaded_file):
         return None
 
 def chat_with_ollama_stream(messages):
-    """Envia o histórico para o Ollama com Streaming (Suporte a Vision)"""
-    url = f"{OLLAMA_HOST}/v1/chat/completions"
-    
-    api_messages = []
-    for m in messages:
-        if "images" in m and m["images"]:
-            content_parts = [{"type": "text", "text": m["content"]}]
-            for img_b64 in m["images"]:
-                content_parts.append({"type": "image_url", "image_url": {"url": img_b64}})
-            api_messages.append({"role": m["role"], "content": content_parts})
-        else:
-            api_messages.append({"role": m["role"], "content": m["content"]})
-    
-    payload = {
-        "model": MODEL,
-        "messages": api_messages,
-        "stream": True,
-        "temperature": 0.2 # Mais baixo para garantir comandos precisos
-    }
-    
+    """Fallback para Hub de LLMs (Sem Streaming real por enquanto, mas simulado)"""
     try:
-        with requests.post(url, json=payload, stream=True, timeout=120) as response:
-            response.raise_for_status()
-            for line in response.iter_lines():
-                if line:
-                    decoded_line = line.decode('utf-8')
-                    if decoded_line.startswith('data: '):
-                        json_str = decoded_line[6:]
-                        if json_str.strip() == '[DONE]': break
-                        try:
-                            json_data = json.loads(json_str)
-                            if 'choices' in json_data and len(json_data['choices']) > 0:
-                                delta = json_data['choices'][0].get('delta', {})
-                                if 'content' in delta:
-                                    yield delta['content']
-                        except: continue
+        from core.llm_providers import llm_hub
+        full_response = llm_hub.query(messages)
+        
+        # Simula streaming para compatibilidade com interface
+        chunk_size = 10
+        for i in range(0, len(full_response), chunk_size):
+            yield full_response[i:i+chunk_size]
+            
     except Exception as e:
-        yield f"❌ Erro de Conexão: {str(e)}"
+        yield f"Erro ao contatar Hub de IA: {str(e)}"
 
 import re
 
@@ -252,12 +130,30 @@ with st.sidebar:
     
     # Branding Sidebar
     st.markdown("---")
-    st.markdown("""
-    <div style='text-align: center; color: #888; font-size: 0.8em;'>
-        <b>Cleudocode 🤖🚀</b><br>
-        <span style='font-size: 0.9em;'>"© Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados."</span><br>
-        <a href='https://github.com/automacoescomerciaisintegradas/cleudocode' style='color: #888; text-decoration: none;'>GitHub Project</a><br>
-        contato@automacoescomerciais.com.br
+    try:
+        from design_tokens import COLORS
+        brand_color = COLORS['brand']['primary']
+    except:
+        brand_color = "#FF5F5F"
+        
+    st.markdown(f"""
+    <div style='
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+    '>
+        <div style='color: {brand_color}; font-weight: 900; font-size: 1.2rem; letter-spacing: -1px; margin-bottom: 5px;'>
+            CLEUDOCODE 🤖🚀
+        </div>
+        <div style='color: #666; font-size: 0.75rem; line-height: 1.4;'>
+            "© Automações Comerciais Integradas! 2026<br>
+            Todos os direitos reservados."<br>
+            <br>
+            <a href='https://github.com/automacoescomerciaisintegradas/cleudocode' style='color: #888; text-decoration: none; border-bottom: 1px solid #333;'>GitHub Project</a><br>
+            <span style='font-size: 0.7rem;'>contato@automacoescomerciais.com.br</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -291,16 +187,10 @@ with st.sidebar:
                     ]
                     
                     # Gerar resposta da IA
-                    payload = {
-                        "model": MODEL,
-                        "messages": greet_messages,
-                        "stream": False
-                    }
-                    r = requests.post(f"{OLLAMA_HOST}/v1/chat/completions", json=payload)
-                    if r.status_code == 200:
-                        greeting = r.json()["choices"][0]["message"]["content"]
-                        st.session_state.messages.append({"role": "assistant", "content": greeting})
-                        st.rerun()
+                    from core.llm_providers import llm_hub
+                    greeting = llm_hub.query(greet_messages)
+                    st.session_state.messages.append({"role": "assistant", "content": greeting})
+                    st.rerun()
             except Exception as e:
                 st.error(f"Erro ao carregar agente: {e}")
 
@@ -339,78 +229,103 @@ with st.sidebar:
 if "rag_brain" not in st.session_state:
     st.session_state.rag_brain = rag_engine.RAGBrain()
 
-# --- Layout Principal com Abas ---
-tab1, tab2, tab3, tab4 = st.tabs(["💬 Chat", "🧠 Memória", "🧪 Playground", "🖥️ Terminal"])
+    # Branding header
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        st.markdown(f"""
+            <div style='background: #FF5F5F; width: 80px; height: 80px; border-radius: 20px; 
+                 display: flex; align-items: center; justify-content: center; transform: rotate(-5deg);'>
+                <span style='font-size: 40px;'>🤖</span>
+            </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.title("Cleudocode")
+        st.markdown(f"<p style='color: #FF5F5F; font-weight: 600; margin-top: -15px;'>THE AI THAT ACTUALLY DOES THINGS.</p>", unsafe_allow_html=True)
 
-with tab1:
+
+
+    st.markdown("""
+    <!-- Window Header Decorator -->
+    <div style='
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-subtle);
+        border-bottom: none;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4rem;
+    '>
+        <div style='width: 12px; height: 12px; border-radius: 50%; background-color: #FF5F5F; opacity: 0.8;'></div>
+        <div style='width: 12px; height: 12px; border-radius: 50%; background-color: #FBBF24; opacity: 0.8;'></div>
+        <div style='width: 12px; height: 12px; border-radius: 50%; background-color: #34D399; opacity: 0.8;'></div>
+        <span style='color: #444; font-size: 0.7rem; font-family: var(--font-mono); margin-left: 10px; text-transform: uppercase;'>Mission Control v2.1 // System Active</span>
+    </div>
+""", unsafe_allow_html=True)
+
+# --- Layout Principal com Abas (Navegação Mission Control) ---
+tab_connect, tab_pulse, tab_market, tab_squad, tab_memory, tab_lab, tab_contato = st.tabs([
+    "CONNECT", "PULSE", "MARKET", "SQUAD", "MEMORY", "LAB", "CONTATO"
+])
+
+with tab_connect:
     # Renderiza histórico
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-            # Se tiver imagem, mostrar
             if "images" in message and message["images"]:
                 for img_data in message["images"]:
-                    # Remover header data:image... para exibir se necessário, ou usar st.image direto se for file
-                    # Como guardamos base64 completo, st.image aceita se passarmos corretamente
                     st.image(img_data, width=300)
 
-    # Input Container (Texto + Anexos)
-    with st.container():
-        c_prompt, c_upload = st.columns([6, 1])
-        
-        with c_upload:
-            # Aceita Imagens E Documentos agora
-            chat_file = st.file_uploader("📎", type=["png", "jpg", "jpeg", "pdf", "txt", "md", "py", "json"], label_visibility="collapsed")
-            
-        with c_prompt:
-            prompt = st.chat_input("Digite sua mensagem...")
+    # Input Container (Estilo Imagem 2 - Dark Bar + Red Round Button)
+    st.markdown("""
+        <style>
+        div[data-testid="stChatInput"] {
+            border-radius: 50px !important;
+            border: 1px solid #222 !important;
+            background-color: #0A0A0A !important;
+            padding: 5px 15px !important;
+        }
+        div[data-testid="stChatInput"] button {
+            background-color: #FF5F5F !important;
+            border-radius: 50% !important;
+            width: 40px !important;
+            height: 40px !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(255, 95, 95, 0.4) !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    prompt = st.chat_input("Defina sua próxima automação ...")
 
     if prompt:
         # Prepara a mensagem base
         msg_content = prompt
         msg_images = []
         
-        # Processa Anexo se houver
-        if chat_file:
-            file_type = chat_file.type
-            
-            # 1. É Imagem?
+        # Processa anexo da sidebar se houver
+        if "uploaded_file" in locals() and uploaded_file:
+            file_type = uploaded_file.type
             if "image" in file_type:
-                b64_image = encode_image_to_base64(chat_file)
-                if b64_image:
-                     msg_images.append(b64_image)
-            
-            # 2. É PDF?
+                b64_image = encode_image_to_base64(uploaded_file)
+                if b64_image: msg_images.append(b64_image)
             elif file_type == "application/pdf":
-                with st.spinner("Lendo PDF anexado..."):
-                    pdf_text = rag_engine.extract_text_from_pdf(chat_file)
-                    msg_content += f"\n\n--- Conteúdo do arquivo anexado ({chat_file.name}) ---\n{pdf_text}\n--- Fim do arquivo ---\n"
-            
-            # 3. É Texto/Código?
+                pdf_text = rag_engine.extract_text_from_pdf(uploaded_file)
+                msg_content += f"\n\n--- Conteúdo do PDF ({uploaded_file.name}) ---\n{pdf_text}\n"
             else:
-                text_content = chat_file.read().decode("utf-8", errors="ignore")
-                msg_content += f"\n\n--- Conteúdo do arquivo anexado ({chat_file.name}) ---\n{text_content}\n--- Fim do arquivo ---\n"
+                text_content = uploaded_file.read().decode("utf-8", errors="ignore")
+                msg_content += f"\n\n--- Conteúdo do Arquivo ({uploaded_file.name}) ---\n{text_content}\n"
         
-        # Monta objeto da mensagem
-        msg_data = {"role": "user", "content": msg_content}
-        if msg_images:
-            msg_data["images"] = msg_images
-            
-        # Adiciona ao histórico e exibe
-        st.session_state.messages.append(msg_data)
+        # Adiciona e exibe mensagem do usuário
+        st.session_state.messages.append({"role": "user", "content": msg_content, "images": msg_images})
         with st.chat_message("user"):
-            st.markdown(prompt) # Mostra apenas o prompt original para ficar limpo visualmente
-            
-            # Mostra prévia do anexo
-            if chat_file:
-                if msg_images:
-                    st.image(msg_images[0], width=300)
-                else:
-                    st.info(f"📎 Anexo enviado: **{chat_file.name}**")
+            st.markdown(prompt)
+            if msg_images: st.image(msg_images[0], width=300)
         
-        # Verifica se RAG está ativo
+        # RAG Context
         rag_context = ""
-        
         if st.session_state.get("use_rag", False):
             with st.spinner("Buscando na memória..."):
                 snippets = st.session_state.rag_brain.search(prompt)
@@ -419,11 +334,11 @@ with tab1:
                     with st.expander(f"🧠 {len(snippets)} memórias encontradas", expanded=False):
                         st.markdown(rag_context)
 
-        # 3. Resposta do Assistente (Com Streaming)
+        # Resposta do Assistente
         with st.chat_message("assistant"):
             final_system_prompt = st.session_state.system_prompt
             if rag_context:
-                final_system_prompt += f"\n\nUse o seguinte contexto recuperado para responder à pergunta do usuário:\n{rag_context}"
+                final_system_prompt += f"\n\nUse o seguinte contexto recuperado para responder:\n{rag_context}"
 
             messages_to_send = [{"role": "system", "content": final_system_prompt}] + [
                 m for m in st.session_state.messages if m["role"] != "system"
@@ -433,21 +348,23 @@ with tab1:
             full_response = st.write_stream(response_stream)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
             
-            # --- EXECUÇÃO DE TOOLS NO SANDBOX ---
+            # Sandbox Tools
             tool_log = parse_and_execute_tools_in_sandbox(full_response)
             if tool_log:
-                with st.expander("🛠️ Ações do Agente (Executado no Sandbox)", expanded=True):
+                with st.expander("🛠️ Ações do Agente", expanded=True):
                     st.code(tool_log)
-                
-                # Opcional: Enviar resultado de volta para o agente
-                st.session_state.messages.append({"role": "user", "content": f"Resultado das ferramentas:\n{tool_log}"})
-                # Re-executa se quiser que ele continue, mas por segurança vamos parar aqui ou dar um botão
-                if st.button("Continuar Execução Autônoma?"):
-                    st.rerun()
+                    st.session_state.messages.append({"role": "user", "content": f"Resultado das ferramentas:\n{tool_log}"})
+                    if st.button("Continuar Execução Autônoma?"): st.rerun()
 
-with tab2:
-    st.header("Gestão de Conhecimento")
-    st.write("Adicione arquivos aqui para aumentar o 'cérebro' do seu Chat.")
+with tab_memory:
+    st.markdown("""
+        <div style='background: var(--bg-secondary); padding: 2rem; border-radius: var(--radius-2xl); border: 1px solid var(--border-subtle); margin-bottom: 2rem;'>
+            <h2 style='margin: 0; color: white; display: flex; align-items: center; gap: 15px;'>
+                <span style='color: var(--brand-primary);'>🧠</span> Gestão de Conhecimento
+            </h2>
+            <p style='color: var(--text-secondary); margin-top: 10px;'>Expanda a inteligência do sistema indexando documentos e páginas web.</p>
+        </div>
+    """, unsafe_allow_html=True)
     
     # --- ÁREA 1: Upload Arquivos ---
     with st.form("upload_form"):
@@ -527,7 +444,7 @@ with tab2:
         st.link_button("🤖 ChatGPT", "https://chat.openai.com")
         st.link_button("🤗 Outras LLMs (HuggingFace)", "https://huggingface.co")
 
-with tab3:
+with tab_lab:
     st.header("🧪 Playground")
     
     # 1. Configuração Lateral (Direita na imagem, aqui simulamos com colunas)
@@ -590,46 +507,34 @@ with tab3:
                 # Executa
                 with st.spinner("Gerando..."):
                     # Prepara payload customizado
-                    url = f"{OLLAMA_HOST}/v1/chat/completions"
-                    payload = {
-                        "model": MODEL,
-                        "messages": st.session_state.playground_msgs,
-                        "temperature": p_temp,
-                        "max_tokens": p_tokens,
-                        "top_p": p_top_p,
-                        "stream": False # Sem stream no playground para simplificar a adição do bloco final
-                    }
                     try:
-                        r = requests.post(url, json=payload)
-                        if r.status_code == 200:
-                            ans = r.json()["choices"][0]["message"]["content"]
-                            st.session_state.playground_msgs.append({"role": "assistant", "content": ans})
-                            st.rerun()
-                        else:
-                            st.error(f"Erro: {r.text}")
+                        from core.llm_providers import llm_hub
+                        ans = llm_hub.query(model=MODEL, messages=st.session_state.playground_msgs, temperature=p_temp, max_tokens=p_tokens, top_p=p_top_p)
+                        st.session_state.playground_msgs.append({"role": "assistant", "content": ans})
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Erro: {e}")
                     except Exception as e:
                         st.error(f"Erro de conexão: {e}")
 
-with tab4:
-    # === CSS Customizado para Terminal - Estilo Open WebUI ===
+with tab_pulse:
+    # === CSS Customizado para Terminal - Design System Integrado ===
     st.markdown("""
     <style>
-        /* === OPEN WEBUI DARK THEME === */
-        
         /* Terminal Header Card */
         .terminal-header {
-            background: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            border-radius: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
             padding: 20px 24px;
             margin-bottom: 16px;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-family: var(--font-mono);
         }
         
         .terminal-header .title {
             font-size: 15px;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -637,82 +542,53 @@ with tab4:
         }
         
         .terminal-header .prompt-symbol {
-            color: #22c55e;
+            color: var(--brand-primary);
             font-weight: bold;
         }
         
         .terminal-header .version {
-            color: #6b7280;
+            color: var(--text-muted);
             font-size: 13px;
-            font-weight: normal;
         }
         
         .terminal-header .info-row {
             font-size: 13px;
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin: 4px 0;
         }
         
         .terminal-header .info-label {
-            color: #6b7280;
+            color: var(--text-muted);
         }
         
         .terminal-header .info-value {
-            color: #22c55e;
+            color: var(--brand-accent);
             margin-left: 8px;
-        }
-        
-        .terminal-header .info-action {
-            color: #3b82f6;
-            font-size: 12px;
-            margin-left: 12px;
         }
         
         /* Command List Card */
         .command-card {
-            background: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            border-radius: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
             padding: 20px 24px;
             margin-bottom: 16px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
         }
         
         .command-card p {
-            color: #d1d5db;
+            color: var(--text-secondary);
             margin-bottom: 16px;
             font-size: 14px;
         }
         
-        .command-item {
-            margin: 10px 0;
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        
         .command-item .cmd {
-            color: #3b82f6;
+            color: var(--brand-secondary);
             font-weight: 500;
         }
         
         .command-item .desc {
-            color: #6b7280;
-        }
-        
-        /* Footer */
-        .terminal-footer {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #6b7280;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .terminal-footer .separator {
-            color: #4b5563;
+            color: var(--text-muted);
         }
     </style>
     """, unsafe_allow_html=True)
@@ -1081,3 +957,148 @@ Digite `/help` para ver os comandos disponíveis.
             for line in response:
                 st.session_state.terminal_output.append({"type": "system", "content": line})
             st.rerun()
+
+# --- Conteúdo Adicional das Abas ---
+
+with tab_market:
+    st.markdown("""
+        <div style='max-width: 1000px; margin: 0 auto; padding: 2rem;'>
+            <div style='text-align: center; margin-bottom: 3rem;'>
+                <h2 style='color: white; font-family: Inter; font-weight: 900; font-style: italic; font-size: 3rem; letter-spacing: -2px; text-transform: uppercase;'>MARKETPLACE</h2>
+                <p style='color: #666; font-size: 1rem;'>Expanda as capacidades do Cleudocode com módulos certificados.</p>
+            </div>
+            
+            <div style='display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;'>
+                <!-- Card 1 -->
+                <div style='padding: 2rem; background: #0A0A0A; border: 1px solid #111; border-radius: 24px; opacity: 0.6; filter: grayscale(1);'>
+                    <div style='width: 40px; height: 40px; background: #FF5F5F; border-radius: 10px; margin-bottom: 1.5rem;'></div>
+                    <h4 style='color: white; margin-bottom: 0.5rem;'>Automação ERP</h4>
+                    <p style='color: #444; font-size: 0.8rem;'>Integração direta com sistemas de gestão comercial.</p>
+                    <div style='margin-top: 1rem; color: #FF5F5F; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;'>EM BREVE</div>
+                </div>
+                <!-- Card 2 -->
+                <div style='padding: 2rem; background: #0A0A0A; border: 1px solid #111; border-radius: 24px; opacity: 0.6; filter: grayscale(1);'>
+                    <div style='width: 40px; height: 40px; background: #6366F1; border-radius: 10px; margin-bottom: 1.5rem;'></div>
+                    <h4 style='color: white; margin-bottom: 0.5rem;'>Advanced Vision</h4>
+                    <p style='color: #444; font-size: 0.8rem;'>Processamento de OCR e análise de imagens em massa.</p>
+                    <div style='margin-top: 1rem; color: #FF5F5F; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;'>EM BREVE</div>
+                </div>
+                <!-- Card 3 -->
+                <div style='padding: 2rem; background: #0A0A0A; border: 1px solid #111; border-radius: 24px; opacity: 0.6; filter: grayscale(1);'>
+                    <div style='width: 40px; height: 40px; background: #10B981; border-radius: 10px; margin-bottom: 1.5rem;'></div>
+                    <h4 style='color: white; margin-bottom: 0.5rem;'>Voice Engine</h4>
+                    <p style='color: #444; font-size: 0.8rem;'>Interação por voz com latência ultra-baixa.</p>
+                    <div style='margin-top: 1rem; color: #FF5F5F; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;'>EM BREVE</div>
+                </div>
+            </div>
+            
+            <div style='margin-top: 4rem; text-align: center; padding: 3rem; background: rgba(255,95,95,0.03); border: 1px solid rgba(255,95,95,0.1); border-radius: 30px;'>
+                <p style='color: #FF5F5F; font-weight: 700; font-size: 1.2rem;'>Quer publicar sua própria Skill?</p>
+                <p style='color: #666; font-size: 0.9rem;'>O ecossistema Cleudocode está crescendo. Inscreva-se para o Beta do Developer Portal.</p>
+                <button style='background: #FF5F5F; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 700; margin-top: 1.5rem; cursor: pointer;'>JOIN WAITLIST</button>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with tab_squad:
+    st.markdown("""
+        <div style='max-width: 1000px; margin: 0 auto; padding: 2rem;'>
+            <div style='text-align: center; margin-bottom: 3.5rem; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); padding: 3rem; border-radius: 40px; border: 1px solid rgba(255,255,255,0.05);'>
+                <h2 style='color: white; font-family: Inter; font-weight: 900; font-style: italic; font-size: 3rem; letter-spacing: -2px; text-transform: uppercase; margin: 0;'>AGENT SQUAD</h2>
+                <p style='color: #FF5F5F; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 5px; margin-top: 1rem;'>System Orchestrator</p>
+            </div>
+            
+            <div style='display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;'>
+                <!-- Main Status -->
+                <div style='padding: 2.5rem; background: #080808; border: 1px solid #111; border-radius: 32px;'>
+                    <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2rem; font-weight: 800;'>Status da Orquestração</h4>
+                    
+                    <div style='display: flex; flex-direction: column; gap: 1.5rem;'>
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #151515;'>
+                            <span style='color: #888;'>Capacidade de Resposta</span>
+                            <span style='color: #34D399; font-weight: 800;'>98.4%</span>
+                        </div>
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #151515;'>
+                            <span style='color: #888;'>Latência Média</span>
+                            <span style='color: #FBBF24; font-weight: 800;'>142ms</span>
+                        </div>
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #151515;'>
+                            <span style='color: #888;'>Agentes Ativos</span>
+                            <span style='color: white; font-weight: 800;'>12 / 12</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Connection Status -->
+                <div style='padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 32px; text-align: center;'>
+                    <div style='width: 15px; height: 15px; background: #FF5F5F; border-radius: 50%; box-shadow: 0 0 15px #FF5F5F; margin: 0 auto 1.5rem auto;'></div>
+                    <h4 style='color: white; font-size: 0.9rem; margin-bottom: 1rem;'>SENTIENT GRID</h4>
+                    <p style='color: #444; font-size: 0.7rem;'>SISTEMA OFFLINE</p>
+                    <div style='margin-top: 2rem; font-size: 1.5rem; color: #111; font-weight: 900;'>DISCONNECTED</div>
+                </div>
+            </div>
+            
+            <div style='margin-top: 1.5rem; padding: 2.5rem; background: #080808; border: 1px solid #111; border-radius: 32px;'>
+                <p style='color: #555; font-size: 0.8rem; line-height: 1.6;'>
+                    O <b>Agent Squad</b> é o centro de comando que gerencia a colaboração entre instâncias especializadas. 
+                    A orquestração local permite que tarefas massivas sejam divididas e executadas simultaneamente sem perda de precisão.
+                </p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with tab_contato:
+    st.markdown("""
+<div style='max-width: 900px; margin: 0 auto; padding: 4rem; background: #080808; border: 1px solid rgba(255,255,255,0.03); border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.8);'>
+    <div style='text-align: center; margin-bottom: 4rem;'>
+        <h2 style='color: white; font-family: Inter; font-weight: 900; font-style: italic; font-size: 3.5rem; letter-spacing: -2px; text-transform: uppercase; margin: 0;'>CONTATO</h2>
+        <div style='color: #FF5F5F; font-family: Inter; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 5px; margin-top: 1rem;'>
+            CLEUDOCODE - THE AI THAT ACTUALLY DOES THINGS.
+        </div>
+    </div>
+    
+    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;'>
+        <div style='padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 20px;'>
+            <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; font-weight: 800;'>Suporte Técnico</h4>
+            <p style='color: white; font-weight: 600; font-size: 1rem; font-family: var(--font-mono); margin-bottom: 0.5rem;'>Assistência direta para implementação de agentes e resolução de conflitos de rede.</p>
+            <p style='color: #888; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.5rem;'>Automações Comerciais Integradas! ⚙️</p>
+            <a href='mailto:contato@automacoescomerciais.com.br' style='color: #FF5F5F; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>📧 Email: contato@automacoescomerciais.com.br</a>
+        </div>
+        <div style='padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 20px;'>
+            <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; font-weight: 800;'>Comercial / Parcerias</h4>
+            <p style='color: white; font-weight: 600; font-size: 1rem; font-family: var(--font-mono); margin-bottom: 1.5rem;'>Parcerias estratégicas, licenciamento Enterprise e expansão do ecossistema.</p>
+            <div style='display: flex; flex-direction: column; gap: 0.8rem;'>
+                <a href='https://t.me/+9cdym9gvPQ9iOWNh' target='_blank' style='color: #6366F1; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>💬 Telegram: Conectar agora</a>
+                <a href='https://wa.me/558894227586' target='_blank' style='color: #10B981; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>📱 WhatsApp: +55 88 94227586</a>
+                <div style='margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #222;'>
+                    <p style='color: #444; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;'>Atendimento humano</p>
+                    <a href='tel:+5588921567214' style='color: white; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>📱 Telefone: +55 88 921567214</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style='margin-top: 2rem; padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 20px; text-align: center;'>
+        <p style='color: #333; font-size: 0.9rem; line-height: 1.6;'>
+            Desenvolvido por <b style='color: #555;'>Automações Comerciais Integradas</b><br>
+            <span style='font-size: 0.8rem; letter-spacing: 1px; color: #222;'>SISTEMA DE MISSÃO CRÍTICA — © 2026</span>
+        </p>
+        <div style='margin-top: 2rem;'>
+            <a href='http://localhost:18900' target='_blank' style='
+                color: #FF5F5F; 
+                text-decoration: none; 
+                font-weight: 700; 
+                font-size: 0.7rem; 
+                text-transform: uppercase; 
+                letter-spacing: 2px;
+                border: 1px solid rgba(255,95,95,0.2);
+                padding: 8px 30px;
+                border-radius: 50px;
+                transition: all 0.3s ease;
+            '>
+                Acessar Página Principal de Contato
+            </a>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)

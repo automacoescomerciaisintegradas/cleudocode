@@ -26,13 +26,17 @@ services:
       - STREAMLIT_SERVER_PORT=8501
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
       - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+      # OLLAMA_HOST removed
       # LLM & AI
-      - DEFAULT_PROVIDER=${DEFAULT_PROVIDER:-ollama}
+      - DEFAULT_PROVIDER=${DEFAULT_PROVIDER:-zai}
       - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-qwen2.5-coder:1.5b}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - ZAI_API_KEY=${ZAI_API_KEY:-}
+      - ZAI_BASE_URL=${ZAI_BASE_URL:-https://open.bigmodel.cn/api/paas/v4}
+      - ZAI_MODEL=${ZAI_MODEL:-glm-4-plus}
       # WhatsApp (Evolution API)
       - WHATSAPP_BASE_URL=${WHATSAPP_BASE_URL:-}
       - WHATSAPP_INSTANCE_NAME=${WHATSAPP_INSTANCE_NAME:-cleudocode}

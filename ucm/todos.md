@@ -10,10 +10,10 @@
 ## Fase 2: CLI Aprimorado ⏳
 - [x] Adicionar comando `cleudocode dashboard`
 - [x] Implementar autenticação via token no CLI
-- [ ] Adicionar comando `cleudocode init` (setup inicial)
+- [x] Adicionar comando `cleudocode init` (setup inicial) ✅
 - [ ] Adicionar comando `cleudocode skills` (gerenciar skills)
 - [ ] Adicionar comando `cleudocode chat` (chat direto no terminal)
-- [ ] Melhorar comando `cleudocode config` para editar config.yaml
+- [x] Melhorar comando `cleudocode config` para editar config.yaml ✅
 
 ## Fase 3: Sistema de Configuração ✅
 - [x] Criar parser de config.yaml

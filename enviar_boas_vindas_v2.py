@@ -59,7 +59,7 @@ async def enviar_async(chat_id, mensagem):
            print(f"Fallback via API direta: {resp.status_code} - {resp.text}")
 
 def main():
-    chat_id = "5667792894" # ID fornecido no prompt
+    chat_id = "" # Substitua pelo ID real do seu chat quando obtido
     
     mensagem = """Até Breve 💎✨🃏
 Ajude a 🚀📰Newsletter a crescer convidando mais pessoas, mais pessoas mais motivação para trazer mais conteúdo.

@@ -51,7 +51,7 @@ link canal https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42"""
     # IDs de chat para enviar a mensagem
     # ATENÇÃO: Você precisa substituir este ID pelo ID real do chat ou grupo
     # Para obter o ID real, você pode verificar os logs anteriores ou usar métodos especiais
-    chat_ids = ["5667792894"]  # Este é o ID que vimos nos logs anteriores
+    chat_ids = []  # Adicione os IDs reais dos chats aqui quando obtidos
     
     # Se quiser enviar para outros chats, adicione-os aqui
     # chat_ids.extend(["outro_id1", "outro_id2"])

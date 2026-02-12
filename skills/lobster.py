@@ -135,16 +135,34 @@ class LobsterWorkflow:
             }
         
         workflow = self.workflows[workflow_name]
-        variables = variables or {}
         
-        # Adicionar variáveis padrão
-        variables.update({
+        # Preparar contexto de variáveis
+        # 1. Variáveis do workflow (YAML)
+        ctx_vars = workflow.get('variables', {}).copy()
+        
+        # 2. Variáveis padrão
+        ctx_vars.update({
             'date': datetime.now().strftime('%Y%m%d'),
             'datetime': datetime.now().strftime('%Y%m%d_%H%M%S'),
             'timestamp': datetime.now().isoformat(),
             'workflow_name': workflow_name
         })
         
+        # 3. Variáveis passadas na execução (User override)
+        if variables:
+            ctx_vars.update(variables)
+            
+        # 4. Interpolação das próprias variáveis (permitir referências entre elas)
+        # Fazemos duas passadas para permitir dependências simples
+        for _ in range(2):
+            for key, value in ctx_vars.items():
+                if isinstance(value, str) and "{{" in value:
+                    try:
+                        ctx_vars[key] = self._interpolate_variables(value, ctx_vars)
+                    except:
+                        pass
+        
+        variables = ctx_vars
         logger.info(f"Executando workflow: {workflow_name}")
         
         if async_mode:

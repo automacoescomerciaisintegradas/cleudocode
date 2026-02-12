@@ -1,4 +1,4 @@
-# 🦞 Workflows Práticos - Lobster Engine
+# Cleudocode Workflows Práticos - Lobster Engine
 
 ## 📋 Visão Geral
 

@@ -47,7 +47,7 @@ pip install -e .
 echo "Criando arquivo de configuração padrão..."
 cat > .env << EOF
 # Configurações do Cleudocodebot para EasyPanel
-OLLAMA_HOST=http://host.docker.internal:11434
+# OLLAMA_HOST Removido
 DEEPSEEK_MODEL=qwen2.5-coder:7b
 FLASK_RUN_HOST=0.0.0.0
 FLASK_RUN_PORT=5001
@@ -80,7 +80,7 @@ services:
     container_name: cleudocodebot-easypanel
     restart: unless-stopped
     environment:
-      - OLLAMA_HOST=\${OLLAMA_HOST:-http://host.docker.internal:11434}
+      # OLLAMA_HOST Removido
       - DEEPSEEK_MODEL=\${DEEPSEEK_MODEL:-qwen2.5-coder:7b}
       - FLASK_RUN_HOST=0.0.0.0
       - FLASK_RUN_PORT=5001

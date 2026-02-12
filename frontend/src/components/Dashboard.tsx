@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PromptArchitect from './PromptArchitect';
 
 interface RecentActivity {
     id: number;
@@ -28,71 +29,81 @@ export default function Dashboard() {
                     <button
                         className={`btn-ghost ${activeTab === 'overview' ? 'active' : ''}`}
                         onClick={() => setActiveTab('overview')}
-                        style={{ textAlign: 'left', width: '100%' }}
+                        style={{ textAlign: 'left', width: '100%', padding: '8px', cursor: 'pointer', background: activeTab === 'overview' ? '#e5e7eb' : 'transparent', border: 'none', borderRadius: '4px' }}
                     >
                         Overview
                     </button>
                     <button
                         className={`btn-ghost ${activeTab === 'activity' ? 'active' : ''}`}
                         onClick={() => setActiveTab('activity')}
-                        style={{ textAlign: 'left', width: '100%' }}
+                        style={{ textAlign: 'left', width: '100%', padding: '8px', cursor: 'pointer', background: activeTab === 'activity' ? '#e5e7eb' : 'transparent', border: 'none', borderRadius: '4px' }}
                     >
                         Activity
                     </button>
                     <button
-                        className="btn-ghost"
-                        style={{ textAlign: 'left', width: '100%' }}
+                        className={`btn-ghost ${activeTab === 'prompt-architect' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('prompt-architect')}
+                        style={{ textAlign: 'left', width: '100%', padding: '8px', cursor: 'pointer', background: activeTab === 'prompt-architect' ? '#e5e7eb' : 'transparent', border: 'none', borderRadius: '4px', color: 'var(--primary-main)', fontWeight: 'bold' }}
                     >
-                        Settings
+                        Prompt Architect
                     </button>
                 </nav>
             </aside>
 
             {/* Main Content */}
-            <main style={{ flex: 1, padding: '24px' }}>
+            <main style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column' }}>
                 <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1 style={{ fontSize: '24px', margin: 0 }}>Dashboard</h1>
+                        <h1 style={{ fontSize: '24px', margin: 0 }}>
+                            {activeTab === 'prompt-architect' ? 'Arquiteto de Prompts' : 'Dashboard'}
+                        </h1>
                         <p style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>Welcome back, Operator.</p>
                     </div>
-                    <button className="btn-primary">+ New Agent</button>
                 </header>
 
                 {activeTab === 'overview' && (
-                    <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
+                    <div className="card" style={{ padding: '24px', marginBottom: '24px', border: '1px solid #ddd', borderRadius: '8px' }}>
                         <h3>System Status</h3>
                         <p style={{ color: 'var(--status-success)', fontWeight: 600 }}>All Systems Operational</p>
                     </div>
                 )}
 
-                <div className="card">
-                    <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)' }}>
-                        <h3 style={{ margin: 0, fontSize: '16px' }}>Recent Activity</h3>
-                    </div>
-                    <div>
-                        {recentActivities.map((activity, index) => (
-                            <div key={activity.id} style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                padding: '16px 24px',
-                                borderBottom: index < recentActivities.length - 1 ? '1px solid var(--border-color)' : 'none',
-                                alignItems: 'center'
-                            }}>
-                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                    <span style={{
-                                        width: '8px', height: '8px', borderRadius: '50%',
-                                        backgroundColor: activity.status === 'success' ? 'var(--status-success)' : activity.status === 'error' ? 'var(--status-error-text)' : 'orange'
-                                    }}></span>
-                                    <div>
-                                        <strong style={{ display: 'block', color: 'var(--text-primary)' }}>{activity.user}</strong>
-                                        <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{activity.action}</span>
+                {activeTab === 'activity' && (
+                    <div className="card" style={{ border: '1px solid #ddd', borderRadius: '8px' }}>
+                        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)' }}>
+                            <h3 style={{ margin: 0, fontSize: '16px' }}>Recent Activity</h3>
+                        </div>
+                        <div>
+                            {recentActivities.map((activity, index) => (
+                                <div key={activity.id} style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    padding: '16px 24px',
+                                    borderBottom: index < recentActivities.length - 1 ? '1px solid var(--border-color)' : 'none',
+                                    alignItems: 'center'
+                                }}>
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        <span style={{
+                                            width: '8px', height: '8px', borderRadius: '50%',
+                                            backgroundColor: activity.status === 'success' ? 'var(--status-success)' : activity.status === 'error' ? 'var(--status-error-text)' : 'orange'
+                                        }}></span>
+                                        <div>
+                                            <strong style={{ display: 'block', color: 'var(--text-primary)' }}>{activity.user}</strong>
+                                            <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{activity.action}</span>
+                                        </div>
                                     </div>
+                                    <span style={{ color: 'var(--text-disabled)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>{activity.time}</span>
                                 </div>
-                                <span style={{ color: 'var(--text-disabled)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>{activity.time}</span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {activeTab === 'prompt-architect' && (
+                    <div style={{ flex: 1 }}>
+                        <PromptArchitect />
+                    </div>
+                )}
             </main>
         </div>
     );

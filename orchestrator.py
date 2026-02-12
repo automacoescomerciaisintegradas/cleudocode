@@ -15,7 +15,32 @@ class Orchestrator:
         self.agent_personas = {}
         self.mission_history = []
         self.agent_status = {} # Track what each agent is doing
+        self.state_file = Path(".agent_status.json")
         self._load_all_personas()
+        self._load_state()
+
+    def _load_state(self):
+        """Carrega o estado persistido dos agentes se existir"""
+        if self.state_file.exists():
+            try:
+                with open(self.state_file, "r", encoding="utf-8") as f:
+                    saved_status = json.load(f)
+                    # Merge saved status with loaded personas
+                    for agent, status in saved_status.items():
+                        if agent in self.agent_status:
+                            self.agent_status[agent].update(status)
+                logger.info("Estado dos agentes restaurado do disco.")
+            except Exception as e:
+                logger.error(f"Erro ao carregar estado: {e}")
+
+    def _save_state(self):
+        """Salva o estado atual dos agentes em disco para o CLI ler"""
+        try:
+            with open(self.state_file, "w", encoding="utf-8") as f:
+                json.dump(self.agent_status, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            logger.error(f"Erro ao salvar estado: {e}")
+
         
     def _load_all_personas(self):
         """Carrega todas as personas dos arquivos .md na pasta agents/"""
@@ -28,7 +53,15 @@ class Orchestrator:
                 name = agent_file.stem.lower()
                 content = agent_file.read_text(encoding='utf-8')
                 self.agent_personas[name] = content
-                self.agent_status[name] = {"state": "idle", "last_task": None, "last_active": None}
+                self.agent_personas[name] = content
+                if name not in self.agent_status:
+                    self.agent_status[name] = {
+                        "state": "idle", 
+                        "last_task": "Aguardando ordens", 
+                        "last_active": time.time(),
+                        "progress": 0,
+                        "role": name.replace("-", " ").title()
+                    }
                 logger.debug(f"Persona carregada: {name}")
             except Exception as e:
                 logger.error(f"Erro ao carregar persona {agent_file}: {e}")
@@ -56,11 +89,13 @@ class Orchestrator:
         persona = self.get_agent_persona(target_agent)
         
         # Update status to busy
-        self.agent_status[target_agent.lower()] = {
+        self.agent_status[target_agent.lower()].update({
             "state": "busy", 
             "last_task": task[:100], 
-            "last_active": time.time()
-        }
+            "last_active": time.time(),
+            "progress": 10
+        })
+        self._save_state()
 
         messages = [
             {"role": "system", "content": persona},
@@ -73,6 +108,8 @@ class Orchestrator:
             
             # Update status back to idle
             self.agent_status[target_agent.lower()]["state"] = "idle"
+            self.agent_status[target_agent.lower()]["progress"] = 100
+            self._save_state()
             
             result = {
                 "agent": target_agent,
@@ -84,6 +121,7 @@ class Orchestrator:
         except Exception as e:
             logger.error(f"Falha na delegação para {target_agent}: {e}")
             self.agent_status[target_agent.lower()]["state"] = "error"
+            self._save_state()
             return {
                 "agent": target_agent,
                 "status": "error",
@@ -112,6 +150,8 @@ class Orchestrator:
             except Exception as e:
                 logger.error(f"Erro no debate com {agent}: {e}")
                 self.agent_status[agent.lower()]["state"] = "error"
+            
+            self._save_state()
 
         # Synth by Jarvis
         jarvis_persona = self.get_agent_persona("jarvis")
@@ -150,12 +190,25 @@ class Orchestrator:
             except Exception as e:
                 logger.error(f"Erro ao iniciar debate: {e}")
 
-        # 2. Ativação do Jarvis (Mission Control Lead)
-        jarvis_persona = self.get_agent_persona("jarvis")
-        self.agent_status["jarvis"] = {"state": "busy", "last_task": text[:100], "last_active": time.time()}
+        # 2. Seleção de Personagem (Default: Jarvis)
+        target = msg.get("targeted_agent", "jarvis").lower()
+        persona = self.get_agent_persona(target)
         
-        system_prompt = f"{jarvis_persona}\n\nVocê deve analisar se pode resolver o pedido ou se deve delegar. Use a sintaxe 'delegate-task [agent-id] [task-description]' se necessário."
+        persona = self.get_agent_persona(target)
         
+        self.agent_status[target].update({
+            "state": "busy", 
+            "last_task": text[:100], 
+            "last_active": time.time(),
+            "progress": 20
+        })
+        self._save_state()
+        
+        if target == "jarvis":
+            system_prompt = f"{persona}\n\nVocê deve analisar se pode resolver o pedido ou se deve delegar. Use a sintaxe 'delegate-task [agent-id] [task-description]' se necessário."
+        else:
+            system_prompt = persona
+
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
@@ -163,7 +216,9 @@ class Orchestrator:
         
         try:
             response = llm_hub.query(messages=messages)
-            self.agent_status["jarvis"]["state"] = "idle"
+            self.agent_status[target]["state"] = "idle"
+            self.agent_status[target]["progress"] = 100
+            self._save_state()
             
             # Checa se Jarvis decidiu delegar
             if "delegate-task" in response:
@@ -187,12 +242,13 @@ class Orchestrator:
                 "mission_control": "handled_by_lead",
                 "result": {"overall_status": "success", "output": response}
             }
-            self._log_mission(text, {"status": "success", "agent": "jarvis"})
+            self._log_mission(text, {"status": "success", "agent": target})
             return res
             
         except Exception as e:
             logger.error(f"Erro no Mission Control: {e}")
-            self.agent_status["jarvis"]["state"] = "error"
-            return {"status": "error", "message": f"Erro Jarvis: {str(e)}"}
+            self.agent_status[target]["state"] = "error"
+            self._save_state()
+            return {"status": "error", "message": f"Erro {target}: {str(e)}"}
 
 orchestrator = Orchestrator()

@@ -1,0 +1,20 @@
+{
+    "active": true,
+    "spec": "001-feature",
+    "state": "building",
+    "chunks": {
+        "completed": 3,
+        "in_progress": 1,
+        "pending": 8,
+        "total": 12
+    },
+    "phase": {
+        "current": "Setup",
+        "id": 2,
+        "total": 4
+    },
+    "workers": {
+        "active": 2,
+        "max": 3
+    }
+}

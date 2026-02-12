@@ -57,107 +57,129 @@ def require_authentication():
 
 def show_login_page():
     """Show authentication page"""
+    try:
+        from design_tokens import COLORS, FONTS, BORDER_RADIUS, SHADOWS
+        brand_primary = COLORS['brand']['primary']
+        bg_primary = COLORS['background']['primary']
+        text_primary = COLORS['text']['primary']
+        font_sans = FONTS['family']['sans']
+    except ImportError:
+        brand_primary = "#FF5F5F"
+        bg_primary = "#050505"
+        text_primary = "#FFFFFF"
+        font_sans = "Inter, sans-serif"
+
     st.set_page_config(
-        page_title="Cleudocode - Login",
-        page_icon="🔐",
+        page_title="Cleudocode - Mission Control",
+        page_icon="🤖",
         layout="centered"
     )
     
-    st.markdown("""
+    st.markdown(f"""
         <style>
-        .main {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .stApp {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+        .stApp {{
+            background-color: {bg_primary} !important;
+            font-family: {font_sans} !important;
+        }}
+        .login-card {{
+            background: #080808 !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding: 3rem !important;
+            border-radius: 24px !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important;
+        }}
+        .brand-logo {{
+            color: white !important;
+            font-family: {font_sans} !important;
+            font-weight: 800 !important;
+            font-style: italic !important;
+            font-size: 4.5rem !important;
+            letter-spacing: -2px !important;
+            line-height: 1 !important;
+            text-transform: uppercase !important;
+            margin-bottom: 1rem !important;
+            text-align: center;
+        }}
+        .tagline {{
+            color: {brand_primary} !important;
+            font-family: {font_sans} !important;
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 4px !important;
+            text-align: center;
+            margin-bottom: 3rem !important;
+        }}
+        .stButton button[kind="primary"] {{
+            background-color: {brand_primary} !important;
+            height: 3rem !important;
+        }}
+        .stTextInput input {{
+            background-color: #111 !important;
+            border: 1px solid #222 !important;
+            height: 3.5rem !important;
+            text-align: center !important;
+            font-size: 1.2rem !important;
+            border-radius: 12px !important;
+        }}
         </style>
     """, unsafe_allow_html=True)
     
-    # Center content
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown("<br><br><br>", unsafe_allow_html=True)
     
+    # Logo Area
+    st.markdown("<div class='brand-logo'>CLEUDOCODE</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color: #FF5F5F; text-align: center; font-family: Inter; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 6px; margin-bottom: 4rem;'>THE AI THAT ACTUALLY DOES THINGS.</div>", unsafe_allow_html=True)
+    
+    # Login card
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        
-        # Logo/Title
-        st.markdown("""
-            <div style='text-align: center; padding: 2rem;'>
-                <h1 style='color: white; font-size: 3rem; margin-bottom: 0.5rem;'>
-                    🤖 Cleudocode
-                </h1>
-                <p style='color: rgba(255,255,255,0.8); font-size: 1.2rem;'>
-                    Personal AI Assistant
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Login card
         with st.container():
-            st.markdown("""
-                <div style='background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
-            """, unsafe_allow_html=True)
+            st.markdown("<div class='login-card'>", unsafe_allow_html=True)
             
-            st.markdown("### 🔐 Autenticação Necessária")
-            st.markdown("Insira seu token de acesso para continuar.")
+            st.markdown(f"<h3 style='text-align: center; color: white; margin-bottom: 0.5rem; font-family: Inter; letter-spacing: 1px;'>🔐 Autenticação</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align: center; color: #888; margin-bottom: 2rem; font-size: 0.9rem;'>Insira seu token de acesso para continuar.</p>", unsafe_allow_html=True)
             
-            # Token input
             token_input = st.text_input(
                 "Gateway Token",
                 type="password",
-                placeholder="Digite seu token aqui...",
-                help="Use o comando 'cleudocode dashboard' para obter o token automaticamente"
+                placeholder="Insira seu token...",
+                label_visibility="collapsed"
             )
             
-            col_btn1, col_btn2 = st.columns(2)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            with col_btn1:
-                if st.button("🚀 Entrar", use_container_width=True, type="primary"):
-                    config_manager = get_config_manager()
-                    stored_token = config_manager.get_or_create_token()
-                    
-                    if token_input == stored_token:
-                        st.session_state.authenticated = True
-                        st.session_state.token = token_input
-                        st.success("✅ Autenticado com sucesso!")
-                        st.rerun()
-                    else:
-                        st.error("❌ Token inválido!")
-            
-            with col_btn2:
-                if st.button("📋 Copiar Comando", use_container_width=True):
-                    st.code("cleudocode dashboard", language="bash")
-                    st.info("Execute este comando no terminal para abrir o dashboard automaticamente")
+            if st.button("INICIAR SESSÃO", use_container_width=True, type="primary"):
+                config_manager = get_config_manager()
+                stored_token = config_manager.get_or_create_token()
+                
+                if token_input == stored_token:
+                    st.session_state.authenticated = True
+                    st.session_state.token = token_input
+                    st.success("SESSÃO VALIDADA")
+                    st.rerun()
+                else:
+                    st.error("ACESSO NEGADO: TOKEN INVÁLIDO")
             
             st.markdown("</div>", unsafe_allow_html=True)
         
-        # Help section
+        # Help Section
         st.markdown("<br>", unsafe_allow_html=True)
-        with st.expander("❓ Como obter o token?"):
-            st.markdown("""
-                **Método 1: Usar o CLI (Recomendado)**
-                ```bash
-                cleudocode dashboard
-                ```
-                Este comando abrirá o dashboard automaticamente com autenticação.
-                
-                **Método 2: Localizar o token manualmente**
-                O token está armazenado em:
-                ```
-                ~/.cleudocode/.gateway_token
-                ```
-                
-                **Método 3: Gerar novo token**
-                ```bash
-                cleudocode config reset-token
-                ```
-            """)
-        
-        # Footer
-        st.markdown("""
-            <div style='text-align: center; margin-top: 3rem; color: rgba(255,255,255,0.6);'>
-                <p>Cleudocode v1.0.0</p>
-                <p>© 2025 Automações Comerciais Integradas</p>
+        with st.expander("❓ Precisa de ajuda?"):
+            st.markdown(f"""
+                <div style='color: #888; font-size: 0.9rem;'>
+                Para acessar o sistema sem digitar o token manualmente, execute no seu terminal:
+                <br><br>
+                <code style='color: #FF5F5F; background: rgba(255,95,95,0.1); padding: 4px 8px; border-radius: 4px;'>cleudocode dashboard</code>
+                <br><br>
+                O dashboard será aberto no seu navegador já autenticado.
+                </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+            <div style='text-align: center; margin-top: 4rem; color: #333; font-family: {font_sans}; font-size: 0.7rem; letter-spacing: 1px;'>
+                © 2026 Automações Comerciais Integradas<br>
+                V 2.0.0 - Mission Control Agent
             </div>
         """, unsafe_allow_html=True)
 
@@ -174,7 +196,35 @@ def logout():
 def show_auth_status():
     """Show authentication status in sidebar"""
     if check_authentication():
+        try:
+            from design_tokens import COLORS, BORDER_RADIUS, SPACING
+            brand_primary = COLORS['brand']['primary']
+            bg_elevated = COLORS['background']['elevated']
+            radius_lg = BORDER_RADIUS['lg']
+            space_2 = SPACING['2']
+        except ImportError:
+            brand_primary = "#FF5F5F"
+            bg_elevated = "rgba(255, 255, 255, 0.05)"
+            radius_lg = "0.5rem"
+            space_2 = "0.5rem"
+
         with st.sidebar:
-            st.success("🔓 Autenticado")
-            if st.button("🚪 Sair", use_container_width=True):
+            st.markdown(f"""
+                <div style='
+                    background: {bg_elevated};
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    border-left: 3px solid #10B981;
+                    padding: {space_2} 1rem;
+                    border-radius: {radius_lg};
+                    margin-bottom: 1rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                '>
+                    <span style='color: #10B981;'>●</span>
+                    <span style='color: white; font-size: 0.9rem; font-weight: 500;'>Sistema Autenticado</span>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button("🚪 Encerrar Sessão", use_container_width=True):
                 logout()

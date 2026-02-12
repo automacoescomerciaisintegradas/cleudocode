@@ -48,7 +48,7 @@ def main():
         "[bold cyan]🧪 CLEUDOCODEBOT - BATERIA COMPLETA DE TESTES[/bold cyan]\n\n"
         "Este script executa todos os testes de validação:\n\n"
         "1. 🔒 Sandbox Security\n"
-        "2. 🦞 Lobster Workflow Engine\n"
+        "2. Cleudocode Lobster Workflow Engine\n"
         "3. 🎙️ Voice Integration (Whisper + Coqui TTS)",
         title="Test Suite",
         border_style="cyan"
@@ -57,7 +57,7 @@ def main():
     # Definir testes
     tests = [
         ("🔒 Sandbox Security", "test_sandbox_quick.py"),
-        ("🦞 Lobster Workflow", "test_lobster_quick.py"),
+        ("Cleudocode Lobster Workflow", "test_lobster_quick.py"),
         ("🎙️ Voice Integration", "test_whisper_quick.py")
     ]
     

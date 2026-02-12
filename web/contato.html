@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contato - Automações Comerciais Integradas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <!-- Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '290236486644488');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=290236486644488&ev=PageView&noscript=1" /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { 
+                @apply bg-[#02030a] text-[#E2E8F0] font-sans overflow-x-hidden;
+                margin: 0;
+                padding: 0;
+            }
+            
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { 
+                background: rgba(255, 95, 95, 0.3); 
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover { background: rgba(255, 95, 95, 0.5); }
+
+            /* Toastr Custom Design - Telegram Style */
+            #toast-container > .toast-success {
+                @apply bg-[#4caf50]/30 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl px-8 !opacity-100;
+                background-image: none !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+            .toast-message {
+                @apply font-semibold text-sm tracking-tight text-white/90;
+            }
+        }
+
+        /* Parallax Hero Container */
+        .parallax-hero {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Frame container with rounded borders */
+        .frame-container {
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Individual frame styling */
+        .parallax-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.15s ease-out;
+            will-change: opacity;
+        }
+
+        .parallax-frame.active {
+            opacity: 1;
+        }
+
+        /* Content overlay */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+
+        /* Text block with transparent black background */
+        .text-block {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Social links styling */
+        .social-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: fit-content;
+            margin: 0 auto;
+        }
+
+        .social-link {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .social-link:hover {
+            background: rgba(255, 95, 95, 0.2);
+            border-color: #FF5F5F;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(255, 95, 95, 0.3);
+        }
+
+        .social-link svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            transition: fill 0.3s ease;
+        }
+
+        .social-link:hover svg {
+            fill: #FF5F5F;
+        }
+
+        /* Accent color */
+        .accent-text {
+            color: #FF5F5F;
+        }
+
+        .text-block {
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .text-block:hover {
+            box-shadow: 0 0 30px rgba(255, 95, 95, 0.15);
+        }
+
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Floating Animation */
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float {
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        .float-delayed {
+            animation: floating 8s ease-in-out infinite -2s;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #02030a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .frame-container {
+                top: 2%;
+                left: 2%;
+                width: 96%;
+                height: 96%;
+                border-radius: 1rem;
+            }
+
+            .text-block {
+                padding: 1.5rem;
+                max-width: 100%;
+            }
+
+            .hero-content {
+                padding: 1rem;
+            }
+
+            .social-links {
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .social-link {
+                width: 40px;
+                height: 40px;
+            }
+
+            .social-link svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        salmon: "#FF5F5F",
+                        sentient: "#4F46E5",
+                        dark: "#030303",
+                        surface: "#080808",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        mono: ["Fira Code", "monospace"],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-salmon border-t-transparent rounded-full animate-spin mx-auto mb-4">
+            </div>
+            <p class="text-white text-sm font-medium">Carregando frames...</p>
+        </div>
+    </div>
+
+    <!-- Parallax Hero Background -->
+    <div class="parallax-hero" id="parallaxHero">
+        <div class="frame-container" id="frameContainer">
+            <!-- Frames will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Hero Content Overlay -->
+    <div class="hero-content">
+        <!-- Main Branding & Header -->
+        <div class="text-block mt-8 md:mt-16 border-l-4 border-l-salmon">
+            <p class="text-[10px] font-black accent-text mb-4 tracking-[0.5em] uppercase opacity-70">
+                Iniciativa // Off-Grid
+            </p>
+            <h1
+                class="text-5xl md:text-8xl font-black text-white leading-[0.85] mb-8 uppercase italic tracking-tighter">
+                AUTOMAÇÕES<br />COMERCIAIS<br />INTEGRADAS
+            </h1>
+            <div class="flex items-center gap-6">
+                <div class="h-[2px] w-20 bg-salmon shadow-[0_0_10px_#FF5F5F]"></div>
+                <p class="text-2xl font-black text-white uppercase tracking-[0.4em] italic opacity-90">CONTATO</p>
+            </div>
+        </div>
+
+        <!-- Contact Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-20 mb-20 max-w-7xl w-full mx-auto px-4">
+            <!-- Suporte Técnico Card -->
+            <div class="text-block !max-w-none hover:border-salmon/30 transition-all duration-500 group reveal float">
+                <div class="flex items-center gap-6 mb-8">
+                    <div
+                        class="w-16 h-16 rounded-3xl bg-salmon/10 border border-salmon/20 flex items-center justify-center text-salmon shadow-[0_0_20px_rgba(255,95,95,0.1)] group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined !text-4xl">support_agent</span>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black text-white uppercase italic tracking-tight">Suporte Técnico</h3>
+                        <p class="text-xs text-salmon font-bold uppercase tracking-[0.2em] mt-1 opacity-80">Assistência
+                            Direta</p>
+                    </div>
+                </div>
+                <p class="text-slate-400 text-base mb-10 leading-relaxed font-medium opacity-80">
+                    Implementação de agentes autônomos e resolução de infraestrutura crítica. Conexão estável com o
+                    ecossistema.
+                </p>
+                <div class="pt-8 border-t border-white/5 space-y-4">
+                    <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Automações Comerciais
+                        Integradas! ⚙️</p>
+                    <a href="mailto:contato@automacoescomerciais.com.br"
+                        class="flex items-center gap-4 text-white hover:text-salmon transition-all group/link">
+                        <span class="text-2xl group-hover/link:translate-x-1 transition-transform">📧</span>
+                        <span
+                            class="text-sm md:text-lg font-black tracking-widest uppercase">contato@automacoescomerciais.com.br</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Comercial Card -->
+            <div
+                class="text-block !max-w-none hover:border-indigo-500/30 transition-all duration-500 group reveal float-delayed">
+                <div class="flex items-center gap-6 mb-8">
+                    <div
+                        class="w-16 h-16 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.1)] group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined !text-4xl">business_center</span>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black text-white uppercase italic tracking-tight">Comercial</h3>
+                        <p class="text-xs text-indigo-400 font-bold uppercase tracking-[0.2em] mt-1 opacity-80">Expansão
+                            de Operações</p>
+                    </div>
+                </div>
+                <p class="text-slate-400 text-base mb-10 leading-relaxed font-medium opacity-80">
+                    Parcerias estratégicas, licenciamento Enterprise e integração de novos sistemas de automação.
+                </p>
+                <div class="grid grid-cols-1 gap-6 pt-8 border-t border-white/5">
+                    <div class="flex flex-wrap gap-6">
+                        <a href="https://t.me/+9cdym9gvPQ9iOWNh" target="_blank"
+                            class="flex items-center gap-3 text-slate-300 hover:text-indigo-400 transition-all font-bold text-sm tracking-widest uppercase">
+                            <span class="text-2xl">💬</span> Telegram
+                        </a>
+                        <a href="https://wa.me/558894227586" target="_blank"
+                            class="flex items-center gap-3 text-slate-300 hover:text-emerald-400 transition-all font-bold text-sm tracking-widest uppercase">
+                            <span class="text-2xl">📱</span> WhatsApp
+                        </a>
+                    </div>
+                    <div
+                        class="p-6 bg-white/[0.03] rounded-2xl border border-white/5 relative overflow-hidden group/phone">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-30"></div>
+                        <p class="text-[9px] text-slate-600 uppercase font-black mb-3 tracking-widest">Atendimento
+                            Humano // Linha Segura</p>
+                        <a href="tel:+5588921567214"
+                            class="text-white font-black text-xl flex items-center gap-3 hover:text-salmon transition-colors">
+                            <span class="material-symbols-outlined text-salmon">call</span> +55 88 921567214
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Community Section -->
+        <div class="mt-28 mb-32 text-center space-y-12 reveal">
+            <div class="space-y-6">
+                <p class="text-[10px] font-black text-slate-800 uppercase tracking-[0.9em] opacity-50 text-center">
+                    Global //</p>
+                <p class="text-[10px] font-black text-slate-800 uppercase tracking-[0.9em] opacity-50 text-center">
+                    Ecossistema</p>
+                <h2 class="text-6xl md:text-9xl font-black text-white uppercase italic tracking-tighter leading-none">
+                    COMUNIDADE</h2>
+                <div class="h-[1px] w-40 bg-white/[0.03] mx-auto"></div>
+            </div>
+
+            <!-- Social Links Pill Container - Cinema Style -->
+            <div
+                class="inline-flex items-center p-2 bg-white/[0.01] border border-white/[0.04] rounded-full backdrop-blur-2xl shadow-2xl">
+                <!-- GitHub -->
+                <a href="https://github.com/automacoescomerciaisintegradas/cleudocode" target="_blank"
+                    class="w-16 h-16 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-500 group"
+                    aria-label="GitHub">
+                    <svg class="group-hover:fill-white transition-colors" viewBox="0 0 24 24" fill="gray" width="24"
+                        height="24">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                </a>
+                <div class="w-[1px] h-8 bg-white/5 mx-2"></div>
+                <!-- NotebookLM -->
+                <a href="https://notebooklm.google.com/notebook/8dc6916e-a1b0-4cdd-b6f7-50e4dafb5c69" target="_blank"
+                    class="w-16 h-16 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-500 group"
+                    aria-label="NotebookLM">
+                    <span
+                        class="material-symbols-outlined text-gray-500 group-hover:text-amber-400 transition-colors !text-3xl">menu_book</span>
+                </a>
+                <div class="w-[1px] h-8 bg-white/5 mx-2"></div>
+                <!-- YouTube -->
+                <a href="#"
+                    class="w-16 h-16 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-500 group"
+                    aria-label="YouTube">
+                    <svg class="group-hover:fill-salmon transition-colors outline-none" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                        <path
+                            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                            fill="gray" />
+                    </svg>
+                </a>
+                <div class="w-[1px] h-8 bg-white/5 mx-2"></div>
+                <!-- Instagram -->
+                <a href="#"
+                    class="w-16 h-16 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-500 group"
+                    aria-label="Instagram">
+                    <svg class="group-hover:fill-salmon transition-colors outline-none" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+                        <path
+                            d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"
+                            fill="gray" />
+                    </svg>
+                </a>
+                <div class="w-[1px] h-8 bg-white/5 mx-2"></div>
+                <!-- X (Twitter) -->
+                <a href="#"
+                    class="w-16 h-16 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-500 group"
+                    aria-label="X (Twitter)">
+                    <svg class="group-hover:fill-salmon transition-colors outline-none" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+                        <path
+                            d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
+                            fill="gray" />
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Consolidated Footer Credits -->
+            <div class="space-y-4 pt-8 pb-12">
+                <p
+                    class="text-[10px] md:text-[13px] text-slate-700 font-black uppercase tracking-[0.5em] opacity-40 text-center">
+                    Developed by
+                </p>
+                <div class="flex flex-col items-center gap-2">
+                    <p
+                        class="text-[9px] md:text-[11px] text-slate-800 font-bold uppercase tracking-[0.6em] text-center">
+                        © Automações Comerciais Integradas! 2026 ⚙️ Todos os direitos reservados.
+                    </p>
+                    <a href="mailto:contato@automacoescomerciais.com.br"
+                        class="text-[9px] md:text-[11px] text-salmon/40 hover:text-salmon font-bold uppercase tracking-[0.4em] transition-colors text-center">
+                        contato@automacoescomerciais.com.br
+                    </a>
+                </div>
+                <div class="text-slate-900 opacity-20 tracking-[-0.2em] text-[10px] select-none pt-4 text-center">
+                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        // Parallax Scroll Animation Configuration
+        const PARALLAX_CONFIG = {
+            // IMPORTANT: Update these paths to your actual WebP frame sequence
+            // The frames should be numbered sequentially (e.g., frame-001.webp, frame-002.webp, etc.)
+            frameBasePath: '/frames/',  // Update this to your frame directory
+            framePrefix: 'frame-',       // Update this to match your file naming
+            frameExtension: '.webp',     // File extension
+            totalFrames: 120,            // Total number of frames in your sequence
+            framePadding: 3,             // Number of digits in frame numbering (e.g., 001 = 3)
+
+            // Animation settings
+            scrollSensitivity: 1.5,      // Higher = more frames per scroll (adjust for smoothness)
+            preloadBatchSize: 10,        // Number of frames to preload at once
+        };
+
+        class ParallaxScrollAnimation {
+            constructor(config) {
+                this.config = config;
+                this.frames = [];
+                this.currentFrame = 0;
+                this.isLoading = true;
+                this.scrollPosition = 0;
+                this.maxScroll = 0;
+
+                this.container = document.getElementById('frameContainer');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+
+                this.init();
+            }
+
+            // Generate frame path with proper padding
+            getFramePath(index) {
+                const paddedIndex = String(index).padStart(this.config.framePadding, '0');
+                return `${this.config.frameBasePath}${this.config.framePrefix}${paddedIndex}${this.config.frameExtension}`;
+            }
+
+            // Preload all frames
+            async init() {
+                console.log('🎬 Iniciando carregamento de frames...');
+
+                // Create frame elements
+                for (let i = 1; i <= this.config.totalFrames; i++) {
+                    const img = new Image();
+                    img.className = 'parallax-frame';
+                    img.dataset.frameIndex = i - 1;
+
+                    // For demo purposes, using placeholder images
+                    // REPLACE THIS with your actual frame paths
+                    img.src = this.getFramePath(i);
+
+                    // Fallback to placeholder if frame doesn't exist
+                    img.onerror = () => {
+                        // Use a radial gradient placeholder for demo
+                        img.src = `data:image/svg+xml,%3Csvg width='1920' height='1080' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='grad${i}' cx='50%25' cy='50%25' r='50%25' fx='50%25' fy='50%25'%3E%3Cstop offset='0%25' style='stop-color:rgb(20,20,30);stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:rgb(5,5,10);stop-opacity:1' /%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad${i})'/%3E%3C/svg%3E`;
+                    };
+
+                    this.container.appendChild(img);
+                    this.frames.push(img);
+                }
+
+                // Wait for initial frames to load
+                await this.preloadFrames(0, Math.min(20, this.config.totalFrames));
+
+                // Show first frame
+                this.frames[0].classList.add('active');
+
+                // Hide loading overlay
+                this.loadingOverlay.classList.add('hidden');
+                this.isLoading = false;
+
+                // Setup scroll listener
+                this.setupScrollAnimation();
+
+                // Continue loading remaining frames in background
+                this.preloadRemainingFrames();
+
+                console.log('✅ Animação de paralaxe pronta!');
+            }
+
+            // Preload specific range of frames
+            preloadFrames(start, end) {
+                return Promise.all(
+                    this.frames.slice(start, end).map(img => {
+                        return new Promise((resolve) => {
+                            if (img.complete) {
+                                resolve();
+                            } else {
+                                img.onload = resolve;
+                                img.onerror = resolve; // Continue even if frame fails
+                            }
+                        });
+                    })
+                );
+            }
+
+            // Preload remaining frames in batches
+            async preloadRemainingFrames() {
+                const batchSize = this.config.preloadBatchSize;
+                for (let i = 20; i < this.config.totalFrames; i += batchSize) {
+                    await this.preloadFrames(i, Math.min(i + batchSize, this.config.totalFrames));
+                    // Small delay between batches to not overwhelm the browser
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                console.log('✅ Todos os frames carregados!');
+            }
+
+            // Setup scroll-based animation
+            setupScrollAnimation() {
+                this.targetScroll = 0;
+                this.currentScroll = 0;
+                this.lerpAmount = 0.1; // Amount of smoothing (0.01 to 0.2)
+
+                // Extend page height to allow more scroll
+                const scrollExtender = document.createElement('div');
+                scrollExtender.style.height = `${this.config.totalFrames * 40}px`;
+                scrollExtender.style.pointerEvents = 'none';
+                scrollExtender.style.position = 'absolute';
+                scrollExtender.style.top = '0';
+                scrollExtender.style.left = '0';
+                scrollExtender.style.width = '1px';
+                document.body.appendChild(scrollExtender);
+
+                this.maxScroll = scrollExtender.offsetHeight - window.innerHeight;
+
+                window.addEventListener('scroll', () => {
+                    this.targetScroll = window.pageYOffset || document.documentElement.scrollTop;
+                }, { passive: true });
+
+                // Start animation loop
+                this.animate();
+            }
+
+            // Animation loop with lerp
+            animate() {
+                // Smoothly interpolate current scroll towards target scroll
+                const diff = this.targetScroll - this.currentScroll;
+                this.currentScroll += diff * this.lerpAmount;
+
+                // Stop loop if difference is negligible (optional optimization)
+                if (Math.abs(diff) > 0.1 || !this.isInitialized) {
+                    this.updateFrame();
+                    this.isInitialized = true;
+                }
+
+                requestAnimationFrame(() => this.animate());
+            }
+
+            // Update current frame based on scroll position
+            updateFrame() {
+                const scrollPercent = Math.max(0, Math.min(1, this.currentScroll / this.maxScroll));
+
+                // Calculate target frame
+                const targetFrame = Math.floor(scrollPercent * (this.config.totalFrames - 1));
+
+                // Only update if frame changed
+                if (targetFrame !== this.currentFrame) {
+                    // Hide current frame
+                    this.frames[this.currentFrame].classList.remove('active');
+
+                    // Show new frame
+                    this.currentFrame = targetFrame;
+                    this.frames[this.currentFrame].classList.add('active');
+                }
+            }
+        }
+
+        // Initialize parallax animation when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const parallax = new ParallaxScrollAnimation(PARALLAX_CONFIG);
+
+            // Intersection Observer for reveal animations
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+        });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                location.reload(); // Reload to recalculate scroll positions
+            }, 500);
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        // Community Dynamics Logic
+        const phrase = "joined the group via invite link";
+        const names_masc = ['Jose', 'Joao', 'Antonio', 'Francisco', 'Carlos', 'Paulo', 'Pedro', 'Lucas', 'Luiz', 'Marcos', 'Luis', 'Gabriel', 'Rafael', 'Daniel', 'Marcelo', 'Bruno', 'Eduardo', 'Felipe', 'Raimundo', 'Rodrigo', 'Manoel', 'Mateus', 'Andre', 'Fernando', 'Fabio', 'Leonardo', 'Gustavo', 'Guilherme', 'Leandro', 'Tiago', 'Anderson', 'Ricardo', 'Marcio', 'Jorge', 'Sebastiao', 'Alexandre', 'Roberto', 'Edson', 'Diego', 'Vitor', 'Sergio', 'Claudio', 'Matheus', 'Thiago', 'Geraldo', 'Adriano', 'Luciano', 'Julio', 'Renato', 'Alex', 'Vinicius', 'Rogerio', 'Samuel', 'Ronaldo', 'Mario', 'Flavio', 'Douglas', 'Igor', 'Davi', 'Manuel', 'Jeferson', 'Cicero', 'Victor', 'Miguel', 'Robson', 'Mauricio', 'Danilo', 'Henrique', 'Caio', 'Reginaldo', 'Joaquim', 'Benedito', 'Gilberto', 'Marco', 'Alan', 'Nelson', 'Cristiano', 'Elias', 'Wilson', 'Valdir', 'Emerson', 'Luan', 'David', 'Renan', 'Severino', 'Fabricio', 'Mauro', 'Jonas', 'Gilmar', 'Jean', 'Fabiano', 'Wesley', 'Diogo', 'Adilson', 'Jair', 'Alessandro', 'Everton', 'Osvaldo', 'Gilson', 'Willian', 'Joel', 'Silvio', 'Helio', 'Maicon', 'Reinaldo', 'Pablo', 'Artur', 'Vagner', 'Valter', 'Celso', 'Ivan', 'Cleiton', 'Vanderlei', 'Vicente', 'Arthur', 'Milton', 'Domingos', 'Wagner', 'Sandro', 'Moises', 'Edilson', 'Ademir', 'Adao', 'Evandro', 'Cesar', 'Valmir', 'Murilo', 'Juliano', 'Edvaldo', 'Ailton', 'Junior', 'Breno', 'Nicolas', 'Ruan', 'Alberto', 'Rubens', 'Nilton', 'Augusto', 'Cleber', 'Osmar', 'Nilson', 'Orlando', 'Hugo', 'Otavio', 'Vinicios', 'Italo', 'Wilian', 'Alisson', 'Aparecido'];
+        const names_fem = ['Maria', 'Ana', 'Francisca', 'Antonia', 'Adriana', 'Juliana', 'Marcia', 'Fernanda', 'Patricia', 'Aline', 'Sandra', 'Camila', 'Amanda', 'Bruna', 'Jessica', 'Leticia', 'Julia', 'Luciana', 'Vanessa', 'Mariana', 'Gabriela', 'Vera', 'Vitoria', 'Larissa', 'Claudia', 'Beatriz', 'Rita', 'Luana', 'Sonia', 'Renata', 'Eliane', 'Josefa', 'Simone', 'Natalia', 'Cristiane', 'Carla', 'Debora', 'Rosangela', 'Jaqueline', 'Rosa', 'Aparecida', 'Daniela', 'Marlene', 'Terezinha', 'Raimunda', 'Andreia', 'Fabiana', 'Lucia', 'Raquel', 'Angela', 'Rafaela', 'Joana', 'Luzia', 'Elaine', 'Regina', 'Daniele', 'Sueli', 'Daiane', 'Alessandra', 'Isabel', 'Sara', 'Bianca', 'Flavia', 'Erica', 'Viviane', 'Silvana', 'Priscila', 'Paula', 'Luiza', 'Tereza', 'Isabela', 'Marta', 'Caroline', 'Janaina', 'Laura', 'Marli', 'Tatiane', 'Marina', 'Silvia', 'Monica', 'Tais', 'Michele', 'Solange', 'Edna', 'Fatima', 'Helena', 'Cristina', 'Alice', 'Carolina', 'Rosana', 'Andressa', 'Celia', 'Valeria', 'Eliana', 'Sabrina', 'Andrea', 'Tania', 'Barbara', 'Thais', 'Denise', 'Roseli', 'Gisele', 'Marilene', 'Katia', 'Eva', 'Milena', 'Eduarda', 'Elisangela', 'Vilma', 'Geovana', 'Luciene', 'Tamires', 'Tatiana', 'Roberta', 'Elza', 'Talita', 'Marcela', 'Pamela', 'Vania', 'Irene', 'Josiane', 'Livia', 'Cintia', 'Ivone', 'Lais', 'Benedita', 'Sebastiana', 'Taina', 'Joice', 'Mirian', 'Elizabete', 'Angelica', 'Gabriele', 'Brenda', 'Veronica', 'Rosilene', 'Karina', 'Nair', 'Neusa', 'Margarida', 'Neuza', 'Neide', 'Raissa', 'Maiara', 'Lorena', 'Franciele', 'Samara', 'Lilian', 'Janete'];
+
+        toastr.options = {
+            "positionClass": "toast-top-left",
+            "timeOut": "5000",
+            "showMethod": "slideDown",
+            "hideMethod": "fadeOut",
+            "progressBar": false,
+            "closeButton": false
+        }
+
+        function show_notification() {
+            const allNames = [...names_masc, ...names_fem, 'Jailson', 'Thiago', 'Rafael', 'Paulinho', 'Cintia', 'Jediael', 'Pamela'];
+            const name = allNames[Math.floor(Math.random() * allNames.length)];
+            const message = `<strong>${name}</strong> ${phrase}`;
+
+            toastr.success(message);
+
+            const nextTime = Math.floor(Math.random() * (20 - 4 + 1) + 4) * 1000;
+            setTimeout(show_notification, nextTime);
+        }
+
+        // Start community activity simulation
+        setTimeout(show_notification, 3000);
+    </script>
+</body>
+
+</html>

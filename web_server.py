@@ -132,6 +132,11 @@ def index():
     """Serve a página principal"""
     return send_from_directory('web', 'index.html')
 
+@app.route('/contato')
+def contato():
+    """Serve a página de contato"""
+    return send_from_directory('web', 'contato.html')
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Serve arquivos estáticos da pasta web"""
@@ -234,21 +239,21 @@ def get_system_pulse():
         cpu_usage = "N/A"
         ram_usage = "N/A"
 
-    # Status do Ollama
+    # Status do Ollama (Desativado)
     ollama_online = False
-    try:
-        from core.llm_providers import OLLAMA_HOST
-        requests.get(f"{OLLAMA_HOST}/api/tags", timeout=1)
-        ollama_online = True
-    except:
-        pass
+    # try:
+    #     from core.llm_providers import OLLAMA_HOST
+    #     requests.get(f"{OLLAMA_HOST}/api/tags", timeout=1)
+    #     ollama_online = True
+    # except:
+    #     pass
 
     return jsonify({
         "status": "online",
         "telemetry": {
             "cpu": cpu_usage,
             "ram": ram_usage,
-            "ollama": "running" if ollama_online else "offline"
+            "ollama": "disabled"
         },
         "gateways": {
             "telegram": "active",
@@ -625,6 +630,28 @@ def system_restart():
         daemon.start()
         return jsonify({'success': True, 'message': 'Daemon Reiniciado.'})
     return jsonify({'success': False, 'message': 'Daemon inativo.'}), 404
+
+@app.route('/api/build/status', methods=['GET', 'POST'])
+def handle_build_status():
+    """Endpoint para gerenciar status de build de features"""
+    status_file = "build_status.json"
+    
+    if request.method == 'POST':
+        try:
+            new_status = request.get_json()
+            with open(status_file, 'w') as f:
+                json.dump(new_status, f, indent=2)
+            return jsonify({'success': True, 'message': 'Status atualizado com sucesso!'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)}), 400
+    else:
+        try:
+            if os.path.exists(status_file):
+                with open(status_file, 'r') as f:
+                    return jsonify(json.load(f))
+            return jsonify({"active": False, "message": "Nenhum build em andamento"})
+        except Exception as e:
+             return jsonify({'success': False, 'message': str(e)}), 500
 
 if __name__ == '__main__':
     print("CLEUDOCODE - Servidor Web Moderno")

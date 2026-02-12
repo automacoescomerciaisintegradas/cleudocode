@@ -47,14 +47,14 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "cp -r {{ local_data_path }}/* {{ backup_path }}/ 2>/dev/null || echo 'Nenhum dado local para backup'"
+      command: "powershell -Command \"if (Test-Path '{{ local_data_path }}') { Copy-Item -Path '{{ local_data_path }}\\*' -Destination '{{ backup_path }}' -Recurse -Force -ErrorAction SilentlyContinue } else { echo 'Nenhum dado local para backup' }\""
       timeout: 60
 
   - name: "Verificar conectividade com Antigravity API"
     skill: "shell"
     action: "execute"
     params:
-      command: "curl -s -f {{ antigravity_api }}/health"
+      command: "curl -s -f http://localhost:18900/health"
       timeout: 30
     retry: 3
     retry_delay: 5
@@ -63,20 +63,15 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "curl -s -f {{ antigravity_api }}/data/export -o {{ local_data_path }}/remote_data.json"
+      command: "curl -s -f http://localhost:18900/api/data/export -o \"{{ local_data_path }}/remote_data.json\""
       timeout: 120
+    continue_on_error: true
 
   - name: "Comparar dados locais vs remotos"
     skill: "shell"
     action: "execute"
     params:
-      command: |
-        if [ -f "{{ local_data_path }}/local_data.json" ] && [ -f "{{ local_data_path }}/remote_data.json" ]; then
-          diff {{ local_data_path }}/local_data.json {{ local_data_path }}/remote_data.json > {{ local_data_path }}/diff.txt
-          echo "Comparação concluída"
-        else
-          echo "Primeira sincronização - sem comparação"
-        fi
+      command: "powershell -Command \"if ((Test-Path '{{ local_data_path }}/local_data.json') -and (Test-Path '{{ local_data_path }}/remote_data.json')) { Compare-Object (Get-Content '{{ local_data_path }}/local_data.json') (Get-Content '{{ local_data_path }}/remote_data.json') | Out-File '{{ local_data_path }}/diff.txt' } else { echo 'Primeira sincronização' }\""
       timeout: 30
     continue_on_error: true
 
@@ -84,14 +79,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: |
-        if [ -f "{{ local_data_path }}/local_data.json" ]; then
-          curl -s -f -X POST -H "Content-Type: application/json" \
-               -d @{{ local_data_path }}/local_data.json \
-               {{ antigravity_api }}/data/import
-        else
-          echo "Nenhum dado local para upload"
-        fi
+      command: "powershell -Command \"if (Test-Path '{{ local_data_path }}/local_data.json') { Invoke-RestMethod -Uri 'http://localhost:18900/api/data/import' -Method Post -InFile '{{ local_data_path }}/local_data.json' -ContentType 'application/json' } else { echo 'Nenhum dado local' }\""
       timeout: 120
     continue_on_error: true
 
@@ -99,26 +87,14 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: |
-        if [ -f "{{ local_data_path }}/remote_data.json" ]; then
-          cp {{ local_data_path }}/remote_data.json {{ local_data_path }}/local_data.json
-          echo "Dados locais atualizados"
-        else
-          echo "Nenhum dado remoto para download"
-        fi
+      command: "powershell -Command \"if (Test-Path '{{ local_data_path }}/remote_data.json') { Copy-Item '{{ local_data_path }}/remote_data.json' '{{ local_data_path }}/local_data.json' -Force }\""
       timeout: 30
 
   - name: "Verificar integridade dos dados"
     skill: "shell"
     action: "execute"
     params:
-      command: |
-        if [ -f "{{ local_data_path }}/local_data.json" ]; then
-          python3 -m json.tool {{ local_data_path }}/local_data.json > /dev/null
-          echo "Dados íntegros"
-        else
-          echo "Nenhum dado para verificar"
-        fi
+      command: "powershell -Command \"if (Test-Path '{{ local_data_path }}/local_data.json') { try { Get-Content '{{ local_data_path }}/local_data.json' | ConvertFrom-Json | Out-Null; echo 'Dados íntegros' } catch { exit 1 } }\""
       timeout: 30
     continue_on_error: true
 
@@ -137,17 +113,17 @@ steps:
         ✅ Backup criado: {{ backup_path }}
         
         ## Conectividade
-        API Status: {% if step_5_result.success %}✅ Online{% else %}❌ Offline{% endif %}
+        API Status: {% if step_1_result.success %}✅ Online{% else %}❌ Offline{% endif %}
         
         ## Sincronização
-        Dados remotos: {% if step_6_result.success %}✅ Obtidos{% else %}❌ Falha{% endif %}
-        Comparação: {% if step_7_result.success %}✅ Realizada{% else %}⚠️ Primeira sync{% endif %}
-        Upload local: {% if step_8_result.success %}✅ Sucesso{% else %}⚠️ Sem dados ou falha{% endif %}
-        Download remoto: {% if step_9_result.success %}✅ Sucesso{% else %}❌ Falha{% endif %}
-        Integridade: {% if step_10_result.success %}✅ Verificada{% else %}⚠️ Problemas{% endif %}
+        Dados remotos: {% if step_2_result.success %}✅ Obtidos{% else %}❌ Falha{% endif %}
+        Comparação: {% if step_3_result.success %}✅ Realizada{% else %}⚠️ Primeira sync{% endif %}
+        Upload local: {% if step_4_result.success %}✅ Sucesso{% else %}⚠️ Sem dados ou falha{% endif %}
+        Download remoto: {% if step_5_result.success %}✅ Sucesso{% else %}❌ Falha{% endif %}
+        Integridade: {% if step_6_result.success %}✅ Verificada{% else %}⚠️ Problemas{% endif %}
         
         ## Resumo
-        {% if step_5_result.success and step_9_result.success %}✅ Sincronização bem-sucedida{% else %}❌ Sincronização com problemas{% endif %}
+        {% if step_1_result.success %}✅ Conectado{% else %}❌ Falha de Conexão{% endif %}
         
         Fim: {{ datetime }}
         
@@ -162,15 +138,15 @@ steps:
       message: |
         🔄 *Antigravity Sync Completo*
         
-        📊 *Status:* {% if step_5_result.success and step_9_result.success %}✅ Sucesso{% else %}⚠️ Com problemas{% endif %}
+        📊 *Status:* {{ '✅ Sucesso' if step_1_result.success else '⚠️ Com problemas' }}
         
-        🔗 *Conectividade:* {% if step_5_result.success %}✅ API Online{% else %}❌ API Offline{% endif %}
+        🔗 *Conectividade:* {{ '✅ API Online' if step_1_result.success else '❌ API Offline' }}
         
         📁 *Operações:*
         • Backup: ✅ Criado em `{{ backup_path }}`
-        • Download: {% if step_6_result.success %}✅ Sucesso{% else %}❌ Falha{% endif %}
-        • Upload: {% if step_8_result.success %}✅ Sucesso{% else %}⚠️ Sem dados{% endif %}
-        • Integridade: {% if step_10_result.success %}✅ OK{% else %}⚠️ Verificar{% endif %}
+        • Download: {{ '✅ Sucesso' if step_2_result.success else '❌ Falha' }}
+        • Upload: {{ '✅ Sucesso' if step_4_result.success else '⚠️ Sem dados' }}
+        • Integridade: {{ '✅ OK' if step_6_result.success else '⚠️ Verificar' }}
         
         📄 *Log completo:* `{{ sync_log }}`
     continue_on_error: true

@@ -33,7 +33,7 @@ link canal https://whatsapp.com/channel/0029Vb7MgPz5kg767iWItk42"""
     
     # IDs de chat para enviar a mensagem
     chat_ids = [
-        "5667792894",  # ID do chat alvo
+        # "SEU_CHAT_ID_AQUI",  # Substitua pelo ID real do seu chat
     ]
     
     print(f"[📡] Preparando envio proativo para {len(chat_ids)} chats...")
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     print("============================================================")
     print("          CLEUDOCODE - PROACTIVE TELEGRAM SENDER 🚀")
     print("============================================================")
-    print("1. Enviar mensagem de boas-vindas para chats (ID: 5667792894)")
+    print("1. Enviar mensagem de boas-vindas para chats (adicione o ID real do chat)")
     print("2. Enviar mensagem para canal (ID manual)")
     print("Q. Sair")
     

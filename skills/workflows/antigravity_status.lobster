@@ -15,7 +15,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "ps aux | grep antigravity | grep -v grep"
+      command: "tasklist /FI \"IMAGENAME eq python.exe\" /NH"
       timeout: 10
     continue_on_error: true
 
@@ -23,7 +23,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/health || echo 'OFFLINE'"
+      command: "curl -s -o NUL -w \"%{http_code}\" http://localhost:18900/health || echo OFFLINE"
       timeout: 15
     continue_on_error: true
 
@@ -31,7 +31,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1"
+      command: "powershell -Command \"(Get-CimInstance Win32_Processor).LoadPercentage\""
       timeout: 10
     continue_on_error: true
 
@@ -39,7 +39,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "free | grep Mem | awk '{printf \"%.1f\", $3/$2 * 100.0}'"
+      command: "powershell -Command \"$m = Get-CimInstance Win32_OperatingSystem; [math]::Round(($m.TotalVisibleMemorySize - $m.FreePhysicalMemory) / $m.TotalVisibleMemorySize * 100, 1)\""
       timeout: 10
     continue_on_error: true
 
@@ -47,7 +47,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "df -h {{ antigravity_path }} | tail -1 | awk '{print $5}' | cut -d'%' -f1"
+      command: "powershell -Command \"$d = Get-CimInstance Win32_LogicalDisk -Filter 'DeviceID=''C:'''; [math]::Round(($d.Size - $d.FreeSpace) / $d.Size * 100, 1)\""
       timeout: 10
     continue_on_error: true
 
@@ -55,7 +55,7 @@ steps:
     skill: "shell"
     action: "execute"
     params:
-      command: "tail -100 /var/log/antigravity/error.log | grep -c ERROR || echo '0'"
+      command: "powershell -Command \"if (Test-Path 'web_server.err') { (Get-Content 'web_server.err' -Tail 100 | Select-String 'ERROR' -AllMatches).Count } else { echo 0 }\""
       timeout: 10
     continue_on_error: true
 
@@ -75,19 +75,16 @@ steps:
         Data/Hora: {{ datetime }}
         
         ## Status do Sistema
-        Processo Antigravity: Verificando...
-        Conectividade: Verificando...
+        Processo: {% if step_0_result.success %}Ativo{% else %}Inativo/Não encontrado{% endif %}
+        Conectividade: {% if step_1_result.stdout|trim == '200' %}OK (HTTP 200){% else %}Falha ({{ step_1_result.stdout|trim }}){% endif %}
         
         ## Recursos do Sistema
-        CPU: Coletando dados...
-        Memória: Coletando dados...
-        Disco: Coletando dados...
+        CPU: {{ step_2_result.stdout|trim }}%
+        Memória: {{ step_3_result.stdout|trim }}%
+        Disco: {{ step_4_result.stdout|trim }}%
         
         ## Logs
-        Erros recentes: Verificando logs...
-        
-        ## Alertas
-        Sistema em monitoramento...
+        Erros recentes (últimas 100 linhas): {{ step_5_result.stdout|trim }}
         
         ---
         Relatório gerado pelo Cleudocode Workflow Engine

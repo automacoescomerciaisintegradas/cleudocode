@@ -801,3 +801,34 @@ class InitWizard:
 O comando `cleudocode init` está **100% funcional** e proporciona uma experiência de onboarding profissional e intuitiva, similar ao OpenClaw. O wizard guia o usuário através de toda a configuração necessária, desde a verificação de dependências até a validação final.
 
 **Status**: ✅ **IMPLEMENTADO E TESTADO**
+
+---
+
+## 2026-02-11T18:35:00-03:00 - ✅ Conclusão da Fase 2 do CLI e Chat Interativo
+
+### 🚀 Resumo do Update
+Finalizamos a infraestrutura de linha de comando com a implementação de um chat interativo e a centralização do workflow de inicialização.
+
+### ✅ Implementações Concluídas
+
+1. **Comando `cleudocode chat`**
+   - ✅ Loop interativo no terminal com suporte a `Rich` (painéis e cores).
+   - ✅ Suporte a troca de agentes: `cleudocode chat --agent dev`.
+   - ✅ Integração direta com o `Orchestrator`.
+
+2. **Refatoração do Orchestrator**
+   - ✅ Suporte a `targeted_agent` no `receive_message`.
+   - ✅ Ignora o protocolo de delegação do Jarvis quando um agente específico é solicitado (modo chat direto).
+   - ✅ Atualização dinámica de status (busy/idle) para qualquer agente do squad.
+
+3. **Consolidação do `init`**
+   - ✅ Comando `init` adicionado como comando principal.
+   - ✅ Alias `setup` mantido para compatibilidade.
+
+4. **UCM Atualizado**
+   - ✅ `todos.md` atualizado com o progresso real.
+
+### 📋 Próximo Passo Prioritário
+- **Fase 5: Gateway Multi-Canal**: Iniciar a migração do `antigravity_gateway.py` para um sistema baseado em adaptadores modulares para suportar WhatsApp e Telegram de forma unificada.
+
+**Status**: ✅ **FASE 2 CONCLUÍDA**

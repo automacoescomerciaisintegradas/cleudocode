@@ -5,7 +5,7 @@
 Este diretório contém scripts de teste para validar as principais funcionalidades do Cleudocodebot:
 
 - **🔒 Sandbox Security** - Validação do sistema de segurança
-- **🦞 Lobster Workflow** - Teste do motor de workflows
+- **Cleudocode Lobster Workflow** - Teste do motor de workflows
 - **🎙️ Voice Integration** - Validação de TTS/STT
 
 ---
@@ -112,7 +112,7 @@ python test_sandbox_quick.py
 
 ---
 
-## 🦞 Teste de Lobster Workflow (`test_lobster_quick.py`)
+## Cleudocode Teste de Lobster Workflow (`test_lobster_quick.py`)
 
 ### O que é testado
 
@@ -132,7 +132,7 @@ python test_lobster_quick.py
 ### Resultado esperado
 
 ```
-🦞 TESTE DO LOBSTER WORKFLOW ENGINE
+Cleudocode TESTE DO LOBSTER WORKFLOW ENGINE
 
 Workflows Disponíveis:
   • Teste Rápido (v1.0) - 4 steps
@@ -246,16 +246,16 @@ python run_all_tests.py
 Este script executa todos os testes de validação:
 
 1. 🔒 Sandbox Security
-2. 🦞 Lobster Workflow Engine
+2. Cleudocode Lobster Workflow Engine
 3. 🎙️ Voice Integration (Whisper + Coqui TTS)
 
 ▶️ Executando: 🔒 Sandbox Security
 ...
 ✅ 🔒 Sandbox Security concluído com sucesso
 
-▶️ Executando: 🦞 Lobster Workflow
+▶️ Executando: Cleudocode Lobster Workflow
 ...
-✅ 🦞 Lobster Workflow concluído com sucesso
+✅ Cleudocode Lobster Workflow concluído com sucesso
 
 ▶️ Executando: 🎙️ Voice Integration
 ...
@@ -267,7 +267,7 @@ Este script executa todos os testes de validação:
 ┃                                   Resultados                                    ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
 │ 🔒 Sandbox Security     │ ✅ PASSOU │ Sucesso                                   │
-│ 🦞 Lobster Workflow     │ ✅ PASSOU │ Sucesso                                   │
+│ Cleudocode Lobster Workflow     │ ✅ PASSOU │ Sucesso                                   │
 │ 🎙️ Voice Integration    │ ✅ PASSOU │ Sucesso                                   │
 └─────────────────────────┴───────────┴───────────────────────────────────────────┘
 

@@ -9,7 +9,7 @@ load_dotenv()
 
 def send_telegram_direct():
     token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = "5667792894"
+    chat_id = ""  # Substitua pelo ID real do seu chat quando obtido
     
     if not token:
         print("ERRO: TELEGRAM_BOT_TOKEN não encontrado no .env")

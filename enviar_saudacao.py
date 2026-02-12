@@ -57,7 +57,7 @@ async def enviar_telegram(chat_id_override=None):
     from telegram import Bot
     
     # Chat IDs conhecidos (do histórico de mensagens)
-    CHAT_IDS_CONHECIDOS = ["5667792894"]
+    CHAT_IDS_CONHECIDOS = []  # IDs reais serão adicionados após descoberta
     
     # Coleta todos os tokens disponíveis
     tokens = []

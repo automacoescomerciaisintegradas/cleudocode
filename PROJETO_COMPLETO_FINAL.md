@@ -72,7 +72,7 @@ O projeto Cleudocode foi **completamente implementado** com sucesso, superando t
 - ✅ Volumes persistentes
 - ✅ Rede isolada
 
-### 4. 🦞 WORKFLOWS AUTOMATIZADOS (LOBSTER ENGINE)
+### 4. Cleudocode WORKFLOWS AUTOMATIZADOS (LOBSTER ENGINE)
 **Status:** ✅ IMPLEMENTADOS  
 **Total:** 7 workflows práticos  
 **Localização:** `skills/workflows/`  
@@ -202,7 +202,7 @@ python workflow_manager.py run "Monitoramento de Saúde do Sistema"
 
 ---
 
-## 🦞 WORKFLOWS AUTOMATIZADOS
+## Cleudocode WORKFLOWS AUTOMATIZADOS
 
 ### Sistema Lobster Engine
 O Cleudocode agora conta com um sistema completo de workflows automatizados usando o **Lobster Engine**, permitindo automação de tarefas complexas através de arquivos YAML.
