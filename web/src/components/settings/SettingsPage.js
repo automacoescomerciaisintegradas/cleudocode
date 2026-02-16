@@ -13,7 +13,7 @@ function SettingsPage() {
         theme: 'dark',
         autoSave: true,
         apiEndpoint: 'http://localhost:11434',
-        model: 'qwen2.5-coder:7b',
+        model: 'llama3:8b',
         temperature: 0.7,
         maxTokens: 2048,
     });
@@ -139,7 +139,7 @@ function SettingsPage() {
                 Default Model
               </label>
               <select id="model" name="model" value={formData.model} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                <option value="qwen2.5-coder:7b">Qwen2.5-Coder 7B</option>
+                <option value="llama3:8b">llama3:8b 7B</option>
                 <option value="llama3:8b">Llama 3 8B</option>
                 <option value="mistral:7b">Mistral 7B</option>
                 <option value="phi3:3.8b">Phi-3 3.8B</option>

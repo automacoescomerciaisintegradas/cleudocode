@@ -17,6 +17,31 @@ Enable cleudocode to authenticate against **Antigravity** (Google's IDE) via OAu
 - **Google Search grounding** — enable web search for Gemini models (auto or always-on)
 - **Auto-recovery** — handles session errors and tool failures automatically
 - **Plugin compatible** — works alongside other cleudocode plugins (oh-my-cleudocode, dcp, etc.)
+- **Shared B Collaboration System** — integrated whiteboard for real-time agent collaboration
+
+## Shared B: The Virtual Office for Agent Collaboration
+
+The Shared B system creates a "virtual office" where all Cleudocode agents work together, sharing information in real-time. This system includes:
+
+### Core Components
+- **Shared Whiteboard**: Centralized information sharing for all agents
+- **Notification System**: Real-time alerts with @mentions for specific agents
+- **Document Repository**: Shared storage where deliverables live in a common repository
+- **Activity Feed**: Real-time visibility into what's happening across all agents
+
+### Key Features
+- **Real-time Collaboration**: All agents can see and respond to activities instantly
+- **Task Management**: Distributed task assignment with status tracking
+- **Agent Status Visibility**: Know what each agent is working on at any moment
+- **Integrated with Existing Systems**: Works seamlessly with the orchestrator and agent teams
+
+### Benefits
+- **Enhanced Transparency**: Every agent has visibility into the overall project status
+- **Improved Coordination**: Reduced conflicts and duplicated efforts
+- **Better Communication**: Structured messaging system with targeted notifications
+- **Persistent Memory**: All activities are recorded for future reference
+
+The Shared B transforms the Cleudocode agent system from a collection of independent entities into a truly collaborative team with complete visibility into real-time activities.
 
 ---
 
@@ -692,6 +717,18 @@ If this plugin helps you, consider supporting its maintenance:
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+## Google Gemini Integration & Agent Swarms
+
+This project includes advanced integration with Google Gemini as the primary AI provider, featuring:
+
+- **Google Gemini as Default Provider**: Configured to use `gemini-1.5-flash` as the primary model
+- **Agent Swarm Architecture**: Multiple specialized agents (Jarvis, Dev, QA, Analyst, PM) that collaborate using Gemini's intelligence
+- **System Role Integration**: All agents follow unified principles defined in the system role for consistent behavior
+- **Fallback Provider Sequence**: Automatic fallback to other LLM providers (Ollama, OpenAI, Anthropic, etc.) when Gemini is unavailable
+- **Configurable Provider Chain**: Easy switching between different AI providers based on availability and preference
+
+The agent swarm leverages Gemini's advanced reasoning capabilities to provide enhanced collaboration, decision-making, and task execution across different specialized roles.
 
 <details>
 <summary><b>Legal</b></summary>

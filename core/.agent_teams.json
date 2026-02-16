@@ -1,0 +1,56 @@
+{
+  "dev-team": {
+    "name": "dev-team",
+    "description": "Equipe de desenvolvimento full-stack",
+    "members": [
+      {
+        "agent_id": "dev",
+        "role": "leader",
+        "weight": 1.0,
+        "active": true
+      },
+      {
+        "agent_id": "qa",
+        "role": "member",
+        "weight": 0.8,
+        "active": true
+      },
+      {
+        "agent_id": "architect",
+        "role": "member",
+        "weight": 0.9,
+        "active": true
+      }
+    ],
+    "created_at": 1771161022,
+    "updated_at": 1771161022,
+    "active": true
+  },
+  "security-team": {
+    "name": "security-team",
+    "description": "Equipe de revisão de segurança",
+    "members": [
+      {
+        "agent_id": "security-reviewer",
+        "role": "leader",
+        "weight": 1.0,
+        "active": true
+      },
+      {
+        "agent_id": "dev",
+        "role": "member",
+        "weight": 0.7,
+        "active": true
+      },
+      {
+        "agent_id": "qa",
+        "role": "member",
+        "weight": 0.6,
+        "active": true
+      }
+    ],
+    "created_at": 1771161022,
+    "updated_at": 1771161022,
+    "active": true
+  }
+}

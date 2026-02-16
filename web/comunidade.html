@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comunidade | Automações Comerciais Integradas</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style type="text/tailwindcss">
+        @layer base {
+            body { 
+                @apply bg-[#03040a] text-[#E2E8F0] font-['Outfit'] overflow-x-hidden;
+                background: radial-gradient(circle at 0% 0%, #1a0f30 0%, #05070c 50%, #03040a 100%);
+            }
+        }
+        .elite-glass {
+            @apply bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.5)];
+        }
+        .bento-card {
+            @apply elite-glass rounded-[2.5rem] p-8 transition-all duration-500 hover:border-[#FF5F5F]/40 hover:bg-white/[0.04] hover:-translate-y-2;
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 95, 95, 0.3);
+        }
+        .gradient-text {
+            @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-[#FF5F5F] to-indigo-400;
+        }
+        @keyframes subtle-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+        .animate-float { 
+            animation: subtle-float 10s cubic-bezier(0.45, 0, 0.55, 1) infinite; 
+            will-change: transform;
+        }
+    </style>
+    <!-- Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '290236486644488');
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=290236486644488&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Meta Pixel Code -->
+
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+
+<body class="min-h-screen py-20 px-6">
+    <!-- Background Decor -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1] opacity-20">
+        <div
+            class="absolute top-[10%] left-[10%] w-[40rem] h-[40rem] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse">
+        </div>
+        <div class="absolute bottom-[10%] right-[10%] w-[30rem] h-[30rem] bg-red-600/10 rounded-full blur-[100px] animate-pulse"
+            style="animation-delay: 2s;"></div>
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-32">
+        <!-- Hero Section -->
+        <div class="text-center space-y-12 animate-in fade-in slide-in-from-top-10 duration-1000">
+            <div
+                class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-[11px] font-black uppercase tracking-[0.5em] text-[#FF5F5F] shadow-2xl shadow-black/40">
+                <span class="w-2.5 h-2.5 bg-[#FF5F5F] rounded-full status-pulse"></span>
+                Inovação & Colaboração
+            </div>
+
+            <div class="space-y-6">
+                <h1
+                    class="text-7xl md:text-[10rem] font-black tracking-tighter uppercase italic leading-[0.8] text-glow">
+                    <span class="gradient-text">Comunidade</span>
+                </h1>
+                <h2
+                    class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter max-w-4xl mx-auto leading-tight">
+                    Domine o Futuro das <span class="text-[#FF5F5F]">Automações Comerciais</span> com Inteligência
+                    Coletiva.
+                </h2>
+                <div class="h-2 w-32 bg-white/20 mx-auto rounded-full mt-8"></div>
+            </div>
+
+            <p class="text-slate-400 text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed">
+                Um ecossistema exclusivo para quem busca transformar processos em resultados épicos.
+                <span class="block text-white font-bold text-3xl mt-6">Simples. Direto. Brutal.</span>
+            </p>
+        </div>
+
+        <!-- Bento Grid: Objetivo & Diferenciais -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Capa do Bento -->
+            <div
+                class="bento-card col-span-1 md:col-span-2 flex flex-col justify-between group h-full bg-gradient-to-br from-white/[0.03] to-transparent">
+                <div class="space-y-8">
+                    <div
+                        class="w-16 h-16 rounded-[2rem] bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-700 shadow-2xl">
+                        <span class="material-symbols-outlined text-4xl">hub</span>
+                    </div>
+                    <h2 class="text-5xl font-black text-white uppercase italic tracking-tighter leading-none">Missão
+                        Coletiva</h2>
+                    <p class="text-slate-300 text-xl leading-relaxed max-w-xl font-light">
+                        Formamos uma unidade de elite focada em **Aprendizado**, **Estratégia** e **Escalabilidade**.
+                        Integre N8n, Make e IA de forma cirúrgica.
+                    </p>
+                </div>
+                <div class="flex items-center gap-6 pt-12">
+                    <div class="flex -space-x-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-slate-800 border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black">
+                            JD</div>
+                        <div
+                            class="w-12 h-12 rounded-full bg-indigo-600 border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black">
+                            ML</div>
+                        <div
+                            class="w-12 h-12 rounded-full bg-[#FF5F5F] border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black">
+                            +50</div>
+                    </div>
+                    <span class="text-xs font-black text-slate-600 uppercase tracking-[0.3em]">Integrados no
+                        Kernel</span>
+                </div>
+            </div>
+
+            <!-- Card: Discussões -->
+            <div class="bento-card group h-full">
+                <div
+                    class="w-16 h-16 rounded-[1.5rem] bg-[#FF5F5F]/10 flex items-center justify-center mb-12 text-[#FF5F5F] border border-[#FF5F5F]/20 group-hover:bg-[#FF5F5F] group-hover:text-white transition-all duration-700">
+                    <span class="material-symbols-outlined text-4xl">psychology</span>
+                </div>
+                <h3 class="text-3xl font-black mb-6 text-white uppercase tracking-tighter">Debates Radicais</h3>
+                <p class="text-slate-500 text-base leading-relaxed font-light">
+                    Casos reais e desafios intensos em vendas e operações automatizadas.
+                </p>
+            </div>
+
+            <!-- Card: Feedback -->
+            <div class="bento-card group">
+                <div
+                    class="w-16 h-16 rounded-[1.5rem] bg-emerald-500/10 flex items-center justify-center mb-12 text-emerald-400 border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-700">
+                    <span class="material-symbols-outlined text-4xl">verified</span>
+                </div>
+                <h3 class="text-3xl font-black mb-6 text-white uppercase tracking-tighter">Revisão Elite</h3>
+                <p class="text-slate-500 text-base leading-relaxed font-light">
+                    Otimização contínua dos seus fluxos por quem já escalou sistemas globais.
+                </p>
+            </div>
+
+            <!-- Card: Networking -->
+            <div class="bento-card col-span-1 md:col-span-2 group flex flex-col md:flex-row items-center gap-12">
+                <div class="flex-1 space-y-8 text-center md:text-left">
+                    <h3 class="text-4xl font-black text-white uppercase italic tracking-tighter">Networking de Alta
+                        Voltagem</h3>
+                    <p class="text-slate-400 text-lg font-light leading-relaxed">Conexões diretas com arquitetos de
+                        sistemas e especialistas em IA para parcerias inquebráveis.</p>
+                </div>
+                <div
+                    class="w-full md:w-72 h-40 bg-indigo-500/10 rounded-[2rem] border border-white/5 flex items-center justify-center overflow-hidden relative group-hover:border-indigo-500/30 transition-all">
+                    <div class="absolute inset-0 opacity-10 bg-[url('https://cleudocode.com/grid.png')]"></div>
+                    <span
+                        class="text-indigo-400 font-black text-5xl uppercase tracking-tighter italic opacity-30 transform -rotate-12 group-hover:rotate-0 transition-transform duration-700">CORE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regras Section -->
+        <div class="max-w-4xl mx-auto space-y-16">
+            <h3
+                class="text-center text-xs font-black uppercase tracking-[0.6em] text-slate-800 underline decoration-[#FF5F5F]/50 underline-offset-[12px]">
+                Padrões Operacionais / Regras</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div
+                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">favorite</span>
+                    <div>
+                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Cultura Colaborativa
+                        </h4>
+                        <p class="text-sm text-slate-500 leading-relaxed font-light italic">Respeito e apoio mútuo como
+                            base da evolução técnica.</p>
+                    </div>
+                </div>
+                <div
+                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">verified_user</span>
+                    <div>
+                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Intenção Pura</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed font-light italic">Compartilhe apenas o que for
+                            útil e validado em campo.</p>
+                    </div>
+                </div>
+                <div
+                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">block</span>
+                    <div>
+                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Bloqueio de Ruído</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed font-light italic">Sem spam. Sem distrações.
+                            Foco total em automação.</p>
+                    </div>
+                </div>
+                <div
+                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">bolt</span>
+                    <div>
+                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Execução Ativa</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed font-light italic">Aprenda, aplique e ensine. O
+                            loop perfeito do mestre.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final CTA -->
+        <div class="relative max-w-5xl mx-auto text-center space-y-16 py-32 animate-float">
+            <div class="absolute inset-0 bg-indigo-600/5 blur-[120px] rounded-full"></div>
+            <h2 class="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">
+                Junte-se à <span class="text-[#FF5F5F]">Elite</span>
+            </h2>
+            <div class="flex flex-col items-center gap-8 relative z-10">
+                <a href="https://chat.whatsapp.com/G5nS4iXjOWY9iOWNh"
+                    class="px-16 py-8 bg-white text-black rounded-full font-black hover:bg-[#FF5F5F] hover:text-white shadow-2xl transition-all duration-500 text-sm uppercase tracking-[0.3em]">Conectar
+                    ao WhatsApp</a>
+                <div class="flex gap-10 text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">
+                    <a href="#" class="hover:text-[#FF5F5F] transition-colors">YouTube</a>
+                    <a href="#" class="hover:text-[#FF5F5F] transition-colors">Instagram</a>
+                    <a href="#" class="hover:text-[#FF5F5F] transition-colors">X (Twitter)</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Minimalista Monocromático -->
+        <footer class="text-center pt-32 pb-10 border-t border-white/[0.03] space-y-6">
+            <div class="flex flex-col items-center gap-4">
+                <div class="text-[10px] font-black text-white uppercase tracking-[0.5em] opacity-40">Automações
+                    Comerciais Integradas !</div>
+                <div class="h-px w-8 bg-white/10"></div>
+                <div class="text-[8px] font-bold text-slate-800 uppercase tracking-[0.3em]">© 2026 Cleudocode | Mission
+                    Control Protocol</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toastr & jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        //////////////////////////////
+        // CONFIGURAÇÃO
+        //////////////////////////////
+        var position = "toast-top-left";
+        var product_name = "";
+        var phrase = "entrou na Comunidade via invite link";
+        var type_name = "any"; // masc, fem, any
+        var min_time = 4;
+        var max_time = 20;
+
+        //////////////////////////////
+        // NOMES
+        //////////////////////////////
+        var names_masc = [
+            'Jose', 'Joao', 'Antonio', 'Francisco', 'Carlos', 'Paulo', 'Pedro', 'Lucas', 'Luiz',
+            'Marcos', 'Luis', 'Gabriel', 'Rafael', 'Daniel', 'Marcelo', 'Bruno', 'Eduardo',
+            'Felipe', 'Raimundo', 'Rodrigo', 'Manoel', 'Mateus', 'Andre', 'Fernando',
+            'Fabio', 'Leonardo', 'Gustavo', 'Guilherme', 'Leandro', 'Tiago', 'Anderson',
+            'Ricardo', 'Marcio', 'Jorge', 'Sebastiao', 'Alexandre', 'Roberto', 'Edson',
+            'Diego', 'Vitor', 'Sergio', 'Claudio', 'Matheus', 'Thiago', 'Geraldo', 'Adriano'
+        ];
+
+        var names_fem = [
+            'Maria', 'Ana', 'Francisca', 'Antonia', 'Adriana', 'Juliana', 'Marcia',
+            'Fernanda', 'Patricia', 'Aline', 'Sandra', 'Camila', 'Amanda', 'Bruna',
+            'Jessica', 'Leticia', 'Julia', 'Luciana', 'Vanessa', 'Mariana', 'Gabriela',
+            'Vera', 'Vitoria', 'Larissa', 'Claudia', 'Beatriz', 'Rita', 'Luana', 'Sonia',
+            'Renata', 'Eliane', 'Simone', 'Natalia', 'Cristiane', 'Carla', 'Debora',
+            'Rosangela', 'Jaqueline', 'Rosa', 'Daniela', 'Lucia', 'Raquel', 'Angela',
+            'Rafaela', 'Joana', 'Elaine', 'Regina', 'Daniele', 'Sueli', 'Alessandra',
+            'Isabel', 'Sara', 'Bianca', 'Flavia', 'Erica', 'Viviane', 'Silvana'
+        ];
+
+        //////////////////////////////
+        // TOAST CONFIG
+        //////////////////////////////
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": false,
+            "positionClass": position,
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "800",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "slideDown",
+            "hideMethod": "fadeOut"
+        };
+
+        //////////////////////////////
+        // FUNÇÕES
+        //////////////////////////////
+        function getRandomName() {
+            if (type_name === "masc") {
+                return names_masc[Math.floor(Math.random() * names_masc.length)];
+            }
+            if (type_name === "fem") {
+                return names_fem[Math.floor(Math.random() * names_fem.length)];
+            }
+            // any
+            if (Math.random() < 0.5) {
+                return names_masc[Math.floor(Math.random() * names_masc.length)];
+            } else {
+                return names_fem[Math.floor(Math.random() * names_fem.length)];
+            }
+        }
+
+        function show_notification() {
+            var name = getRandomName();
+            var message = "<strong>" + name + "</strong> " + phrase + " " + product_name;
+            toastr.success(message);
+            var delay = Math.floor(Math.random() * (max_time - min_time + 1) + min_time);
+            setTimeout(show_notification, delay * 1000);
+        }
+
+        //////////////////////////////
+        // START
+        //////////////////////////////
+        window.onload = function () {
+            console.log('Comunidade carregada com Design Elite 🚀');
+            setTimeout(show_notification, 3000);
+        };
+    </script>
+</body>
+
+</html>

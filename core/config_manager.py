@@ -131,8 +131,8 @@ class ConfigManager:
                     'enable_auth': True
                 },
                 'llm': {
-                    'default_provider': 'ollama',
-                    'default_model': 'qwen2.5-coder'
+                    'default_provider': 'google-antigravity',
+                    'default_model': 'gemini-1.5-flash'
                 }
             }
         

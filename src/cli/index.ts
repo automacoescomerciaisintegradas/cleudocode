@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import axios from 'axios';
 import inquirer from 'inquirer';
+import { spawn } from 'child_process';
 
 const program = new Command();
 const API_URL = "http://localhost:18900/api";
@@ -121,6 +122,21 @@ program.command('dashboard')
         } catch (e: any) {
             console.log(chalk.red(`Erro: ${e.message}`));
         }
+    });
+
+program.command('verify')
+    .description('Ferramentas de verificação para o ecossistema Cleudocode')
+    .allowUnknownOption()
+    .action((cmd) => {
+        const args = process.argv.slice(3); // Captura todos os argumentos após 'verify'
+        const child = spawn('npx', ['ts-node', './src/cli/verify.ts', ...args], {
+            stdio: 'inherit',
+            cwd: process.cwd()
+        });
+        
+        child.on('error', (err) => {
+            console.error(chalk.red(`Erro ao executar verify: ${err.message}`));
+        });
     });
 
 program.parse(process.argv);

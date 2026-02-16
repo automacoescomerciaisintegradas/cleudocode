@@ -24,6 +24,9 @@ This project, **Cleudocode**, is a specialized AI development environment and au
 - **Evolution API**: For WhatsApp messaging.
 - **Telegram Bot API**: For notifications and control.
 - **Antigravity Gateway**: Local system service being monitored and managed.
+- **YouTube Integration**: Support for embedding and parsing.
+- **Affiliate Automation**: Full pipeline for Shopee, Amazon, and Mercado Livre using `pipeline_orchestrator.py`.
+- **Social Connect**: Instagram OAuth and publishing integration.
 
 ## 🚫 Forbidden Patterns
 - **Direct Shell Execution**: Avoid raw shell calls when a specific `skill` (like `filesystem`) exists.

@@ -52,10 +52,17 @@
         }
         
         @keyframes subtle-float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
         }
-        .animate-float { animation: subtle-float 6s ease-in-out infinite; }
+        .animate-float { 
+            animation: subtle-float 8s cubic-bezier(0.45, 0, 0.55, 1) infinite; 
+            will-change: transform;
+        }
+        
+        .parallax-smooth {
+            scroll-behavior: smooth;
+        }
         
         @keyframes pulse-ring {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 95, 95, 0.7); }
@@ -173,6 +180,8 @@
             <a href="#" id="nav-squad" class="nav-link text-slate-500 hover:text-white transition-all">Squad</a>
             <a href="#" id="nav-memory" class="nav-link text-slate-500 hover:text-white transition-all">Memory</a>
             <a href="#" id="nav-playground" class="nav-link text-slate-500 hover:text-white transition-all">Lab</a>
+            <a href="/COMUNIDADE" id="nav-comunidade"
+                class="nav-link text-[#FF5F5F] hover:text-white transition-all font-bold">Comunidade</a>
             <a href="#" id="nav-contato" class="nav-link text-slate-500 hover:text-white transition-all">Contato</a>
         </nav>
 
@@ -830,9 +839,23 @@
         </div>
     </main>
 
-    <footer class="p-10 text-center border-t border-white/5 mt-auto">
-        <p class="text-[10px] font-bold text-slate-700 uppercase tracking-[0.3em]">Developed by Automações Comerciais
-            Integradas — © 2025</p>
+    <footer class="py-20 text-center border-t border-white/[0.03] mt-auto bg-black/20">
+        <div class="max-w-4xl mx-auto space-y-10">
+            <div class="flex flex-col items-center gap-6">
+                <div class="flex gap-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+                    <a href="#" class="hover:text-white transition-all duration-300">YouTube</a>
+                    <a href="#" class="hover:text-white transition-all duration-300">Instagram</a>
+                    <a href="#" class="hover:text-white transition-all duration-300">X (Twitter)</a>
+                </div>
+                <div class="h-px w-12 bg-white/10"></div>
+                <div class="space-y-2">
+                    <p class="text-[9px] font-bold text-slate-700 uppercase tracking-[0.5em]">Developed by Automações
+                        Comerciais Integradas</p>
+                    <p class="text-[8px] font-medium text-slate-800 uppercase tracking-widest">© 2026 — All Rights
+                        Reserved</p>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <div class="cleudo-activity-carousel px-4">
