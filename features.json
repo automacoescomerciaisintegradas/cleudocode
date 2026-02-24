@@ -4,5 +4,35 @@
     "description": "Project Scaffolding",
     "status": "completed",
     "date": "2026-01-17"
+  },
+  {
+    "id": "skill-001",
+    "description": "Antigravity Operator Skill (Lobster Engine Orchestration)",
+    "status": "completed",
+    "date": "2026-02-23"
+  },
+  {
+    "id": "protocol-001",
+    "description": "Cleudocode Protocol Initialization",
+    "status": "completed",
+    "date": "2026-02-23"
+  },
+  {
+    "id": "sop-001",
+    "description": "SOP 4-Step Integration: Production Routes, Permissions, HTTP Module, Directive Update",
+    "status": "completed",
+    "date": "2026-02-23"
+  },
+  {
+    "id": "module-001",
+    "description": "HttpSkill Module Created and Registered in Lobster Engine",
+    "status": "completed",
+    "date": "2026-02-23"
+  },
+  {
+    "id": "desktop-001",
+    "description": "Native Desktop Client (Electron + React) for Codex API proxy with dynamic PKCE Auth and Python Bridge Controller",
+    "status": "completed",
+    "date": "2026-02-24"
   }
 ]
