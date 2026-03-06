@@ -698,19 +698,21 @@ with tab_pulse:
             output.append("**🔧 Seleção de Modelo:**")
             output.append(f"\n**Configuração Atual:**")
             output.append(f"  Modelo: `{MODEL}`")
-            output.append(f"\n**📦 Modelos de Código:**")
-            output.append(f"  • `qwen2.5-coder:7b` {'✅' if 'qwen' in MODEL else ''}")
-            output.append(f"  • `deepseek-coder:6.7b`")
-            output.append(f"  • `codellama:7b`")
-            output.append(f"  • `starcoder2:7b`")
-            output.append(f"\n**🤖 Modelos Gerais:**")
-            output.append(f"  • `llama3:8b`")
-            output.append(f"  • `mistral:7b`")
-            output.append(f"  • `mixtral:8x7b`")
-            output.append(f"\n**�️ Modelos Vision:**")
-            output.append(f"  • `llava:7b`")
-            output.append(f"  • `llava:13b`")
-            output.append(f"\n💡 **Para trocar**: Edite `DEEPSEEK_MODEL` no arquivo `.env`")
+            output.append(f"\n**🌐 Bonsai AI (Roteamento Inteligente — Frontier Models):**")
+            output.append(f"  • `anthropic/claude-3-5-sonnet` — Claude Sonnet (padrão)")
+            output.append(f"  • `openai/gpt-4o-mini` — GPT-4o Mini (rápido)")
+            output.append(f"  • `anthropic/claude-3-5-sonnet-20241022` — Claude 200K ctx")
+            output.append(f"  • `auto` — Bonsai escolhe o melhor modelo automaticamente")
+            output.append(f"  ➡️  Configure `BONSAI_API_KEY` no `.env` para ativar")
+            output.append(f"\n**🖥️ Ollama Local (Modelos Instalados):**")
+            output.append(f"  • `GandalfBaum/llama3.1-claude3.7:latest` ✅ {'(ativo)' if 'llama3.1-claude3.7' in MODEL or 'GandalfBaum' in MODEL else ''}")
+            output.append(f"  • `llama3:8b` ✅")
+            output.append(f"\n**📦 Outros Modelos Ollama (instalar com `ollama pull`):**")
+            output.append(f"  • `qwen2.5-coder:7b`  →  ollama pull qwen2.5-coder:7b")
+            output.append(f"  • `deepseek-coder:6.7b`  →  ollama pull deepseek-coder:6.7b")
+            output.append(f"  • `llava:7b`  →  ollama pull llava:7b (vision)")
+            output.append(f"\n💡 **Para trocar**: Edite `DEEPSEEK_MODEL` e `OLLAMA_MODEL` no `.env`")
+            output.append(f"🔗 **Bonsai**: npm install -g @bonsai-ai/cli && bonsai login && bonsai start claude")
             
         elif cmd == "clear":
             st.session_state.terminal_output = []
@@ -1002,45 +1004,45 @@ with tab_market:
 
 with tab_squad:
     st.markdown("""
-        <div style='max-width: 1000px; margin: 0 auto; padding: 2rem;'>
-            <div style='text-align: center; margin-bottom: 3.5rem; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); padding: 3rem; border-radius: 40px; border: 1px solid rgba(255,255,255,0.05);'>
+        <div style='max-width: 1200px; margin: 0 auto; padding: 2.5rem;'>
+            <div style='text-align: center; margin-bottom: 4.5rem; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); padding: 4rem; border-radius: 40px; border: 1px solid rgba(255,255,255,0.05);'>
                 <h2 style='color: white; font-family: Inter; font-weight: 900; font-style: italic; font-size: 3rem; letter-spacing: -2px; text-transform: uppercase; margin: 0;'>AGENT SQUAD</h2>
-                <p style='color: #FF5F5F; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 5px; margin-top: 1rem;'>System Orchestrator</p>
+                <p style='color: #FF5F5F; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 5px; margin-top: 1.5rem;'>System Orchestrator</p>
             </div>
-            
-            <div style='display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;'>
+
+            <div style='display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;'>
                 <!-- Main Status -->
-                <div style='padding: 2.5rem; background: #080808; border: 1px solid #111; border-radius: 32px;'>
-                    <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2rem; font-weight: 800;'>Status da Orquestração</h4>
-                    
-                    <div style='display: flex; flex-direction: column; gap: 1.5rem;'>
-                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #151515;'>
+                <div style='padding: 3rem; background: #080808; border: 1px solid #111; border-radius: 32px;'>
+                    <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2.5rem; font-weight: 800;'>Status da Orquestração</h4>
+
+                    <div style='display: flex; flex-direction: column; gap: 2rem;'>
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.25rem; border-bottom: 1px solid #151515;'>
                             <span style='color: #888;'>Capacidade de Resposta</span>
                             <span style='color: #34D399; font-weight: 800;'>98.4%</span>
                         </div>
-                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #151515;'>
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.25rem; border-bottom: 1px solid #151515;'>
                             <span style='color: #888;'>Latência Média</span>
                             <span style='color: #FBBF24; font-weight: 800;'>142ms</span>
                         </div>
-                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #151515;'>
+                        <div style='display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.25rem; border-bottom: 1px solid #151515;'>
                             <span style='color: #888;'>Agentes Ativos</span>
                             <span style='color: white; font-weight: 800;'>12 / 12</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Connection Status -->
-                <div style='padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 32px; text-align: center;'>
-                    <div style='width: 15px; height: 15px; background: #FF5F5F; border-radius: 50%; box-shadow: 0 0 15px #FF5F5F; margin: 0 auto 1.5rem auto;'></div>
-                    <h4 style='color: white; font-size: 0.9rem; margin-bottom: 1rem;'>SENTIENT GRID</h4>
-                    <p style='color: #444; font-size: 0.7rem;'>SISTEMA OFFLINE</p>
-                    <div style='margin-top: 2rem; font-size: 1.5rem; color: #111; font-weight: 900;'>DISCONNECTED</div>
+                <div style='padding: 3rem; background: #0A0A0A; border: 1px solid #111; border-radius: 32px; text-align: center; display: flex; flex-direction: column; justify-content: center;'>
+                    <div style='width: 15px; height: 15px; background: #FF5F5F; border-radius: 50%; box-shadow: 0 0 15px #FF5F5F; margin: 0 auto 2rem auto;'></div>
+                    <h4 style='color: white; font-size: 0.9rem; margin-bottom: 1.25rem;'>SENTIENT GRID</h4>
+                    <p style='color: #444; font-size: 0.7rem; margin-bottom: 2.5rem;'>SISTEMA OFFLINE</p>
+                    <div style='font-size: 1.5rem; color: #111; font-weight: 900;'>DISCONNECTED</div>
                 </div>
             </div>
-            
-            <div style='margin-top: 1.5rem; padding: 2.5rem; background: #080808; border: 1px solid #111; border-radius: 32px;'>
-                <p style='color: #555; font-size: 0.8rem; line-height: 1.6;'>
-                    O <b>Agent Squad</b> é o centro de comando que gerencia a colaboração entre instâncias especializadas. 
+
+            <div style='margin-top: 2rem; padding: 3rem; background: #080808; border: 1px solid #111; border-radius: 32px;'>
+                <p style='color: #555; font-size: 0.8rem; line-height: 1.8;'>
+                    O <b>Agent Squad</b> é o centro de comando que gerencia a colaboração entre instâncias especializadas.
                     A orquestração local permite que tarefas massivas sejam divididas e executadas simultaneamente sem perda de precisão.
                 </p>
             </div>
@@ -1049,52 +1051,53 @@ with tab_squad:
 
 with tab_contato:
     st.markdown("""
-<div style='max-width: 900px; margin: 0 auto; padding: 4rem; background: #080808; border: 1px solid rgba(255,255,255,0.03); border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.8);'>
-    <div style='text-align: center; margin-bottom: 4rem;'>
+<div style='max-width: 1000px; margin: 0 auto; padding: 5rem; background: #080808; border: 1px solid rgba(255,255,255,0.03); border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.8);'>
+    <div style='text-align: center; margin-bottom: 5rem;'>
         <h2 style='color: white; font-family: Inter; font-weight: 900; font-style: italic; font-size: 3.5rem; letter-spacing: -2px; text-transform: uppercase; margin: 0;'>CONTATO</h2>
-        <div style='color: #FF5F5F; font-family: Inter; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 5px; margin-top: 1rem;'>
+        <div style='color: #FF5F5F; font-family: Inter; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 5px; margin-top: 1.5rem;'>
             CLEUDOCODE - THE AI THAT ACTUALLY DOES THINGS.
         </div>
     </div>
-    
-    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;'>
-        <div style='padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 20px;'>
-            <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; font-weight: 800;'>Suporte Técnico</h4>
-            <p style='color: white; font-weight: 600; font-size: 1rem; font-family: var(--font-mono); margin-bottom: 0.5rem;'>Assistência direta para implementação de agentes e resolução de conflitos de rede.</p>
-            <p style='color: #888; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.5rem;'>Automações Comerciais Integradas! ⚙️</p>
+
+    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;'>
+        <div style='padding: 3rem; background: #0A0A0A; border: 1px solid #111; border-radius: 24px;'>
+            <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; font-weight: 800;'>Suporte Técnico</h4>
+            <p style='color: white; font-weight: 600; font-size: 1rem; font-family: var(--font-mono); margin-bottom: 1rem; line-height: 1.6;'>Assistência direta para implementação de agentes e resolução de conflitos de rede.</p>
+            <p style='color: #888; font-size: 0.8rem; font-weight: 600; margin-bottom: 2rem;'>Automações Comerciais Integradas! ⚙️</p>
             <a href='mailto:contato@automacoescomerciais.com.br' style='color: #FF5F5F; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>📧 Email: contato@automacoescomerciais.com.br</a>
         </div>
-        <div style='padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 20px;'>
-            <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; font-weight: 800;'>Comercial / Parcerias</h4>
-            <p style='color: white; font-weight: 600; font-size: 1rem; font-family: var(--font-mono); margin-bottom: 1.5rem;'>Parcerias estratégicas, licenciamento Enterprise e expansão do ecossistema.</p>
-            <div style='display: flex; flex-direction: column; gap: 0.8rem;'>
+        <div style='padding: 3rem; background: #0A0A0A; border: 1px solid #111; border-radius: 24px;'>
+            <h4 style='color: #444; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; font-weight: 800;'>Comercial / Parcerias</h4>
+            <p style='color: white; font-weight: 600; font-size: 1rem; font-family: var(--font-mono); margin-bottom: 2rem; line-height: 1.6;'>Parcerias estratégicas, licenciamento Enterprise e expansão do ecossistema.</p>
+            <div style='display: flex; flex-direction: column; gap: 1rem;'>
                 <a href='https://t.me/+9cdym9gvPQ9iOWNh' target='_blank' style='color: #6366F1; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>💬 Telegram: Conectar agora</a>
                 <a href='https://wa.me/558894227586' target='_blank' style='color: #10B981; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>📱 WhatsApp: +55 88 94227586</a>
-                <div style='margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #222;'>
-                    <p style='color: #444; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;'>Atendimento humano</p>
+                <div style='margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #222;'>
+                    <p style='color: #444; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;'>Atendimento humano</p>
                     <a href='tel:+5588921567214' style='color: white; text-decoration: none; font-weight: 700; font-size: 0.9rem;'>📱 Telefone: +55 88 921567214</a>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div style='margin-top: 2rem; padding: 2.5rem; background: #0A0A0A; border: 1px solid #111; border-radius: 20px; text-align: center;'>
-        <p style='color: #333; font-size: 0.9rem; line-height: 1.6;'>
+
+    <div style='margin-top: 2.5rem; padding: 3rem; background: #0A0A0A; border: 1px solid #111; border-radius: 24px; text-align: center;'>
+        <p style='color: #333; font-size: 0.9rem; line-height: 1.8;'>
             Desenvolvido por <b style='color: #555;'>Automações Comerciais Integradas</b><br>
             <span style='font-size: 0.8rem; letter-spacing: 1px; color: #222;'>SISTEMA DE MISSÃO CRÍTICA — © 2026</span>
         </p>
-        <div style='margin-top: 2rem;'>
+        <div style='margin-top: 2.5rem;'>
             <a href='http://localhost:18900' target='_blank' style='
-                color: #FF5F5F; 
-                text-decoration: none; 
-                font-weight: 700; 
-                font-size: 0.7rem; 
-                text-transform: uppercase; 
+                color: #FF5F5F;
+                text-decoration: none;
+                font-weight: 700;
+                font-size: 0.7rem;
+                text-transform: uppercase;
                 letter-spacing: 2px;
                 border: 1px solid rgba(255,95,95,0.2);
-                padding: 8px 30px;
+                padding: 10px 35px;
                 border-radius: 50px;
                 transition: all 0.3s ease;
+                display: inline-block;
             '>
                 Acessar Página Principal de Contato
             </a>
