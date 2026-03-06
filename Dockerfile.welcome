@@ -1,0 +1,53 @@
+# Dockerfile de Produção - Welcome Agent
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configurar ambiente Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="${PYTHONPATH}:/app"
+
+# Copiar requirements e instalar dependências
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Instalar dependência do Telegram
+RUN pip install --no-cache-dir python-telegram-bot
+
+# Copiar arquivos do Welcome Agent
+COPY agents/welcome_agent.md /app/agents/
+COPY welcome_agent_chat.py /app/
+COPY welcome_agent_demo.py /app/
+COPY telegram_welcome_bot.py /app/
+COPY start_welcome_agent.sh /app/
+COPY WELCOME_AGENT_GUIDE.md /app/
+COPY WELCOME_AGENT_SUMMARY.md /app/
+
+# Copiar core (necessário para imports)
+COPY core/ /app/core/
+
+# Copiar .env.example como base
+COPY .env.example /app/.env
+
+# Criar diretórios necessários
+RUN mkdir -p /app/logs /app/data
+
+# Permissões
+RUN chmod +x /app/*.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:18900/health || exit 1
+
+# Expor porta (se usar web_server)
+EXPOSE 18900
+
+# Comando padrão (pode ser sobrescrito)
+CMD ["python3", "telegram_welcome_bot.py"]

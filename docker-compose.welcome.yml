@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # =====================================
+  # WELCOME AGENT (Telegram Bot)
+  # =====================================
+  welcome-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.welcome
+    container_name: cleudocode-welcome-agent
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=llama3:8b
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - ollama
+    networks:
+      - cleudocode-network
+
+  # =====================================
+  # OLLAMA (Modelos de IA Local)
+  # =====================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - cleudocode-network
+
+  # =====================================
+  # CLEUDOCODE GATEWAY (API Principal)
+  # =====================================
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleudocode-gateway
+    restart: unless-stopped
+    ports:
+      - "18900:18900"
+    environment:
+      - ENVIRONMENT=production
+      - OLLAMA_HOST=http://ollama:11434
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - ollama
+    networks:
+      - cleudocode-network
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  cleudocode-network:
+    driver: bridge
