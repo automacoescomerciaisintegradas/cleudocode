@@ -47,3 +47,19 @@ tmp/
 test_server.log
 simulate_activity.py
 check_agents_status.sh
+contatos_armazenados.json
+contatos_exportados.csv
+contatos_exportados.xlsx
+contatos_armazenados.json
+contatos_exemplo.csv
+contatos_exemplo.xlsx
+contatos_armazenados.json.bak
+
+# Projeto separado Node.js (gerenciado em /root/cleudocode-hub)
+cleudocodehub.skill/
+cleudocode-hub/
+
+# Scripts temporários
+separate_projects.sh
+tmp_package_skill.py
+
