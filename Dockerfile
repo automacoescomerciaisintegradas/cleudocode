@@ -1,88 +1,43 @@
-# ============================================
-# CLEUDO CODE - Dockerfile
-# LLM P2P Chat System
-# ============================================
+# CLEUDOCODE - Dockerfile Multi-Stage Elite Soberana
 
-FROM ubuntu:24.04
+# Build stage
+FROM python:3.10-slim as builder
 
-# Metadados
-LABEL maintainer="cleudocode.automacoescomerciais.com.br"
-LABEL version="0.51.0"
-LABEL description="CLEUDO CODE - LLM P2P Chat System"
-
-# Variáveis de ambiente
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV STREAMLIT_SERVER_PORT=8501
-ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
-
-# Diretório de trabalho
 WORKDIR /app
 
-# Instalar dependências do sistema e Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    python3-venv \
-    curl \
-    ca-certificates \
-    build-essential \
-    ffmpeg \
-    libglib2.0-0 \
-    libnss3 \
-    libnspr4 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
+    gcc python3-dev ffmpeg curl git \
     && rm -rf /var/lib/apt/lists/*
-    
-# Deps Playwright via playwright install-deps (mais seguro)
-# RUN playwright install-deps chromium
 
-# Configurar Ambiente Python Seguro (Venv)
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Copiar requirements primeiro (para cache de camadas)
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt --target /app/deps
 
-# Atualizar pip e instalar dependências
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir playwright pytest-playwright
+# Runtime stage
+FROM python:3.10-slim
 
-# Instalar navegadores Playwright
-RUN playwright install chromium
+RUN groupadd -r cleudocode && useradd -r -g cleudocode cleudocode
 
-# Copiar código da aplicação
-COPY app.py .
-COPY web_server.py .
-COPY web_app.py .
-COPY streamlit_app.py .
-COPY gerenciador_contatos.py .
-COPY agent_loop.py .
-COPY tool_box.py .
-COPY rag_engine.py .
-COPY descobrir_instancias.py .
-COPY core ./core
-COPY skills ./skills
-COPY gateways ./gateways
-COPY integrations ./integrations
-COPY web ./web
-COPY agents ./agents
-COPY cli ./cli
-COPY orchestrator.py .
-COPY docs ./docs
-COPY agent-browser ./agent-browser
+WORKDIR /app
 
-# Expor porta principal
-EXPOSE 8501
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8501/health || exit 1
+COPY --from=builder /app/deps /app/deps
+ENV PYTHONPATH="${PYTHONPATH}:/app:/app/src:/app/deps"
 
-# Comando de inicialização
-CMD ["python", "web_server.py"]
+COPY . .
+
+RUN chmod +x *.sh || true
+
+USER cleudocode
+
+EXPOSE 18900 18901 18902 19000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:19000/health || exit 1
+
+CMD ["python3", "web_server.py"]
