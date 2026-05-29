@@ -2,6 +2,16 @@
 
 Minimal operating guide for AI coding agents in the Cleudocode repository.
 
+## Codex Adapter Scope
+- This file is the Codex-facing adapter for this repository.
+- Shared project knowledge must stay in shared folders such as:
+  - `docs/`
+  - `references/`
+  - `templates/`
+  - `scripts/`
+- Claude-specific adapter files live under `.claude/`.
+- Codex-specific adapter files live under `.codex/` and `.codex/agents/`.
+
 ## Before Implementing
 - State assumptions explicitly. If uncertain, ask.
 - If multiple interpretations exist, present them - don't pick silently.

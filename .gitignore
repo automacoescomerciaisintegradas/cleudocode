@@ -24,6 +24,9 @@ wheels/
 
 # Secrets and User Data
 .env
+.env.*
+**/secrets/**
+**/credentials/**
 .agent_status.json
 antigravity-accounts.json
 *.pem

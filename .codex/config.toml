@@ -1,0 +1,18 @@
+# Codex adapter config for this repository.
+# Generated from .claude/settings.json without secrets.
+
+[adapter]
+name = "codex"
+source_adapter = "claude"
+
+[paths]
+project_instructions = "AGENTS.md"
+shared_docs = "docs"
+shared_references = "references"
+shared_templates = "templates"
+claude_agents_dir = ".claude/agents"
+codex_agents_dir = ".codex/agents"
+
+[hooks]
+status_line_command = "node .claude/hooks/gsd-statusline.js"
+session_start_command = "node .claude/hooks/gsd-check-update.js"
