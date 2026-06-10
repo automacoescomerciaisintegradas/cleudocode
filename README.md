@@ -38,7 +38,8 @@ INSTALL_BROWSER_HARNESS=0 bash install_vps.sh
 
 - instala dependencias basicas de sistema via `apt-get`
 - clona ou atualiza este repositorio
-- cria `venv` e instala o pacote com `pip install -e .`
+- recria `venv` quebrado quando necessario e instala o pacote com `pip install -e .`
+- registra `/usr/local/bin/cleudocode` apontando para o launcher do repositório, quando ha permissao
 - instala `browser-harness` com `uv`, se habilitado
 - registra `browser-harness` em `~/.cleudocode/skills/browser-harness`
 - grava configuracao no `.env` do projeto via `cleudocode config set`
@@ -51,6 +52,8 @@ cleudocode doctor
 cleudocode skills
 cleudocode setup
 ```
+
+Se voce rodou `install_vps.sh` como `root` ou com `sudo`, o launcher global `cleudocode` tambem fica disponivel fora do `venv`.
 
 ## Documentacao
 

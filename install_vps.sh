@@ -10,6 +10,7 @@ BROWSER_HARNESS_DIR="${BROWSER_HARNESS_DIR:-$HOME/browser-harness}"
 INSTALL_BROWSER_HARNESS="${INSTALL_BROWSER_HARNESS:-1}"
 INSTALL_SYSTEM_DEPS="${INSTALL_SYSTEM_DEPS:-1}"
 RUN_SMOKE_TESTS="${RUN_SMOKE_TESTS:-1}"
+INSTALL_GLOBAL_LAUNCHER="${INSTALL_GLOBAL_LAUNCHER:-1}"
 
 DEFAULT_PROVIDER="${DEFAULT_PROVIDER:-}"
 DEFAULT_MODEL="${DEFAULT_MODEL:-}"
@@ -52,6 +53,13 @@ run_as_root() {
   fi
 }
 
+ensure_clean_venv_state() {
+  if [[ -d "${VENV_DIR}" && ! -x "${VENV_DIR}/bin/python" ]]; then
+    log "Virtualenv existente em estado invalido; recriando ${VENV_DIR}..."
+    rm -rf "${VENV_DIR}"
+  fi
+}
+
 install_system_deps() {
   if [[ "${INSTALL_SYSTEM_DEPS}" != "1" ]]; then
     log "Pulando dependencias de sistema."
@@ -82,18 +90,36 @@ ensure_repo() {
 
 ensure_venv() {
   log "Criando ou reutilizando ambiente virtual..."
+  ensure_clean_venv_state
   python3 -m venv "${VENV_DIR}"
 
   # shellcheck disable=SC1090
   source "${VENV_DIR}/bin/activate"
 
   python -m pip install --upgrade pip
+  python -m pip install -e "${INSTALL_DIR}"
+}
 
-  if [[ -f "${INSTALL_DIR}/requirements.txt" ]]; then
-    python -m pip install -r "${INSTALL_DIR}/requirements.txt"
+install_global_launcher() {
+  if [[ "${INSTALL_GLOBAL_LAUNCHER}" != "1" ]]; then
+    log "Pulando launcher global."
+    return
   fi
 
-  python -m pip install -e "${INSTALL_DIR}"
+  local launcher_target="${INSTALL_DIR}/cleudocode"
+  local launcher_link="/usr/local/bin/cleudocode"
+
+  if [[ ! -x "${launcher_target}" ]]; then
+    chmod +x "${launcher_target}"
+  fi
+
+  if [[ ! -w "$(dirname "${launcher_link}")" && "${EUID}" -ne 0 ]]; then
+    log "Sem permissao para registrar ${launcher_link}; use o launcher do venv ou rode com sudo/root."
+    return
+  fi
+
+  log "Registrando launcher global em ${launcher_link}..."
+  run_as_root ln -sf "${launcher_target}" "${launcher_link}"
 }
 
 ensure_uv() {
@@ -218,6 +244,7 @@ main() {
   install_system_deps
   ensure_repo
   ensure_venv
+  install_global_launcher
   ensure_browser_harness
   configure_runtime
   run_smoke_tests

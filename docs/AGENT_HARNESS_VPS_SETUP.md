@@ -46,6 +46,8 @@ bash install_vps.sh
 
 O restante desta página descreve o fluxo manual equivalente.
 
+O script `install_vps.sh` também tenta registrar `/usr/local/bin/cleudocode` quando executado com permissão suficiente, para o comando funcionar fora do shell ativado.
+
 ### 1. Preparar o runtime do Cleudocode
 
 ```bash
@@ -63,6 +65,11 @@ Validação:
 ```bash
 cleudocode --help
 ```
+
+Observações:
+
+- `pip install -e .` agora puxa as dependências do `requirements.txt`, então esse caminho manual instala também os módulos do gateway, dashboard e áudio.
+- Se existir um `venv/` inválido trazido de outro host, remova-o antes e recrie com `python3 -m venv venv`.
 
 ### 2. Configurar o modelo
 
