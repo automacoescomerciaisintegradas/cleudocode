@@ -2,9 +2,13 @@ import os
 import requests
 import click
 from rich.console import Console
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    load_dotenv = None
 
-load_dotenv()
+if load_dotenv is not None:
+    load_dotenv()
 
 console = Console()
 
