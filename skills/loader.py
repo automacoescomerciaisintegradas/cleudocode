@@ -109,6 +109,54 @@ class SkillLoader:
         self.skills: Dict[str, BaseSkill] = {}
         self.metadata_cache: Dict[str, SkillMetadata] = {}
         self._file_timestamps: Dict[str, float] = {}
+
+    def _iter_skills_from_categories(self, root: Path) -> List[Path]:
+        """Collect skills stored under category directories."""
+        skill_paths: List[Path] = []
+
+        for category in CATEGORIES:
+            category_dir = root / category
+            if not category_dir.exists():
+                continue
+
+            for skill_dir in category_dir.iterdir():
+                if skill_dir.is_dir():
+                    has_skill_md = (skill_dir / "SKILL.md").exists()
+                    has_impl = any(
+                        (skill_dir / f).exists()
+                        for f in [f"{skill_dir.name}_skill.py", "skill.py", "__init__.py"]
+                    )
+
+                    if has_skill_md or has_impl:
+                        skill_paths.append(skill_dir)
+
+        return skill_paths
+
+    def _iter_external_skill_dirs(self) -> List[Path]:
+        """Collect user-installed skills from the runtime config directory."""
+        try:
+            from core.config_manager import get_config_manager
+        except Exception:
+            return []
+
+        external_root = get_config_manager().get_skills_dir()
+        if not external_root.exists():
+            return []
+
+        skill_paths: List[Path] = []
+        for skill_dir in external_root.iterdir():
+            if not skill_dir.is_dir():
+                continue
+
+            has_skill_md = (skill_dir / "SKILL.md").exists()
+            has_impl = any(
+                (skill_dir / f).exists()
+                for f in [f"{skill_dir.name}_skill.py", "skill.py", "__init__.py"]
+            )
+            if has_skill_md or has_impl:
+                skill_paths.append(skill_dir)
+
+        return skill_paths
     
     def discover_skills(self) -> List[Path]:
         """
@@ -117,25 +165,19 @@ class SkillLoader:
         Returns:
             Lista de caminhos para diretórios de skills
         """
-        skill_paths = []
-        
-        for category in CATEGORIES:
-            category_dir = self.skills_root / category
-            if not category_dir.exists():
-                continue
-            
-            for skill_dir in category_dir.iterdir():
-                if skill_dir.is_dir():
-                    # Verifica se tem SKILL.md ou arquivo de implementação
-                    has_skill_md = (skill_dir / "SKILL.md").exists()
-                    has_impl = any(
-                        (skill_dir / f).exists() 
-                        for f in [f"{skill_dir.name}_skill.py", "skill.py", "__init__.py"]
-                    )
-                    
-                    if has_skill_md or has_impl:
-                        skill_paths.append(skill_dir)
-        
+        skill_paths: List[Path] = []
+        seen: set[Path] = set()
+
+        for skill_dir in self._iter_skills_from_categories(self.skills_root):
+            if skill_dir not in seen:
+                skill_paths.append(skill_dir)
+                seen.add(skill_dir)
+
+        for skill_dir in self._iter_external_skill_dirs():
+            if skill_dir not in seen:
+                skill_paths.append(skill_dir)
+                seen.add(skill_dir)
+
         return skill_paths
     
     def parse_skill_metadata(self, skill_dir: Path) -> SkillMetadata:

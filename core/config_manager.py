@@ -60,15 +60,38 @@ class ConfigManager:
     DEFAULT_CONFIG_DIR = Path.home() / ".cleudocode"
     DEFAULT_CONFIG_FILE = "config.yaml"
     DEFAULT_TOKEN_FILE = ".gateway_token"
+
+    def _use_fallback_config_dir(self, fallback_config_dir: Path) -> None:
+        self.config_dir = fallback_config_dir
+        self.config_path = self.config_dir / self.DEFAULT_CONFIG_FILE
+        self.token_path = self.config_dir / self.DEFAULT_TOKEN_FILE
+        self.config_dir.mkdir(parents=True, exist_ok=True)
     
     def __init__(self, config_dir: Optional[Path] = None):
         """Initialize configuration manager"""
-        self.config_dir = config_dir or self.DEFAULT_CONFIG_DIR
+        self.project_root = Path(__file__).parent.parent
+        preferred_config_dir = config_dir or Path(
+            os.getenv("CLEUDOCODE_CONFIG_DIR", str(self.DEFAULT_CONFIG_DIR))
+        )
+        fallback_config_dir = self.project_root / ".cleudocode_runtime"
+        self.config_dir = preferred_config_dir
         self.config_path = self.config_dir / self.DEFAULT_CONFIG_FILE
         self.token_path = self.config_dir / self.DEFAULT_TOKEN_FILE
+        self.env_path = self.project_root / ".env"
         
         # Ensure config directory exists
-        self.config_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            self.config_dir.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            self._use_fallback_config_dir(fallback_config_dir)
+        else:
+            probe_path = self.config_dir / ".write_probe"
+            try:
+                with open(probe_path, "w", encoding="utf-8") as probe_file:
+                    probe_file.write("ok")
+                probe_path.unlink()
+            except OSError:
+                self._use_fallback_config_dir(fallback_config_dir)
         
         # Create subdirectories
         self._create_subdirectories()
@@ -191,6 +214,76 @@ class ConfigManager:
     def get_logs_dir(self) -> Path:
         """Get logs directory"""
         return self.config_dir / "logs"
+
+    def list_env_items(self) -> list[tuple[str, str]]:
+        """Return .env items as ordered key/value tuples."""
+        if not self.env_path.exists():
+            return []
+
+        items: list[tuple[str, str]] = []
+        with open(self.env_path, "r", encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                items.append((key, value))
+
+        return items
+
+    def get_env_value(self, key: str, default: Optional[str] = None) -> Optional[str]:
+        """Read a value from the project .env file."""
+        for env_key, value in self.list_env_items():
+            if env_key == key:
+                return value
+        return default
+
+    def set_env_value(self, key: str, value: str) -> None:
+        """Upsert a value in the project .env file while preserving other lines."""
+        lines: list[str] = []
+        if self.env_path.exists():
+            with open(self.env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+        new_line = f"{key}={value}\n"
+        updated_lines: list[str] = []
+        found = False
+
+        for line in lines:
+            if line.startswith(f"{key}="):
+                if not found:
+                    updated_lines.append(new_line)
+                    found = True
+                continue
+            updated_lines.append(line)
+
+        if not found:
+            updated_lines.append(new_line)
+
+        with open(self.env_path, "w", encoding="utf-8") as f:
+            f.writelines(updated_lines)
+
+    def unset_env_value(self, key: str) -> bool:
+        """Remove a key from the project .env file while preserving other lines."""
+        if not self.env_path.exists():
+            return False
+
+        with open(self.env_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        updated_lines: list[str] = []
+        removed = False
+        for line in lines:
+            if line.startswith(f"{key}="):
+                removed = True
+                continue
+            updated_lines.append(line)
+
+        if removed:
+            with open(self.env_path, "w", encoding="utf-8") as f:
+                f.writelines(updated_lines)
+
+        return removed
 
 
 # Global config manager instance
