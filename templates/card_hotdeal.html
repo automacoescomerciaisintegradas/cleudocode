@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:800px; height:800px; font-family:'Segoe UI',Arial,sans-serif; background:#000; }
+  .card { width:800px; height:800px; position:relative; overflow:hidden; background:#0f0f0f; }
+  .frame { position:absolute; inset:18px; border:4px solid #ff0055; border-radius:24px; }
+
+  .top { position:absolute; top:1px; left:28px; right:28px; height:92px; display:flex; align-items:center; padding:0 8px; }
+  .logoaci { height:58px; width:auto; object-fit:contain; filter:drop-shadow(0 3px 10px rgba(255,0,85,.5)); }
+  .hot { margin-left:auto; font-weight:900; font-size:28px; color:#fff; background:linear-gradient(90deg,#ff0055,#ff6a00); padding:8px 18px; border-radius:14px; }
+
+  .fotobg { position:absolute; left:70px; right:70px; top:108px; height:384px; background:#fff; border-radius:26px;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 14px 34px rgba(0,0,0,.6); }
+  .prodimg { max-width:94%; max-height:94%; object-fit:contain; border-radius:12px; }
+
+  .tags { position:absolute; left:36px; right:36px; top:500px; color:#fff; font-weight:900; font-size:30px; line-height:1.15;
+    text-align:center; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .precobg { position:absolute; left:30px; right:30px; bottom:78px; display:flex; align-items:center; justify-content:center; gap:22px; }
+  .price { color:#ff0055; font-weight:900; font-size:56px; text-shadow:0 0 24px rgba(255,0,85,.6); }
+  .cta { background:linear-gradient(90deg,#ff0055,#ff6a00); color:#fff; font-weight:900; font-size:24px; padding:14px 22px;
+    border-radius:18px; box-shadow:0 8px 24px rgba(255,0,85,.5); white-space:nowrap; }
+
+  .linkbar { position:absolute; left:0; right:0; bottom:0; height:70px; background:#252525; border-top:1px solid #333;
+    display:flex; align-items:center; justify-content:center; }
+  .linktxt { color:#fff; text-align:center; }
+  .linktxt .lbl { font-weight:800; font-size:16px; margin-right:8px; }
+  .linktxt .url { font-size:22px; font-weight:800; color:#ff6a00; word-break:break-all; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="frame"></div>
+    <div class="top"><img class="logoaci" src="{{LOGO_ACI}}" alt="Achadinhos ACI"/><div class="hot">HOT DEAL 🔥</div></div>
+
+    <div class="fotobg">
+      <img class="prodimg" src="{{PRODUTO_IMG}}" alt="Produto"/>
+    </div>
+
+    <div class="tags">⚡ {{PRODUTO}}</div>
+    <div class="precobg">
+      <div class="price">{{PRECO}}</div>
+      <div class="cta">🔥 Click no link e garanta já! 👆</div>
+    </div>
+
+    <div class="linkbar">
+      <div class="linktxt"><span class="lbl">📲 Direto SÓ pra você 👉</span><span class="url">{{LINK}}</span></div>
+    </div>
+  </div>
+</body>
+</html>

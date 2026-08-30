@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:800px; height:800px; font-family:'Segoe UI',Arial,Helvetica,sans-serif; background:#fff; }
+  .card { width:800px; height:800px; position:relative; overflow:hidden;
+    background:linear-gradient(180deg,#ffffff 0%,#f4f6f8 55%,#e8edf2 100%); }
+
+  /* header: logo + selo de destaque */
+  .top { position:absolute; top:0; left:0; right:0; height:92px; padding:18px 30px; display:flex; align-items:center;
+    background:linear-gradient(90deg,#ee4d2d 0%,#f2683e 55%,#ff9f1c 100%); }
+  .logoaci { height:54px; width:auto; object-fit:contain; filter:drop-shadow(0 3px 8px rgba(0,0,0,.3)); }
+  .badge { margin-left:auto; background:#fff; color:#ee4d2d; font-weight:900; font-size:18px; padding:9px 16px;
+    border-radius:22px; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+
+  /* tagline inspirada no anúncio de destaque da Shopee */
+  .tagline { position:absolute; left:0; right:0; top:98px; text-align:center; color:#374151; font-weight:700; font-size:20px; }
+
+  /* foto do produto em estúdio (fundo limpo, sombra suave) */
+  .fotobg { position:absolute; left:70px; right:70px; top:146px; height:370px; background:#fff; border-radius:26px;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 18px 44px rgba(17,24,39,.16); }
+  .prodimg { max-width:92%; max-height:92%; object-fit:contain; border-radius:12px; }
+
+  /* chips de benefícios */
+  .chips { position:absolute; left:0; right:0; top:526px; display:flex; justify-content:center; gap:12px; }
+  .chip { background:#fff; border:1.5px solid #ffb347; color:#d97706; font-weight:800; font-size:17px;
+    padding:8px 16px; border-radius:20px; box-shadow:0 3px 8px rgba(0,0,0,.08); }
+
+  /* nome do produto (máx. 2 linhas) */
+  .tags { position:absolute; left:40px; right:40px; top:576px; color:#111827; font-weight:900; font-size:32px; line-height:1.15;
+    text-align:center; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* preço + CTA */
+  .precobg { position:absolute; left:30px; right:30px; bottom:82px; display:flex; align-items:center; justify-content:center; gap:26px; }
+  .old { color:#9ca3af; font-size:22px; text-decoration:line-through; }
+  .price { color:#ee4d2d; font-weight:900; font-size:58px; text-shadow:0 3px 8px rgba(238,77,45,.25); }
+  .cta { background:linear-gradient(90deg,#ee4d2d,#ff8a1c); color:#fff; font-weight:900; font-size:26px;
+    padding:16px 28px; border-radius:18px; box-shadow:0 10px 24px rgba(238,77,45,.45); white-space:nowrap; }
+
+  /* link no rodapé */
+  .linkbar { position:absolute; left:0; right:0; bottom:0; height:70px; background:rgba(17,24,39,.85);
+    display:flex; align-items:center; justify-content:center; padding:0 30px; }
+  .linktxt { color:#fff; text-align:center; }
+  .linktxt .lbl { font-weight:800; font-size:16px; margin-right:8px; }
+  .linktxt .url { font-size:22px; font-weight:800; color:#ffd166; word-break:break-all; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <img class="logoaci" src="{{LOGO_ACI}}" alt="Achadinhos ACI"/>
+      <div class="badge">✨ ANÚNCIO DESTAQUE</div>
+    </div>
+
+    <div class="tagline">🛒 Compre tudo o que você precisa — com achadinhos ACI! 😉</div>
+
+    <div class="fotobg">
+      <img class="prodimg" src="{{PRODUTO_IMG}}" alt="Produto"/>
+    </div>
+
+    <div class="chips">
+      <div class="chip">⚡ Envio Rápido</div>
+      <div class="chip">🔖 Oferta de Hoje</div>
+      <div class="chip">✅ Compra Garantida</div>
+    </div>
+
+    <div class="tags">{{PRODUTO}}</div>
+    <div class="precobg">
+      <div class="pricel">
+        <div class="old">de {{PRECO_ANTES}}</div>
+        <div class="price">{{PRECO}}</div>
+      </div>
+      <div class="cta">🛒 Compre agora 👉</div>
+    </div>
+
+    <div class="linkbar">
+      <div class="linktxt"><span class="lbl">📲 Garanta a sua 👉</span><span class="url">{{LINK}}</span></div>
+    </div>
+  </div>
+</body>
+</html>
