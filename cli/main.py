@@ -32,6 +32,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 console = Console()
+logger = logging.getLogger("CleudoCLI")
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent
@@ -589,9 +590,15 @@ def dashboard(port, no_browser):
 def start():
     """Inicia os serviços do Cleudocodebot (Docker + Antigravity Gateway)"""
     console.print("[bold green]Iniciando serviços...[/bold green]")
+    compose_file = project_root / "docker-compose.yml"
+    gateway_script = project_root / "start_antigravity_gateway.sh"
+
     docker_started = False
     try:
-        subprocess.run(["docker", "compose", "up", "-d"], check=True)
+        if not compose_file.exists():
+            raise FileNotFoundError(f"docker-compose.yml não encontrado em {compose_file}")
+        subprocess.run(["docker", "compose", "-f", str(compose_file), "up", "-d"],
+                       check=True, cwd=str(project_root))
         docker_started = True
         console.print("[green]Serviços Docker iniciados.[/green]")
     except Exception as e:
@@ -611,7 +618,10 @@ def start():
         if os.name == 'nt':
             subprocess.Popen(["start", "cmd", "/c", "antigravity_gateway.bat"], shell=True)
         else:
-            subprocess.Popen(["./start_antigravity_gateway.sh"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+            if not gateway_script.exists():
+                raise FileNotFoundError(f"{gateway_script} não encontrado")
+            subprocess.Popen([str(gateway_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                             start_new_session=True, cwd=str(project_root))
         console.print("[green]Gateway disparado em background.[/green]")
     except Exception as e:
         console.print(f"[red]Erro: {e}[/red]")
@@ -620,7 +630,11 @@ def start():
 def stop():
     """Para os serviços do Cleudocodebot"""
     try:
-        subprocess.run(["docker", "compose", "stop"], check=True)
+        compose_file = project_root / "docker-compose.yml"
+        if not compose_file.exists():
+            raise FileNotFoundError(f"docker-compose.yml não encontrado em {compose_file}")
+        subprocess.run(["docker", "compose", "-f", str(compose_file), "stop"],
+                       check=True, cwd=str(project_root))
         console.print("[green]Serviços parados.[/green]")
     except Exception as e:
         console.print(f"[red]Erro: {e}[/red]")

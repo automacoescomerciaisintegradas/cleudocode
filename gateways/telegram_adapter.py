@@ -93,6 +93,12 @@ class TelegramGateway(BaseGateway):
         if not update.message:
             return
 
+        # Evita loop: ignora mensagens enviadas por BOTS (incluindo as nossas próprias
+        # e de outros bots que estejam no mesmo grupo). Sem isso, um bot responde à
+        # postagem do outro indefinidamente (spam a mesma mensagem/template).
+        if getattr(update.message.from_user, "is_bot", False):
+            return
+
         user = update.message.from_user
         chat_id = update.effective_chat.id
         text = ""
@@ -213,3 +219,30 @@ class TelegramGateway(BaseGateway):
                 logger.error(f"[{bot_name}] Erro envio: {e}")
 
         asyncio.run_coroutine_threadsafe(_send(), target_bot['loop'])
+
+    def send_image(self, chat_id: str, image_path_or_bytes, caption: str = "", bot_name: str = None):
+        """Envia uma imagem para o chat via telegram.
+
+        AdaptiveResolution não muda nada aqui; python-telegram-bot faz o upload.
+        Aceita caminho de arquivo, bytes ou objeto de arquivo.
+        """
+        target_bot = None
+        for bc in self.bots:
+            if bot_name and bc['name'] == bot_name:
+                target_bot = bc
+                break
+        if not target_bot and self.bots:
+            target_bot = self.bots[0]
+        if not target_bot or not target_bot.get('loop') or not self.running:
+            logger.error("[Telegram] Gateway não está rodando p/ envio de imagem.")
+            return False
+
+        async def _send_img():
+            try:
+                await target_bot['application'].bot.send_photo(chat_id=int(chat_id), photo=image_path_or_bytes, caption=caption)
+                logger.info(f"[{target_bot['name']}] Imagem enviada para {chat_id}")
+            except Exception as e:
+                logger.error(f"[{target_bot['name']}] Erro envio imagem: {e}")
+
+        asyncio.run_coroutine_threadsafe(_send_img(), target_bot['loop'])
+        return True

@@ -123,23 +123,10 @@ services:
     networks:
       - cleudocode-network
 
-volumes:
-  traefik-letsencrypt:
-  ollama-data:
-
-networks:
-  cleudocode-network:
-    driver: bridge
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
   cleudocode-cli:
     image: ${CLEUDOCODE_IMAGE:-cleudocode-local}
     container_name: cleudocode-cli
+    restart: unless-stopped
     profiles: ["cli"]
     network_mode: host
     volumes:
@@ -147,3 +134,13 @@ networks:
       - /root/.cleudocode:/root/.cleudocode
     entrypoint: ["/bin/bash"]
     command: ["-c", "sleep infinity"]
+    networks:
+      - cleudocode-network
+
+volumes:
+  traefik-letsencrypt:
+  ollama-data:
+
+networks:
+  cleudocode-network:
+    driver: bridge
