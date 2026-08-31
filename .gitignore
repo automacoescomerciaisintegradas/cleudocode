@@ -74,3 +74,8 @@ pi-session-*.html
 social-flow/
 temp_install/
 teste-push/
+
+# listas de contatos (privacidade)
+telefones_contatos.csv
+contatos_exemplo.csv
+contatos_exportados.csv

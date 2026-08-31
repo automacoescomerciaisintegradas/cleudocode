@@ -93,6 +93,20 @@ cd /root/cleudocode
 5. Gemini: chave direta **inválida** ("API key not valid"); proxy local omniroute
    (porta 20128) não retornou JSON utilizável. Fallback de imagem via Gemini **não funcional**.
 
+## 🔌 Disparo em massa (WhatsApp) — 08/31
+
+- Base real: tabela `leads` do aci-suite (`suite_db`) → **1.895 telefones** exportados
+  para `telefones_contatos.csv` (colunas `nome`,`telefone`; não versionado — gitignore).
+- `disparo_campanha_ofertas.py` lê o CSV, filtra só números válidos do Brasil
+  (55+DDD+nº, regex `55\d{10,11}`), deduplica → ~1.700 contatos.
+- Respeita a flag `.bot_on` (`bot_gate.sh`); roda no cron `0 10 * * *` com o bot ligado.
+- Anti-ban: `DELAY_SEGUNDOS=8` (padrão) e `MAX_DISPATCH=50` por execução (ajustável no .env).
+- Envio via EvolutionGateway (Evolution API). Foco virado de e-mail para WhatsApp.
+- MCP `listar_leads` NÃO tem telefone (por isso o disparo antigo não enviava nada).
+- 🔴 e-mail (disparo-email.cjs/pm2): Resend em modo teste → 550 para qualquer destino fora
+  de `automacoescomerciais@gmail.com`. Precisa verificar domínio em resend.com/domains e
+  setar `SMTP_FROM` de um endereço do domínio para dispensar em massa via e-mail.
+
 ## 🔌 Integrações
 
 - **WhatsApp**: Evolution API via `gateways/whatsapp_adapter.py` → grupo `120363411717166242@g.us`
