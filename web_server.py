@@ -47,7 +47,7 @@ brain = None
 if os.getenv("RAG_ENABLED", "true").lower() == "true":
     try:
         import rag_engine
-        brain = rag_engine.RAGBrain()
+        brain = rag_engine.get_brain()
         print("RAG Brain inicializado com sucesso.")
     except Exception as e:
         print(f"Erro ao inicializar RAG Brain: {e}")

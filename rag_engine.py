@@ -71,7 +71,11 @@ class RAGBrain:
                 from chromadb.utils import embedding_functions
                 self.local_ef = embedding_functions.DefaultEmbeddingFunction()
             
-            return self.local_ef([text])[0]
+            # Converte para lista de floats nativos: o DefaultEmbeddingFunction
+            # retorna numpy array de np.float32, que o chromadb rejeita dentro
+            # de listas e cujo truthiness check em array >1 elemento levanta
+            # "truth value of an array is ambiguous" (verificações em search/add/init).
+            return [float(x) for x in self.local_ef([text])[0]]
         except Exception as e:
             print(f"Falha crítica em embedding local: {e}")
             return None
@@ -165,6 +169,21 @@ class RAGBrain:
             
         except Exception as e:
             return False, f"Erro ao acessar URL: {str(e)}"
+
+_brain_instance = None
+
+
+def get_brain():
+    """Retorna a instância única da memória semântica (uma por processo).
+
+    Evita múltiplos PersistentClient do ChromaDB apontando para o mesmo
+    diretório quando várias camadas (ex.: cognição e web) precisam da memória.
+    """
+    global _brain_instance
+    if _brain_instance is None:
+        _brain_instance = RAGBrain()
+    return _brain_instance
+
 
 def extract_text_from_pdf(file_stream):
     try:
