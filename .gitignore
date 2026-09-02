@@ -79,3 +79,25 @@ teste-push/
 telefones_contatos.csv
 contatos_exemplo.csv
 contatos_exportados.csv
+
+# Runtime local (venv, dados de execução, artefatos)
+venv/
+.venv/
+logs/
+memory_db/
+cards_gerados/
+*.pid
+*.orig
+*.bak
+*.bak.*
+squad_view.png
+telefones_contatos.csv.*
+memory_db_backup/
+
+# Scripts one-off locais (patches aplicados manualmente)
+cli_fixes.py
+patch_css.py
+patch_dashboard.py
+patch_dashboard2.py
+patch_pricing.py
+tui_patch.py
