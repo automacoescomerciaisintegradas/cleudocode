@@ -4,6 +4,8 @@ import requests
 import json
 import logging
 from .base import BaseGateway
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configuração de Logger
 logger = logging.getLogger(__name__)
@@ -86,6 +88,60 @@ class EvolutionGateway(BaseGateway):
                 return False
         except Exception as e:
             logger.error(f"Exceção no envio WhatsApp: {e}")
+            return False
+
+    def send_image(self, chat_id, image_path_or_bytes, caption="", filename=None):
+        """Envia uma imagem (arquivo ou bytes) para o chat via Evolution API.
+
+        Args:
+            chat_id: número/JID de destino (ex: 120363....@g.us)
+            image_path_or_bytes: caminho do arquivo PNG/JPEG ou bytes da imagem
+            caption: legenda (opcional)
+            filename: usado quando image_path_or_bytes são bytes
+        """
+        if not self.base_url or not self.token:
+            logger.error("Tentativa de envio de imagem sem configuração válida.")
+            return False
+
+        # Carrega a imagem em base64
+        try:
+            if isinstance(image_path_or_bytes, (bytes, bytearray)):
+                b64 = __import__("base64").b64encode(bytes(image_path_or_bytes)).decode()
+                mime = "image/png"
+                if filename and filename.lower().lstrip(".").startswith("jpg"):
+                    mime = "image/jpeg"
+            else:
+                path = os.path.abspath(image_path_or_bytes)
+                with open(path, "rb") as f:
+                    b64 = __import__("base64").b64encode(f.read()).decode()
+                mime = "image/jpeg" if path.lower().endswith((".jpg", ".jpeg")) else "image/png"
+        except Exception as e:
+            logger.error(f"Falha ao ler imagem: {e}")
+            return False
+
+        url = f"{self.base_url}/message/sendMedia/{self.instance_name}"
+        payload = {
+            "number": chat_id,
+            "mediatype": "image",
+            "media": b64,
+            "mimetype": mime,
+            "caption": caption or "",
+            "filename": filename or "oferta_shopee.png",
+        }
+        headers = {
+            "apikey": self.token,
+            "Content-Type": "application/json",
+        }
+        try:
+            resp = requests.post(url, json=payload, headers=headers, timeout=30)
+            if resp.status_code in [200, 201]:
+                logger.info(f"Imagem enviada para {chat_id}")
+                return True
+            else:
+                logger.error(f"Erro no envio de imagem WhatsApp ({resp.status_code}): {resp.text[:300]}")
+                return False
+        except Exception as e:
+            logger.error(f"Exceção no envio de imagem WhatsApp: {e}")
             return False
 
     def set_callback(self, callback_func):

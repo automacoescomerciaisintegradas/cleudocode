@@ -359,9 +359,26 @@ def enviar_whatsapp(png_path, caption):
     if not gw.token or not gw.base_url:
         logger.error("WhatsApp (Evolution) não configurado.")
         return False
-    ok = gw.send_image(WHATSAPP_GROUP, png_path, caption=caption)
-    logger.info(f"🟢 WhatsApp: {'enviado' if ok else 'FALHOU'}")
-    return ok
+
+    # Destinos autorizados: somente grupos/comunidades (@g.us / @newsletter / @lid).
+    # NUNCA envia para números privados (@s.whatsapp.net).
+    alvos = os.getenv("WHATSAPP_TARGET_NUMBER", "")
+    alvos = [a.strip() for a in alvos.split(",") if a.strip()]
+    if not alvos:
+        # fallback seguro: só o grupo configurado em WHATSAPP_SHOPEE_GROUP
+        alvos = [WHATSAPP_GROUP]
+    # filtra apenas destinos de grupo/comunidade
+    alvos = [a for a in alvos if a.endswith(("@g.us", "@newsletter", "@lid"))]
+    if not alvos:
+        logger.error("Nenhum destino de grupo autorizado (WHATSAPP_TARGET_NUMBER).")
+        return False
+
+    ok_geral = False
+    for alvo in alvos:
+        ok = gw.send_image(alvo, png_path, caption=caption)
+        ok_geral = ok_geral or ok
+        logger.info(f"🟢 WhatsApp {alvo}: {'enviado' if ok else 'FALHOU'}")
+    return ok_geral
 
 
 def enviar_telegram(png_path, caption):

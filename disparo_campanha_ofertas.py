@@ -73,6 +73,17 @@ def mass_broadcast():
         logger.error("Gateway WhatsApp (Evolution) não configurado no .env")
         return
 
+    # ===== REGRA ANTI-BAN =====
+    # SÓ envia para grupos/comunidades autorizados (WHATSAPP_TARGET_NUMBER @g.us/@newsletter/@lid).
+    # NUNCA envia para números privados (@s.whatsapp.net).
+    alvos = [a.strip() for a in os.getenv("WHATSAPP_TARGET_NUMBER", "").split(",") if a.strip()]
+    alvos = [a for a in alvos if a.endswith(("@g.us", "@newsletter", "@lid"))]
+    if not alvos:
+        logger.error("Bloqueado: nenhum destino de grupo autorizado em WHATSAPP_TARGET_NUMBER. "
+                     "Disparo em massa para números privados está DESATIVADO.")
+        return
+    logger.info(f"📢 Destinos autorizados ({len(alvos)} grupos/comunidades): {len(alvos)} grupos.")
+
     contatos = carregar_contatos()
     if not contatos:
         logger.warning("Nenhum contato válido (telefones do Brasil) encontrado no CSV.")
