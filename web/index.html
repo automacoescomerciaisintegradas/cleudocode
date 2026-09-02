@@ -13,7 +13,7 @@
     <style type="text/tailwindcss">
         @layer base {
             body { 
-                @apply bg-[#02030a] text-[#E2E8F0] font-sans overflow-x-hidden;
+                @apply bg-[#02030a] text-[#E2E8F0] font-sans overflow-x-hidden antialiased text-base md:text-lg;
                 background: radial-gradient(1200px circle at 10% 10%, #1a0f1f 0%, #05070c 40%, #02030a 100%);
             }
             
@@ -44,7 +44,7 @@
         }
         
         .card-dark {
-            @apply bg-[#080808] border border-white/[0.05] rounded-[2rem] p-8 transition-all duration-500 hover:border-[#FF5F5F]/30 hover:bg-[#0C0C0C] hover:-translate-y-1;
+            @apply bg-[#080808] border border-white/[0.05] rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 transition-all duration-500 hover:border-[#FF5F5F]/30 hover:bg-[#0C0C0C] hover:-translate-y-1;
         }
 
         .input-dark {
@@ -130,9 +130,34 @@
             color: #FF5F5F;
         }
 
+        .dot-pattern {
+            background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ===== Responsividade (mobile-first: 320px+) ===== */
+        button, [role="button"] {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (max-width: 767px) {
+            .cleudo-activity-carousel {
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                width: auto;
+            }
+            .cleudo-activity-card { padding: 10px 12px; }
+            .cleudo-avatar { width: 34px; height: 34px; font-size: 12px; }
+            .cleudo-activity-text { font-size: 11px; }
+        }
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .cleudo-activity-carousel { width: 300px; bottom: 16px; left: 16px; }
         }
     </style>
     <script>
@@ -159,7 +184,7 @@
 <body class="min-h-screen flex flex-col">
     <!-- Global Navigation -->
     <header
-        class="fixed top-0 left-0 right-0 h-24 flex items-center justify-between px-12 z-50 bg-[#030303]/40 backdrop-blur-2xl border-b border-white/[0.05]">
+        class="fixed top-0 left-0 right-0 min-h-24 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 sm:px-6 lg:px-12 py-3 z-50 bg-[#030303]/40 backdrop-blur-2xl border-b border-white/[0.05]">
         <div class="flex items-center gap-3 group cursor-pointer">
             <div
                 class="w-10 h-10 rounded-2xl salmon-gradient flex items-center justify-center shadow-[0_0_30px_rgba(255,95,95,0.3)] group-hover:rotate-6 transition-transform">
@@ -172,6 +197,11 @@
             </div>
         </div>
 
+        <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"
+            class="lg:hidden flex items-center justify-center w-11 h-11 rounded-2xl bg-white/5 border border-white/10 text-white active:scale-95 transition-all">
+            <span id="mobile-menu-icon" class="material-symbols-outlined">menu</span>
+        </button>
+
         <nav class="hidden lg:flex items-center gap-10 text-[10px] uppercase font-black tracking-[0.2em]">
             <a href="#" id="nav-chat"
                 class="nav-link active hover:text-[#FF5F5F] transition-all py-1 border-b-2 border-[#FF5F5F]">Connect</a>
@@ -180,12 +210,12 @@
             <a href="#" id="nav-squad" class="nav-link text-slate-500 hover:text-white transition-all">Squad</a>
             <a href="#" id="nav-memory" class="nav-link text-slate-500 hover:text-white transition-all">Memory</a>
             <a href="#" id="nav-playground" class="nav-link text-slate-500 hover:text-white transition-all">Lab</a>
-            <a href="/COMUNIDADE" id="nav-comunidade"
+            <a href="/comunidade" id="nav-comunidade"
                 class="nav-link text-[#FF5F5F] hover:text-white transition-all font-bold">Comunidade</a>
             <a href="#" id="nav-contato" class="nav-link text-slate-500 hover:text-white transition-all">Contato</a>
         </nav>
 
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3 sm:gap-6">
             <div class="hidden xl:flex flex-col items-end">
                 <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500">
                     <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -216,19 +246,20 @@
     <!-- Main Content -->
     <main class="flex-1 pt-40 px-6 overflow-y-auto custom-scrollbar">
         <!-- Hero Section (Chat) -->
-        <div id="view-chat" class="max-w-5xl mx-auto space-y-16 animate-slide-up pb-20">
+        <div id="view-chat" class="max-w-5xl mx-auto space-y-10 sm:space-y-16 animate-slide-up pb-20">
             <div class="text-center space-y-6">
                 <div
-                    class="w-24 h-24 salmon-gradient rounded-[3rem] flex items-center justify-center mx-auto shadow-[0_0_60px_rgba(255,95,95,0.25)] animate-float">
-                    <span class="material-symbols-outlined text-white text-5xl">smart_toy</span>
+                    class="w-20 h-20 sm:w-24 sm:h-24 salmon-gradient rounded-[2rem] sm:rounded-[3rem] flex items-center justify-center mx-auto shadow-[0_0_60px_rgba(255,95,95,0.25)] animate-float">
+                    <span class="material-symbols-outlined text-white text-4xl sm:text-5xl">smart_toy</span>
                 </div>
                 <div class="space-y-4">
-                    <h1 class="text-7xl font-black tracking-tighter text-white uppercase italic glow-title mb-2">
+                    <h1
+                        class="text-5xl lg:text-7xl font-black tracking-tighter text-white uppercase italic glow-title mb-2">
                         Cleudocode</h1>
                     <div class="text-[10px] font-black uppercase tracking-[0.4em] text-[#FF5F5F]">The AI that actually
                         does things.</div>
                 </div>
-                <p class="text-slate-400 max-w-2xl mx-auto text-xl font-medium leading-relaxed pt-6">
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg sm:text-xl font-medium leading-relaxed pt-6">
                     Gerencia seus projetos, cria sistemas e executa tarefas reais.<br>
                     <span class="text-white">Tudo local, privado e 100% sob seu controle.</span>
                 </p>
@@ -239,16 +270,16 @@
                 <div
                     class="absolute -inset-2 bg-gradient-to-r from-[#FF5F5F] via-indigo-500 to-purple-600 rounded-[2.5rem] blur-2xl opacity-5 group-hover:opacity-15 transition duration-1000">
                 </div>
-                <div class="relative premium-glass rounded-[2.5rem] overflow-hidden min-h-[600px] flex flex-col">
+                <div class="relative premium-glass rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden min-h-[420px] sm:min-h-[600px] flex flex-col">
                     <!-- Terminal Header -->
                     <div
-                        class="h-14 bg-white/[0.02] border-b border-white/[0.05] flex items-center justify-between px-6">
+                        class="min-h-14 bg-white/[0.02] border-b border-white/[0.05] flex flex-wrap items-center justify-between gap-y-2 px-4 sm:px-6 py-2">
                         <div class="flex gap-2">
                             <div class="w-3 h-3 rounded-full bg-[#FF5F5F]/40"></div>
                             <div class="w-3 h-3 rounded-full bg-indigo-500/40"></div>
                             <div class="w-3 h-3 rounded-full bg-amber-500/40"></div>
                         </div>
-                        <div class="flex gap-6">
+                        <div class="flex gap-4 sm:gap-6">
                             <button id="term-prompt"
                                 class="text-[10px] font-black text-[#FF5F5F] uppercase tracking-[0.2em] border-b-2 border-[#FF5F5F] pb-1">Primary_Shell</button>
                             <button id="term-logs"
@@ -257,20 +288,20 @@
                                 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] hover:text-white transition-all">RAG_Context</button>
                         </div>
                         <div
-                            class="flex items-center gap-2 text-[8px] font-bold text-slate-600 uppercase tracking-widest">
+                            class="hidden sm:flex items-center gap-2 text-[8px] font-bold text-slate-600 uppercase tracking-widest">
                             <span class="material-symbols-outlined text-xs">encrypted</span> SECURE_LOCAL_TUNNEL
                         </div>
                     </div>
 
                     <!-- Chat History -->
                     <div id="chat-container"
-                        class="flex-1 p-10 space-y-8 overflow-y-auto custom-scrollbar font-mono text-sm leading-relaxed">
-                        <div class="flex gap-5 items-start">
+                        class="flex-1 p-5 sm:p-10 space-y-6 sm:space-y-8 overflow-y-auto custom-scrollbar font-mono text-sm leading-relaxed">
+                        <div class="flex gap-3 sm:gap-5 items-start">
                             <div
-                                class="w-10 h-10 rounded-2xl bg-[#FF5F5F] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#FF5F5F]/20">
-                                <span class="material-symbols-outlined text-lg">smart_toy</span>
+                                class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#FF5F5F] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#FF5F5F]/20">
+                                <span class="material-symbols-outlined text-base sm:text-lg">smart_toy</span>
                             </div>
-                            <div class="space-y-2 max-w-[80%]">
+                            <div class="space-y-2 min-w-0 max-w-[85%] sm:max-w-[80%]">
                                 <div class="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em]">
                                     Assistant //
                                     Cleudo_v0.5.0</div>
@@ -284,28 +315,28 @@
 
                     <!-- Logs View (Hidden by default) -->
                     <div id="logs-container"
-                        class="hidden flex-1 p-8 space-y-2 overflow-y-auto custom-scrollbar font-mono text-xs leading-relaxed text-slate-500 dot-pattern">
+                        class="hidden flex-1 p-4 sm:p-8 space-y-2 overflow-y-auto custom-scrollbar font-mono text-xs leading-relaxed text-slate-500 dot-pattern">
                         <div><span class="text-emerald-500">[SYSTEM]</span> Kernel initialized...</div>
                         <div><span class="text-emerald-500">[SYSTEM]</span> GPU acceleration enabled.</div>
                         <div><span class="text-emerald-500">[SYSTEM]</span> RAG Engine ready.</div>
                     </div>
 
                     <!-- Input Area -->
-                    <div class="p-8 bg-white/[0.01] border-t border-white/[0.05]">
+                    <div class="p-4 sm:p-8 bg-white/[0.01] border-t border-white/[0.05]">
                         <div
-                            class="relative flex items-center bg-black/40 rounded-[2rem] border border-white/10 p-2 focus-within:border-[#FF5F5F]/50 focus-within:bg-black/60 transition-all">
-                            <div class="w-12 h-12 flex items-center justify-center text-[#FF5F5F]">
+                            class="relative flex items-center bg-black/40 rounded-2xl sm:rounded-[2rem] border border-white/10 p-2 focus-within:border-[#FF5F5F]/50 focus-within:bg-black/60 transition-all">
+                            <div class="w-9 h-9 sm:w-12 sm:h-12 flex items-center justify-center text-[#FF5F5F] shrink-0">
                                 <span class="material-symbols-outlined">terminal</span>
                             </div>
                             <textarea id="chat-input" rows="1"
-                                class="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 py-4 resize-none font-mono text-sm"
+                                class="w-full min-w-0 bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 py-3 sm:py-4 resize-none font-mono text-sm"
                                 placeholder="Defina sua próxima automação..."></textarea>
                             <button id="btn-send"
                                 class="w-12 h-12 bg-[#FF5F5F] hover:bg-[#E63946] text-white rounded-2xl transition-all shadow-lg shadow-[#FF5F5F]/30 active:scale-95 shrink-0 flex items-center justify-center">
                                 <span class="material-symbols-outlined">send</span>
                             </button>
                         </div>
-                        <div class="flex flex-wrap gap-6 mt-6 px-4">
+                        <div class="flex flex-wrap gap-x-4 gap-y-2 sm:gap-6 mt-4 sm:mt-6 sm:px-4">
                             <div
                                 class="flex items-center gap-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">
                                 <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
@@ -334,7 +365,7 @@
                         <span
                             class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-[#FF5F5F] transition-colors">hub</span>
                     </div>
-                    <h3 class="font-black text-lg text-white mb-3 uppercase tracking-tight">Sentient Grid</h3>
+                    <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Sentient Grid</h3>
                     <p class="text-slate-500 text-sm leading-relaxed">Integração nativa com monetização on-chain e
                         protocolos de inteligência descentralizada.</p>
                 </div>
@@ -344,7 +375,7 @@
                         <span
                             class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-indigo-400 transition-colors">neurology</span>
                     </div>
-                    <h3 class="font-black text-lg text-white mb-3 uppercase tracking-tight">OML Compliance</h3>
+                    <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">OML Compliance</h3>
                     <p class="text-slate-500 text-sm leading-relaxed">Modelos leais e abertos. Segurança
                         criptográfica
                         garantida por impressões digitais de IA.</p>
@@ -355,7 +386,7 @@
                         <span
                             class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-amber-400 transition-colors">data_thresholding</span>
                     </div>
-                    <h3 class="font-black text-lg text-white mb-3 uppercase tracking-tight">Local P2P</h3>
+                    <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Local P2P</h3>
                     <p class="text-slate-500 text-sm leading-relaxed">Dê adeus à nuvem. Processamento privado em
                         rede
                         par-a-par para total soberania de dados.</p>
@@ -365,9 +396,9 @@
 
         <!-- View: Squad (Mission Control) -->
         <div id="view-squad" class="hidden max-w-6xl mx-auto space-y-12 py-10 animate-slide-up">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h2 class="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Mission Control
+                    <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tighter uppercase italic">Mission Control
                     </h2>
                     <p class="text-slate-400 mt-2">Status em tempo real do esquadrão de agentes.</p>
                 </div>
@@ -402,9 +433,9 @@
         <!-- View: Market (Skills Marketplace) -->
         <!-- View: Pulse (System Telemetry) -->
         <div id="view-pulse" class="hidden max-w-6xl mx-auto space-y-12 py-10 animate-slide-up">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h2 class="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Kernel Pulse
+                    <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tighter uppercase italic">Kernel Pulse
                     </h2>
                     <p class="text-slate-400 mt-2">Telemetria em tempo real do ecossistema Cleudocode.</p>
                 </div>
@@ -443,7 +474,7 @@
                     </div>
                     <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden mb-4">
                         <div id="metric-ram-bar" class="h-full bg-indigo-500 transition-all duration-1000"
-                            style="width: 0%"> style="width: 0%"></div>
+                            style="width: 0%"></div>
                     </div>
                     <p class="text-[9px] text-slate-600 uppercase font-bold tracking-widest">Saturação da RAM do
                         Sistema
@@ -519,7 +550,7 @@
 
         <div id="view-market" class="hidden max-w-6xl mx-auto space-y-16 py-10 animate-slide-up">
             <div class="text-center space-y-4">
-                <h2 class="text-6xl font-black text-white tracking-tighter uppercase italic">Skills Marketplace</h2>
+                <h2 class="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase italic">Skills Marketplace</h2>
                 <div class="h-1.5 w-32 salmon-gradient mx-auto rounded-full"></div>
                 <p class="text-slate-400 text-xl">Explore mais de 160.000+ habilidades para seus agentes.</p>
             </div>
@@ -529,7 +560,7 @@
                 <div
                     class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000">
                 </div>
-                <div class="relative premium-glass rounded-[3rem] p-12 flex flex-col lg:flex-row gap-12 items-center">
+                <div class="relative premium-glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
                     <div class="flex-1 space-y-8">
                         <div class="flex items-center gap-4">
                             <div
@@ -539,7 +570,7 @@
                             <span class="text-xs font-black uppercase tracking-[0.3em] text-indigo-400">GitHub
                                 Open-Source Ecosystem</span>
                         </div>
-                        <h3 class="text-4xl font-black text-white leading-tight uppercase">Mercado de Habilidades
+                        <h3 class="text-2xl lg:text-4xl font-black text-white leading-tight uppercase">Mercado de Habilidades
                             para
                             Agentes</h3>
                         <p class="text-slate-400 leading-relaxed text-lg">
@@ -549,7 +580,7 @@
                             filtros
                             por categoria e indicadores de qualidade.
                         </p>
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-2 gap-4 sm:gap-6">
                             <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
                                 <div class="text-2xl font-black text-white tracking-tighter">160,566</div>
                                 <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
@@ -562,7 +593,7 @@
                                     Aberto</div>
                             </div>
                         </div>
-                        <div class="flex gap-4 pt-4">
+                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
                             <a href="https://skillsmp.com/de" target="_blank"
                                 class="px-8 py-4 salmon-gradient rounded-2xl font-black text-white hover:scale-105 transition-all shadow-lg shadow-salmon/20 uppercase tracking-widest text-xs">Explorar
                                 Agora</a>
@@ -573,8 +604,7 @@
                         </div>
                     </div>
                     <div class="flex-1 w-full lg:w-auto">
-                        <div
-                            class="bg-black/40 border border-white/10 rounded-3xl p-6 font-mono text-xs overflow-hidden shadow-2xl">
+                    <div class="bg-black/40 border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 font-mono text-[11px] sm:text-xs overflow-hidden shadow-2xl">
                             <div class="flex gap-2 mb-4 border-b border-white/5 pb-4">
                                 <div class="w-3 h-3 rounded-full bg-red-500/20"></div>
                                 <div class="w-3 h-3 rounded-full bg-amber-500/20"></div>
@@ -604,7 +634,7 @@
                 </div>
 
                 <!-- Local Skills Section -->
-                <div class="space-y-8 pt-20">
+                <div class="space-y-8 pt-10 sm:pt-20">
                     <div class="flex items-center justify-between">
                         <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-700">Habilidades Locais
                             //
@@ -622,7 +652,7 @@
             </div>
 
             <!-- Fintech Preview Card -->
-            <div id="view-fintech-preview" class="max-w-4xl mx-auto pt-20">
+            <div id="view-fintech-preview" class="max-w-4xl mx-auto pt-10 sm:pt-20">
                 <div class="text-center mb-12">
                     <span
                         class="text-[10px] font-black salmon-gradient bg-clip-text text-transparent uppercase tracking-[0.5em]">Project
@@ -641,13 +671,13 @@
                                 <span
                                     class="material-symbols-outlined text-white text-3xl">account_balance_wallet</span>
                             </div>
-                            <h1 class="text-6xl font-black text-white tracking-tighter leading-none">ZERO
+                            <h1 class="text-4xl lg:text-6xl font-black text-white tracking-tighter leading-none">ZERO
                                 TAXAS.<br>LIBERDADE TOTAL.</h1>
                             <p class="text-slate-500 text-lg max-w-md">O banco das IAs descentralizadas e humanos
                                 soberanos. Rendimento automático em SENTIENT (OML).</p>
-                            <div class="flex gap-4">
+                            <div class="flex flex-col sm:flex-row gap-4">
                                 <button
-                                    class="px-10 py-5 salmon-gradient rounded-full font-black text-white shadow-xl shadow-salmon/30 uppercase tracking-widest text-[10px]"
+                                    class="px-8 py-4 sm:px-10 sm:py-5 salmon-gradient rounded-full font-black text-white shadow-xl shadow-salmon/30 uppercase tracking-widest text-[10px] active:scale-95 transition-transform"
                                     onclick="window.open('/cleudopay/index.html', '_blank')">Abrir
                                     Conta em 30s</button>
                                 <a href="/cleudopay/index.html" target="_blank"
@@ -658,12 +688,12 @@
 
                         <!-- Mini Dashboard Mockup -->
                         <div
-                            class="absolute -bottom-10 -right-10 w-80 h-80 premium-glass rounded-[3rem] p-8 space-y-6 rotate-6 group-hover:rotate-0 transition-all duration-700">
+                            class="absolute -bottom-10 -right-10 w-56 h-56 sm:w-64 sm:h-64 lg:w-80 lg:h-80 premium-glass rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-8 space-y-4 sm:space-y-6 rotate-6 group-hover:rotate-0 transition-all duration-700">
                             <div class="flex justify-between items-center">
                                 <span class="text-[10px] font-black text-slate-500 uppercase">Seu Saldo //</span>
                                 <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                             </div>
-                            <div class="text-3xl font-black text-white">4.892,12 <span
+                            <div class="text-2xl sm:text-3xl font-black text-white">4.892,12 <span
                                     class="text-sm text-slate-600 font-medium tracking-normal italic">OML</span>
                             </div>
                             <div class="space-y-2">
@@ -683,9 +713,9 @@
 
         <!-- View: Memory (Knowledge) -->
         <div id="view-memory" class="hidden max-w-5xl mx-auto space-y-12 py-10 animate-slide-up">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h2 class="text-4xl font-extrabold text-white tracking-tighter">Conhecimento</h2>
+                    <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tighter">Conhecimento</h2>
                     <p class="text-slate-400 mt-2">Alimente a inteligência do seu assistente.</p>
                 </div>
                 <div class="flex gap-4">
@@ -734,13 +764,13 @@
 
         <!-- View: Playground -->
         <div id="view-playground" class="hidden max-w-5xl mx-auto space-y-12 py-10 animate-slide-up">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-4xl font-extrabold text-white tracking-tighter">Playground</h2>
+                    <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tighter">Playground</h2>
                     <p class="text-slate-400 mt-2">Laboratório de Prompts & Modelos.</p>
                 </div>
                 <button id="btn-playground-run"
-                    class="flex items-center gap-2 px-6 py-3 bg-[#FF5F5F] hover:bg-[#FF4B2B] text-white rounded-xl font-bold transition-all shadow-lg shadow-[#FF5F5F]/20">
+                    class="flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-[#FF5F5F] hover:bg-[#FF4B2B] text-white rounded-xl font-bold transition-all shadow-lg shadow-[#FF5F5F]/20">
                     <span class="material-symbols-outlined">play_arrow</span> Rodar Prompt
                 </button>
             </div>
@@ -757,7 +787,7 @@
             </div>
 
             <div id="playground-output"
-                class="bg-surface border border-white/5 rounded-3xl p-8 min-h-[300px] text-slate-300 font-mono text-sm leading-relaxed overflow-x-auto dot-pattern">
+                class="bg-surface border border-white/5 rounded-3xl p-5 sm:p-8 min-h-[300px] text-slate-300 font-mono text-sm leading-relaxed overflow-x-auto dot-pattern">
                 <span class="text-slate-700 font-bold uppercase tracking-widest text-[10px]">OUTPUT CONSOLE
                     //</span>
                 <div class="mt-4 opacity-50 italic">Execute o prompt para ver o resultado...</div>
@@ -766,13 +796,13 @@
         <!-- View: Contato -->
         <div id="view-contato" class="hidden max-w-5xl mx-auto space-y-12 py-10 animate-slide-up">
             <div class="text-center space-y-4">
-                <h2 class="text-6xl font-black text-white tracking-tighter uppercase italic">Contato</h2>
+                <h2 class="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase italic">Contato</h2>
                 <div class="h-1.5 w-32 salmon-gradient mx-auto rounded-full"></div>
                 <p class="text-slate-400 text-xl font-bold uppercase tracking-widest">Canais de Atendimento</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="card-dark p-10 space-y-6">
+                <div class="card-dark p-6 sm:p-8 md:p-10 space-y-6">
                     <div class="flex items-center gap-4">
                         <div
                             class="w-12 h-12 rounded-2xl bg-[#FF5F5F]/10 flex items-center justify-center text-[#FF5F5F]">
@@ -792,7 +822,7 @@
                     </div>
                 </div>
 
-                <div class="card-dark p-10 space-y-6">
+                <div class="card-dark p-6 sm:p-8 md:p-10 space-y-6">
                     <div class="flex items-center gap-4">
                         <div
                             class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
@@ -820,7 +850,7 @@
                 </div>
             </div>
 
-            <div class="premium-glass p-12 rounded-[3rem] text-center space-y-8">
+            <div class="premium-glass p-6 sm:p-8 md:p-12 rounded-[2rem] sm:rounded-[3rem] text-center space-y-8">
                 <div class="space-y-2">
                     <p class="text-slate-500 font-bold uppercase tracking-[0.4em] text-[10px]">Desenvolvido por</p>
                     <h4 class="text-2xl font-black text-white uppercase italic">Automações Comerciais Integradas</h4>
@@ -839,7 +869,7 @@
         </div>
     </main>
 
-    <footer class="py-20 text-center border-t border-white/[0.03] mt-auto bg-black/20">
+    <footer class="py-12 sm:py-20 text-center border-t border-white/[0.03] mt-auto bg-black/20">
         <div class="max-w-4xl mx-auto space-y-10">
             <div class="flex flex-col items-center gap-6">
                 <div class="flex gap-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
@@ -907,6 +937,38 @@
 
         // Intervalo randômico
         setInterval(createActivityCard, Math.floor(Math.random() * 8000) + 6000);
+
+        // ===== Mobile Menu (responsividade) =====
+        (function () {
+            const btn = document.getElementById('mobile-menu-btn');
+            const nav = document.querySelector('header nav');
+            if (!btn || !nav) return;
+
+            const setMenu = (open) => {
+                if (open) {
+                    nav.className = 'flex flex-col items-start gap-4 w-full mt-2 pt-4 pb-2 border-t border-white/5 text-[10px] uppercase font-black tracking-[0.2em] lg:hidden';
+                } else {
+                    nav.className = 'hidden lg:flex items-center gap-10 text-[10px] uppercase font-black tracking-[0.2em]';
+                }
+                btn.setAttribute('aria-expanded', String(open));
+                const icon = document.getElementById('mobile-menu-icon');
+                if (icon) icon.textContent = open ? 'close' : 'menu';
+            };
+
+            btn.addEventListener('click', () => {
+                setMenu(nav.classList.contains('hidden'));
+            });
+
+            // Fecha o menu ao navegar entre views
+            nav.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => setMenu(false));
+            });
+
+            // Garante estado correto ao redimensionar
+            window.addEventListener('resize', () => {
+                setMenu(window.innerWidth < 1024 && btn.getAttribute('aria-expanded') === 'true');
+            });
+        })();
     </script>
 </body>
 

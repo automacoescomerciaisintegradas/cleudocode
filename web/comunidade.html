@@ -7,20 +7,24 @@
     <title>Comunidade | Automações Comerciais Integradas</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=Fira+Code:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <style type="text/tailwindcss">
         @layer base {
             body { 
-                @apply bg-[#03040a] text-[#E2E8F0] font-['Outfit'] overflow-x-hidden;
+                @apply bg-[#03040a] text-[#E2E8F0] font-sans overflow-x-hidden;
                 background: radial-gradient(circle at 0% 0%, #1a0f30 0%, #05070c 50%, #03040a 100%);
             }
         }
+
+        /* ===== Escala tipográfica padrão Cleudocode =====
+           Display: text-5xl lg:text-7xl | T1: text-4xl lg:text-6xl
+           T2: text-3xl lg:text-5xl | T3: text-2xl lg:text-4xl | T4: text-xl lg:text-3xl */
         .elite-glass {
             @apply bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.5)];
         }
         .bento-card {
-            @apply elite-glass rounded-[2.5rem] p-8 transition-all duration-500 hover:border-[#FF5F5F]/40 hover:bg-white/[0.04] hover:-translate-y-2;
+            @apply elite-glass rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 transition-all duration-500 hover:border-[#FF5F5F]/40 hover:bg-white/[0.04] hover:-translate-y-2;
         }
         .text-glow {
             text-shadow: 0 0 20px rgba(255, 95, 95, 0.3);
@@ -63,7 +67,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 
-<body class="min-h-screen py-20 px-6">
+    <body class="min-h-screen py-10 sm:py-20 px-4 sm:px-6">
     <!-- Background Decor -->
     <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1] opacity-20">
         <div
@@ -73,7 +77,7 @@
             style="animation-delay: 2s;"></div>
     </div>
 
-    <div class="max-w-6xl mx-auto space-y-32">
+    <div class="max-w-6xl mx-auto space-y-16 sm:space-y-24 lg:space-y-32">
         <!-- Hero Section -->
         <div class="text-center space-y-12 animate-in fade-in slide-in-from-top-10 duration-1000">
             <div
@@ -83,21 +87,21 @@
             </div>
 
             <div class="space-y-6">
-                <h1
-                    class="text-7xl md:text-[10rem] font-black tracking-tighter uppercase italic leading-[0.8] text-glow">
+        <h1
+                    class="text-5xl lg:text-7xl font-black tracking-tighter uppercase italic leading-[0.8] text-glow">
                     <span class="gradient-text">Comunidade</span>
                 </h1>
                 <h2
-                    class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter max-w-4xl mx-auto leading-tight">
+                    class="text-3xl lg:text-5xl font-black text-white uppercase tracking-tighter max-w-4xl mx-auto leading-tight">
                     Domine o Futuro das <span class="text-[#FF5F5F]">Automações Comerciais</span> com Inteligência
                     Coletiva.
                 </h2>
                 <div class="h-2 w-32 bg-white/20 mx-auto rounded-full mt-8"></div>
             </div>
 
-            <p class="text-slate-400 text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed">
+            <p class="text-slate-400 text-lg sm:text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed">
                 Um ecossistema exclusivo para quem busca transformar processos em resultados épicos.
-                <span class="block text-white font-bold text-3xl mt-6">Simples. Direto. Brutal.</span>
+                <span class="block text-white font-bold text-2xl sm:text-3xl mt-4 sm:mt-6">Simples. Direto. Brutal.</span>
             </p>
         </div>
 
@@ -111,7 +115,7 @@
                         class="w-16 h-16 rounded-[2rem] bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-700 shadow-2xl">
                         <span class="material-symbols-outlined text-4xl">hub</span>
                     </div>
-                    <h2 class="text-5xl font-black text-white uppercase italic tracking-tighter leading-none">Missão
+                    <h2 class="text-2xl lg:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">Missão
                         Coletiva</h2>
                     <p class="text-slate-300 text-xl leading-relaxed max-w-xl font-light">
                         Formamos uma unidade de elite focada em **Aprendizado**, **Estratégia** e **Escalabilidade**.
@@ -119,16 +123,12 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-6 pt-12">
-                    <div class="flex -space-x-4">
-                        <div
-                            class="w-12 h-12 rounded-full bg-slate-800 border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black">
-                            JD</div>
-                        <div
-                            class="w-12 h-12 rounded-full bg-indigo-600 border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black">
-                            ML</div>
-                        <div
-                            class="w-12 h-12 rounded-full bg-[#FF5F5F] border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black">
-                            +50</div>
+                    <div class="flex -space-x-4">                    <div
+                        class="w-12 h-12 rounded-full bg-slate-800 border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black shrink-0">JD</div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-indigo-600 border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black shrink-0">ML</div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-[#FF5F5F] border-4 border-[#03040a] flex items-center justify-center text-[11px] font-black shrink-0">+50</div>
                     </div>
                     <span class="text-xs font-black text-slate-600 uppercase tracking-[0.3em]">Integrados no
                         Kernel</span>
@@ -141,7 +141,7 @@
                     class="w-16 h-16 rounded-[1.5rem] bg-[#FF5F5F]/10 flex items-center justify-center mb-12 text-[#FF5F5F] border border-[#FF5F5F]/20 group-hover:bg-[#FF5F5F] group-hover:text-white transition-all duration-700">
                     <span class="material-symbols-outlined text-4xl">psychology</span>
                 </div>
-                <h3 class="text-3xl font-black mb-6 text-white uppercase tracking-tighter">Debates Radicais</h3>
+                <h3 class="text-xl lg:text-3xl font-black mb-6 text-white uppercase tracking-tighter">Debates Radicais</h3>
                 <p class="text-slate-500 text-base leading-relaxed font-light">
                     Casos reais e desafios intensos em vendas e operações automatizadas.
                 </p>
@@ -153,7 +153,7 @@
                     class="w-16 h-16 rounded-[1.5rem] bg-emerald-500/10 flex items-center justify-center mb-12 text-emerald-400 border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-700">
                     <span class="material-symbols-outlined text-4xl">verified</span>
                 </div>
-                <h3 class="text-3xl font-black mb-6 text-white uppercase tracking-tighter">Revisão Elite</h3>
+                <h3 class="text-xl lg:text-3xl font-black mb-6 text-white uppercase tracking-tighter">Revisão Elite</h3>
                 <p class="text-slate-500 text-base leading-relaxed font-light">
                     Otimização contínua dos seus fluxos por quem já escalou sistemas globais.
                 </p>
@@ -162,13 +162,13 @@
             <!-- Card: Networking -->
             <div class="bento-card col-span-1 md:col-span-2 group flex flex-col md:flex-row items-center gap-12">
                 <div class="flex-1 space-y-8 text-center md:text-left">
-                    <h3 class="text-4xl font-black text-white uppercase italic tracking-tighter">Networking de Alta
+                    <h3 class="text-2xl lg:text-4xl font-black text-white uppercase italic tracking-tighter">Networking de Alta
                         Voltagem</h3>
                     <p class="text-slate-400 text-lg font-light leading-relaxed">Conexões diretas com arquitetos de
                         sistemas e especialistas em IA para parcerias inquebráveis.</p>
                 </div>
                 <div
-                    class="w-full md:w-72 h-40 bg-indigo-500/10 rounded-[2rem] border border-white/5 flex items-center justify-center overflow-hidden relative group-hover:border-indigo-500/30 transition-all">
+                    class="w-full md:w-72 h-40 bg-indigo-500/10 rounded-[1.5rem] sm:rounded-[2rem] border border-white/5 flex items-center justify-center overflow-hidden relative group-hover:border-indigo-500/30 transition-all shrink-0">
                     <div class="absolute inset-0 opacity-10 bg-[url('https://cleudocode.com/grid.png')]"></div>
                     <span
                         class="text-indigo-400 font-black text-5xl uppercase tracking-tighter italic opacity-30 transform -rotate-12 group-hover:rotate-0 transition-transform duration-700">CORE</span>
@@ -179,42 +179,42 @@
         <!-- Regras Section -->
         <div class="max-w-4xl mx-auto space-y-16">
             <h3
-                class="text-center text-xs font-black uppercase tracking-[0.6em] text-slate-800 underline decoration-[#FF5F5F]/50 underline-offset-[12px]">
+                class="text-center text-xs font-black uppercase tracking-[0.6em] text-slate-600 underline decoration-[#FF5F5F]/50 underline-offset-[12px]">
                 Padrões Operacionais / Regras</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div
-                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    class="p-6 sm:p-8 lg:p-10 elite-glass rounded-[1.5rem] sm:rounded-[2rem] flex gap-4 sm:gap-6 items-start hover:bg-white/[0.04] transition-all">
                     <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">favorite</span>
                     <div>
-                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Cultura Colaborativa
+                        <h4 class="text-lg lg:text-2xl font-black text-white mb-3 uppercase tracking-tight">Cultura Colaborativa
                         </h4>
                         <p class="text-sm text-slate-500 leading-relaxed font-light italic">Respeito e apoio mútuo como
                             base da evolução técnica.</p>
                     </div>
                 </div>
                 <div
-                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    class="p-6 sm:p-8 lg:p-10 elite-glass rounded-[1.5rem] sm:rounded-[2rem] flex gap-4 sm:gap-6 items-start hover:bg-white/[0.04] transition-all">
                     <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">verified_user</span>
                     <div>
-                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Intenção Pura</h4>
+                        <h4 class="text-lg lg:text-2xl font-black text-white mb-3 uppercase tracking-tight">Intenção Pura</h4>
                         <p class="text-sm text-slate-500 leading-relaxed font-light italic">Compartilhe apenas o que for
                             útil e validado em campo.</p>
                     </div>
                 </div>
                 <div
-                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    class="p-6 sm:p-8 lg:p-10 elite-glass rounded-[1.5rem] sm:rounded-[2rem] flex gap-4 sm:gap-6 items-start hover:bg-white/[0.04] transition-all">
                     <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">block</span>
                     <div>
-                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Bloqueio de Ruído</h4>
+                        <h4 class="text-lg lg:text-2xl font-black text-white mb-3 uppercase tracking-tight">Bloqueio de Ruído</h4>
                         <p class="text-sm text-slate-500 leading-relaxed font-light italic">Sem spam. Sem distrações.
                             Foco total em automação.</p>
                     </div>
                 </div>
                 <div
-                    class="p-10 elite-glass rounded-[2rem] flex gap-6 items-start hover:bg-white/[0.04] transition-all">
+                    class="p-6 sm:p-8 lg:p-10 elite-glass rounded-[1.5rem] sm:rounded-[2rem] flex gap-4 sm:gap-6 items-start hover:bg-white/[0.04] transition-all">
                     <span class="material-symbols-outlined text-[#FF5F5F] text-3xl">bolt</span>
                     <div>
-                        <h4 class="text-xl font-black text-white mb-3 uppercase tracking-tight">Execução Ativa</h4>
+                        <h4 class="text-lg lg:text-2xl font-black text-white mb-3 uppercase tracking-tight">Execução Ativa</h4>
                         <p class="text-sm text-slate-500 leading-relaxed font-light italic">Aprenda, aplique e ensine. O
                             loop perfeito do mestre.</p>
                     </div>
@@ -223,16 +223,16 @@
         </div>
 
         <!-- Final CTA -->
-        <div class="relative max-w-5xl mx-auto text-center space-y-16 py-32 animate-float">
+        <div class="relative max-w-5xl mx-auto text-center space-y-10 sm:space-y-16 py-16 sm:py-32 animate-float">
             <div class="absolute inset-0 bg-indigo-600/5 blur-[120px] rounded-full"></div>
-            <h2 class="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">
+            <h2 class="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase leading-none">
                 Junte-se à <span class="text-[#FF5F5F]">Elite</span>
             </h2>
             <div class="flex flex-col items-center gap-8 relative z-10">
                 <a href="https://chat.whatsapp.com/G5nS4iXjOWY9iOWNh"
-                    class="px-16 py-8 bg-white text-black rounded-full font-black hover:bg-[#FF5F5F] hover:text-white shadow-2xl transition-all duration-500 text-sm uppercase tracking-[0.3em]">Conectar
+                    class="w-full sm:w-auto max-w-md px-8 py-4 sm:px-16 sm:py-8 bg-white text-black rounded-full font-black hover:bg-[#FF5F5F] hover:text-white shadow-2xl transition-all duration-500 text-sm uppercase tracking-[0.3em] text-center active:scale-95">Conectar
                     ao WhatsApp</a>
-                <div class="flex gap-10 text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">
+                <div class="flex flex-wrap justify-center gap-6 sm:gap-10 text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">
                     <a href="#" class="hover:text-[#FF5F5F] transition-colors">YouTube</a>
                     <a href="#" class="hover:text-[#FF5F5F] transition-colors">Instagram</a>
                     <a href="#" class="hover:text-[#FF5F5F] transition-colors">X (Twitter)</a>
@@ -241,7 +241,7 @@
         </div>
 
         <!-- Footer Minimalista Monocromático -->
-        <footer class="text-center pt-32 pb-10 border-t border-white/[0.03] space-y-6">
+        <footer class="text-center pt-16 sm:pt-32 pb-10 border-t border-white/[0.03] space-y-6">
             <div class="flex flex-col items-center gap-4">
                 <div class="text-[10px] font-black text-white uppercase tracking-[0.5em] opacity-40">Automações
                     Comerciais Integradas !</div>

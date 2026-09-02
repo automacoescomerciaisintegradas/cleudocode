@@ -137,6 +137,12 @@ def contato():
     """Serve a página de contato"""
     return send_from_directory('web', 'contato.html')
 
+@app.route('/comunidade')
+@app.route('/COMUNIDADE')
+def comunidade():
+    """Serve a página da comunidade"""
+    return send_from_directory('web', 'comunidade.html')
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Serve arquivos estáticos da pasta web"""

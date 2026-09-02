@@ -135,7 +135,7 @@ class CleudoApp {
                     </div>
                     <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">${skill.type}</span>
                 </div>
-                <h4 class="text-lg font-black text-white uppercase tracking-tighter mb-2">${skill.name}</h4>
+                <h4 class="text-xl lg:text-3xl font-black text-white uppercase tracking-tighter mb-2">${skill.name}</h4>
                 <p class="text-[10px] text-slate-500 font-mono mb-6">${skill.id}</p>
                 <button class="w-full py-3 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all border border-white/10 hover:bg-white/10">Ver Código</button>
             </div>
@@ -279,18 +279,18 @@ class CleudoApp {
     addMessage(role, content) {
         const chatContainer = document.getElementById('chat-container');
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'flex gap-4';
+        messageDiv.className = 'flex gap-3 sm:gap-5 items-start';
 
         const isUser = role === 'user';
         const icon = isUser ? 'person' : 'smart_toy';
         const bgColor = isUser ? 'bg-[#FF5F5F]' : 'bg-emerald-500';
 
         messageDiv.innerHTML = `
-            <div class="w-8 h-8 rounded-full ${bgColor} text-white flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-sm">${icon}</span>
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl ${bgColor} text-white flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-base sm:text-lg">${icon}</span>
             </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 ${isUser ? 'rounded-br-none' : 'rounded-bl-none'} shadow-sm flex-1">
-                <div class="text-sm text-white leading-relaxed font-mono">
+            <div class="bg-white/[0.03] border border-white/[0.05] p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${isUser ? 'rounded-br-none' : 'rounded-tl-none'} text-slate-300 shadow-sm min-w-0 max-w-[85%] sm:max-w-[80%]">
+                <div class="text-sm text-slate-300 leading-relaxed font-mono break-words">
                     ${this.formatMessage(content)}
                 </div>
             </div>

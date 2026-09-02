@@ -13,11 +13,18 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #0f172a; /* Dark mode background matched with existing app */
             color: #e2e8f0;
             min-height: 100vh;
             padding: 40px 20px;
+        }
+
+        @media (max-width: 767px) {
+            body { padding: 24px 12px; }
+            .card { padding: 18px; }
+            .stat-card { padding: 18px; }
+            .stat-number { font-size: 28px; }
         }
 
         .container {
@@ -38,8 +45,12 @@
         .header h1 {
             color: #38bdf8;
             margin-bottom: 15px;
-            font-size: 2.5rem;
+            font-size: 2.25rem;
             letter-spacing: -0.025em;
+        }
+
+        @media (min-width: 1024px) {
+            .header h1 { font-size: 3rem; }
         }
 
         .header p {
@@ -95,9 +106,13 @@
         .card h2 {
             color: #38bdf8;
             margin-bottom: 20px;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             display: flex;
             align-items: center;
+        }
+
+        @media (min-width: 1024px) {
+            .card h2 { font-size: 1.5rem; }
         }
 
         .card h2::before {
@@ -114,6 +129,24 @@
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
+        }
+
+        /* ===== Responsividade ===== */
+        @media (max-width: 767px) {
+            .actions button,
+            .item-actions button {
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .header h1 { font-size: 1.8rem; }
+        }
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .actions button { flex: 1 1 calc(50% - 6px); justify-content: center; }
         }
 
         button {
@@ -249,6 +282,7 @@
         .item-actions {
             margin-top: 15px;
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
         }
 

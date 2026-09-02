@@ -316,8 +316,8 @@
             <p class="text-[10px] font-black accent-text mb-4 tracking-[0.5em] uppercase opacity-70">
                 Iniciativa // Off-Grid
             </p>
-            <h1
-                class="text-5xl md:text-8xl font-black text-white leading-[0.85] mb-8 uppercase italic tracking-tighter">
+            <            <h1
+                class="text-5xl lg:text-7xl font-black text-white leading-[0.9] mb-8 uppercase italic tracking-tighter break-words">
                 AUTOMAÇÕES<br />COMERCIAIS<br />INTEGRADAS
             </h1>
             <div class="flex items-center gap-6">
@@ -327,7 +327,7 @@
         </div>
 
         <!-- Contact Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-20 mb-20 max-w-7xl w-full mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mt-16 md:mt-20 mb-16 md:mb-20 max-w-7xl w-full mx-auto px-2 sm:px-4">
             <!-- Suporte Técnico Card -->
             <div class="text-block !max-w-none hover:border-salmon/30 transition-all duration-500 group reveal float">
                 <div class="flex items-center gap-6 mb-8">
@@ -336,7 +336,7 @@
                         <span class="material-symbols-outlined !text-4xl">support_agent</span>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-black text-white uppercase italic tracking-tight">Suporte Técnico</h3>
+                        <h3 class="text-xl lg:text-3xl font-black text-white uppercase italic tracking-tight">Suporte Técnico</h3>
                         <p class="text-xs text-salmon font-bold uppercase tracking-[0.2em] mt-1 opacity-80">Assistência
                             Direta</p>
                     </div>
@@ -349,10 +349,10 @@
                     <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Automações Comerciais
                         Integradas! ⚙️</p>
                     <a href="mailto:contato@automacoescomerciais.com.br"
-                        class="flex items-center gap-4 text-white hover:text-salmon transition-all group/link">
-                        <span class="text-2xl group-hover/link:translate-x-1 transition-transform">📧</span>
+                        class="flex items-center gap-4 text-white hover:text-salmon transition-all group/link min-w-0">
+                        <span class="text-2xl shrink-0">📧</span>
                         <span
-                            class="text-sm md:text-lg font-black tracking-widest uppercase">contato@automacoescomerciais.com.br</span>
+                            class="text-sm md:text-lg font-black tracking-widest uppercase break-all">contato@automacoescomerciais.com.br</span>
                     </a>
                 </div>
             </div>
@@ -366,7 +366,7 @@
                         <span class="material-symbols-outlined !text-4xl">business_center</span>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-black text-white uppercase italic tracking-tight">Comercial</h3>
+                        <h3 class="text-xl lg:text-3xl font-black text-white uppercase italic tracking-tight">Comercial</h3>
                         <p class="text-xs text-indigo-400 font-bold uppercase tracking-[0.2em] mt-1 opacity-80">Expansão
                             de Operações</p>
                     </div>
@@ -390,22 +390,22 @@
                         <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-30"></div>
                         <p class="text-[9px] text-slate-600 uppercase font-black mb-3 tracking-widest">Atendimento
                             Humano // Linha Segura</p>
-                        <a href="tel:+5588921567214"
-                            class="text-white font-black text-xl flex items-center gap-3 hover:text-salmon transition-colors">
-                            <span class="material-symbols-outlined text-salmon">call</span> +55 88 921567214
-                        </a>
+                    <a href="tel:+5588921567214"
+                        class="text-white font-black text-base sm:text-xl flex items-center gap-3 hover:text-salmon transition-colors">
+                        <span class="material-symbols-outlined text-salmon">call</span> +55 88 921567214
+                    </a>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Community Section -->
-        <div class="mt-28 mb-32 text-center space-y-12 reveal">
+        <div class="mt-20 md:mt-28 mb-20 md:mb-32 text-center space-y-8 md:space-y-12 reveal">
             <div class="space-y-6">
                 <p class="text-[10px] font-black text-slate-800 uppercase tracking-[0.9em] opacity-50 text-center">
                     Global //</p>
                 <p class="text-[10px] font-black text-slate-800 uppercase tracking-[0.9em] opacity-50 text-center">
                     Ecossistema</p>
-                <h2 class="text-6xl md:text-9xl font-black text-white uppercase italic tracking-tighter leading-none">
+                <h2 class="text-4xl lg:text-6xl font-black text-white uppercase italic tracking-tighter leading-none">
                     COMUNIDADE</h2>
                 <div class="h-[1px] w-40 bg-white/[0.03] mx-auto"></div>
             </div>
@@ -491,12 +491,8 @@
             </div>
         </div>
     </div>
-    </div>
-    </div>
-    </div>
 
     <script>
-        // Parallax Scroll Animation Configuration
         const PARALLAX_CONFIG = {
             // IMPORTANT: Update these paths to your actual WebP frame sequence
             // The frames should be numbered sequentially (e.g., frame-001.webp, frame-002.webp, etc.)
@@ -573,6 +569,14 @@
                 this.preloadRemainingFrames();
 
                 console.log('✅ Animação de paralaxe pronta!');
+            }
+
+            // Recalcula limites de scroll no resize (evita reload)
+            recalcScroll() {
+                const extender = document.querySelector('div[style*="pointer-events: none"]');
+                if (extender) {
+                    this.maxScroll = extender.offsetHeight - window.innerHeight;
+                }
             }
 
             // Preload specific range of frames
@@ -665,6 +669,7 @@
         // Initialize parallax animation when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
             const parallax = new ParallaxScrollAnimation(PARALLAX_CONFIG);
+            window.__cleudoParallax = parallax;
 
             // Intersection Observer for reveal animations
             const revealObserver = new IntersectionObserver((entries) => {
@@ -678,13 +683,11 @@
             document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
         });
 
-        // Handle window resize
-        let resizeTimer;
+        // Handle window resize — recalcula maxScroll sem recarregar a página
         window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                location.reload(); // Reload to recalculate scroll positions
-            }, 500);
+            if (window.__cleudoParallax && typeof window.__cleudoParallax.recalcScroll === 'function') {
+                window.__cleudoParallax.recalcScroll();
+            }
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
