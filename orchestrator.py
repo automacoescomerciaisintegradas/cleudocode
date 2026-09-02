@@ -16,6 +16,7 @@ class Orchestrator:
         self.mission_history = []
         self.agent_status = {} # Track what each agent is doing
         self.state_file = Path(".agent_status.json")
+        self.brain = self._init_rag_brain()
         self._load_all_personas()
         self._load_state()
 
@@ -42,6 +43,43 @@ class Orchestrator:
             logger.error(f"Erro ao salvar estado: {e}")
 
         
+    def _init_rag_brain(self):
+        """Inicializa a memória semântica (RAG) se habilitada e disponível."""
+        if os.getenv("RAG_ENABLED", "true").lower() != "true":
+            logger.info("Memória semântica desativada (RAG_ENABLED != true).")
+            return None
+        try:
+            import rag_engine
+            brain = rag_engine.get_brain()
+            logger.info("Memória semântica (RAG) conectada à cognição.")
+            return brain
+        except Exception as e:
+            logger.error(f"Falha ao conectar memória semântica: {e}")
+            return None
+
+    def _search_memory(self, query):
+        """Recupera contexto relevante da memória semântica para a query."""
+        if not self.brain:
+            return None
+        try:
+            snippets = self.brain.search(query, n_results=3)
+            if not snippets:
+                return None
+            return "\n\nConteúdo relevante encontrado na memória:\n" + "\n---\n".join(snippets)
+        except Exception as e:
+            logger.error(f"Erro na busca de memória: {e}")
+            return None
+
+    def _store_memory(self, content, doc_type="conversation"):
+        """Grava uma interação na memória semântica para recall futuro."""
+        if not self.brain:
+            return
+        try:
+            filename = f"conversa_{time.strftime('%Y%m%d_%H%M%S')}"
+            self.brain.add_document(content[:4000], filename, doc_type)
+        except Exception as e:
+            logger.error(f"Erro ao gravar memória: {e}")
+
     def _load_all_personas(self):
         """Carrega todas as personas dos arquivos .md na pasta agents/"""
         if not self.agents_dir.exists():
@@ -88,8 +126,18 @@ class Orchestrator:
         """Delega uma tarefa de um agente para outro (via Jarvis ou sistema)"""
         persona = self.get_agent_persona(target_agent)
         
+        target = target_agent.lower()
+        if target not in self.agent_status:
+            self.agent_status[target] = {
+                "state": "idle",
+                "last_task": "Aguardando ordens",
+                "last_active": time.time(),
+                "progress": 0,
+                "role": target.replace("-", " ").title()
+            }
+        
         # Update status to busy
-        self.agent_status[target_agent.lower()].update({
+        self.agent_status[target].update({
             "state": "busy", 
             "last_task": task[:100], 
             "last_active": time.time(),
@@ -97,9 +145,12 @@ class Orchestrator:
         })
         self._save_state()
 
+        memory_context = self._search_memory(task)
+        task_content = f"{memory_context}\n\nTarefa: {task}" if memory_context else task
+
         messages = [
             {"role": "system", "content": persona},
-            {"role": "user", "content": task}
+            {"role": "user", "content": task_content}
         ]
         
         logger.info(f"Delegando para {target_agent}: {task[:50]}...")
@@ -134,8 +185,17 @@ class Orchestrator:
         context = task
         
         for agent in agents_list:
-            self.agent_status[agent.lower()]["state"] = "busy"
-            self.agent_status[agent.lower()]["last_task"] = f"Debatendo: {task[:50]}"
+            target = agent.lower()
+            if target not in self.agent_status:
+                self.agent_status[target] = {
+                    "state": "idle",
+                    "last_task": "Aguardando ordens",
+                    "last_active": time.time(),
+                    "progress": 0,
+                    "role": target.replace("-", " ").title()
+                }
+            self.agent_status[target]["state"] = "busy"
+            self.agent_status[target]["last_task"] = f"Debatendo: {task[:50]}"
             
             persona = self.get_agent_persona(agent)
             prompt = f"Contexto do Debate:\n{discussion_log}\n\nSua vez ({agent}), contribua com sua visão técnica baseada em sua persona."
@@ -194,7 +254,14 @@ class Orchestrator:
         target = msg.get("targeted_agent", "jarvis").lower()
         persona = self.get_agent_persona(target)
         
-        persona = self.get_agent_persona(target)
+        if target not in self.agent_status:
+            self.agent_status[target] = {
+                "state": "idle",
+                "last_task": "Aguardando ordens",
+                "last_active": time.time(),
+                "progress": 0,
+                "role": target.replace("-", " ").title()
+            }
         
         self.agent_status[target].update({
             "state": "busy", 
@@ -209,9 +276,13 @@ class Orchestrator:
         else:
             system_prompt = persona
 
+        # RAG: injeta contexto relevante da memória semântica no prompt
+        memory_context = self._search_memory(text)
+        user_content = f"{memory_context}\n\nUsuário: {text}" if memory_context else text
+
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": text}
+            {"role": "user", "content": user_content}
         ]
         
         try:
@@ -228,6 +299,11 @@ class Orchestrator:
                         agent_id = p[0]
                         delegated_task = p[1]
                         delegation_result = self.delegate_task(agent_id, delegated_task)
+                        if delegation_result.get("output"):
+                            self._store_memory(
+                                f"Usuário: {text}\n\nResposta ({agent_id}): {delegation_result['output']}",
+                                "conversation",
+                            )
                         return {
                             "status": "success",
                             "mission_control": "delegated",
@@ -236,6 +312,10 @@ class Orchestrator:
                         }
                 except Exception as parse_err:
                     logger.error(f"Erro ao parsear delegação: {parse_err}")
+
+            # RAG: grava a interação na memória semântica para recall futuro
+            if response:
+                self._store_memory(f"Usuário: {text}\n\nResposta: {response}", "conversation")
 
             res = {
                 "status": "success",
