@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  aci-mcp:
+    image: aci-mcp:latest
+    networks:
+      - network_public
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+networks:
+  network_public:
+    external: true

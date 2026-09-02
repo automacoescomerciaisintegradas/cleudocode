@@ -19,6 +19,13 @@ logger = logging.getLogger(__name__)
 class MCPClient:
     """Cliente genérico para Model Context Protocol"""
     
+    @classmethod
+    def list_all_services(cls, config_path: Optional[str] = None) -> List[str]:
+        """Lista todos os serviços MCP configurados"""
+        temp = cls.__new__(cls)
+        config = temp._load_config(config_path)
+        return list(config.get("mcp", {}).keys())
+        
     def __init__(self, service_name: str = "stitch", config_path: Optional[str] = None):
         """
         Inicializa o cliente MCP

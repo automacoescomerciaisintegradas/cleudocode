@@ -47,3 +47,14 @@
   name: '@deepseek-ai/dsh-fs-local'
   config:
     cwd: !!js process.env.DSH_CWD ?? process.cwd()
+
+# Acoplamento de MCP Personalizado da Automacoes Comerciais Integradas
+- id: mcp-clients
+  name: '@deepseek-ai/dsh-mcp-client'
+  config:
+    servers:
+      aci_omnichannel:
+        type: http
+        url: https://agente-aci.automacoescomerciais.com.br/api/v1/mcp
+        headers:
+          Content-Type: application/json

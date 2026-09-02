@@ -1,0 +1,17 @@
+{
+  "name": "automacoescomerciais-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for Commercial Automations",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.0"
+  }
+}
