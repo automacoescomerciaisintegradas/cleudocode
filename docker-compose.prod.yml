@@ -1,11 +1,12 @@
 # ============================================
 # CLEUDOCODE - Docker Compose Production
-# Deploy na VPS 144.91.118.78
+# Deploy na VPS 185.190.143.17
 # ============================================
 
 services:
   cleudocode:
     image: automacoescomerciais/cleudocode:latest
+    build: .
     container_name: cleudocode
     restart: unless-stopped
     ports:
@@ -61,6 +62,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       # Persistência de dados
+      - .:/app
       - cleudocode_config:/root/.cleudocode
       - cleudocode_memory:/app/memory_db
       - cleudocode_exports:/app/exports

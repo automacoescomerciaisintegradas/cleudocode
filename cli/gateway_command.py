@@ -4,6 +4,8 @@ import click
 from rich.console import Console
 from pathlib import Path
 
+import sys
+
 console = Console()
 project_root = Path(__file__).parent.parent
 
@@ -28,7 +30,7 @@ def start(port):
         if os.name == 'nt':
             subprocess.Popen(["start", "cmd", "/c", "python web_server.py"], cwd=str(project_root), shell=True)
         else:
-            subprocess.Popen(["python3", "web_server.py"], cwd=str(project_root), start_new_session=True)
+            subprocess.Popen([sys.executable, "web_server.py"], cwd=str(project_root), start_new_session=True)
         console.print("[green]✓ Servidor local disparado.[/green]")
 
 @gateway.command()

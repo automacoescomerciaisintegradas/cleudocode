@@ -89,9 +89,9 @@ def run_doctor():
     console.print("\n[bold]Serviços:[/bold]")
     try:
         import requests
-        resp = requests.get("http://localhost:18900/health", timeout=2)
+        resp = requests.get("http://localhost:8501/health", timeout=2)
         if resp.status_code == 200:
-            console.print("  [green]✓[/green] Gateway: Online (Porta 18900)")
+            console.print("  [green]✓[/green] Gateway: Online (Porta 8501)")
         else:
             console.print(f"  [yellow]⚠[/yellow] Gateway: Respondeu com erro {resp.status_code}")
     except:
