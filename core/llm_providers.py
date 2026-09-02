@@ -86,6 +86,9 @@ class LLMHub:
                         pass
                 else:
                     logger.warning(f"Falha: {p}")
+                
+                safe_err = scrub_sensitive_info(raw_err)
+                logger.error(f"Erro em {p}: {safe_err}")
                 errors.append(p)
                 continue
 

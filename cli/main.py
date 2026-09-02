@@ -83,6 +83,7 @@ logging.getLogger().setLevel(logging.WARNING)
 logging.getLogger("skills.loader").setLevel(logging.CRITICAL)
 logging.getLogger("core.config_manager").setLevel(logging.ERROR)
 logging.getLogger("Orchestrator").setLevel(logging.ERROR)
+logging.getLogger("core.llm_providers").setLevel(logging.CRITICAL)
 
 COMMAND_STATUS = {
     "agent": {"status": "functional", "summary": "envia um turno ao orquestrador"},
@@ -101,12 +102,12 @@ COMMAND_STATUS = {
     "start": {"status": "functional", "summary": "sobe serviços principais"},
     "stop": {"status": "functional", "summary": "para serviços principais"},
     "tools": {"status": "functional", "summary": "lista comandos classificados"},
-    "config": {"status": "partial", "summary": "mostra config, mas não set/unset"},
+    "config": {"status": "functional", "summary": "mostra config (get/set/unset)"},
     "configure": {"status": "partial", "summary": "atalho de leitura, sem wizard real"},
     "daemon": {"status": "partial", "summary": "alias informativo, sem controle real"},
     "docs": {"status": "partial", "summary": "apenas mostra link fixo"},
     "health": {"status": "partial", "summary": "reaproveita doctor, sem health dedicado"},
-    "logs": {"status": "partial", "summary": "lê apenas um arquivo de log"},
+    "logs": {"status": "functional", "summary": "lê logs do container docker"},
     "memory": {"status": "partial", "summary": "só export disponível"},
     "plugins": {"status": "partial", "summary": "apenas enable implementado"},
     "reset": {"status": "partial", "summary": "confirma, mas não limpa estado real"},
@@ -116,7 +117,7 @@ COMMAND_STATUS = {
     "uninstall": {"status": "partial", "summary": "remove stack docker, sem fluxo completo"},
     "acp": {"status": "not_implemented", "summary": "placeholder"},
     "approvals": {"status": "not_implemented", "summary": "placeholder"},
-    "completion": {"status": "not_implemented", "summary": "não gera script real"},
+    "completion": {"status": "functional", "summary": "gera script de completion do bash/zsh"},
     "cron": {"status": "not_implemented", "summary": "placeholder"},
     "devices": {"status": "not_implemented", "summary": "placeholder"},
     "dns": {"status": "not_implemented", "summary": "placeholder"},
@@ -127,8 +128,8 @@ COMMAND_STATUS = {
     "sandbox": {"status": "not_implemented", "summary": "placeholder"},
     "security": {"status": "not_implemented", "summary": "placeholder"},
     "sessions": {"status": "not_implemented", "summary": "placeholder"},
-    "tui": {"status": "not_implemented", "summary": "em desenvolvimento"},
-    "update": {"status": "not_implemented", "summary": "sem rotina real de update"},
+    "tui": {"status": "functional", "summary": "painel TUI interativo no terminal"},
+    "update": {"status": "functional", "summary": "atualiza via git pull e docker compose"},
     "webhooks": {"status": "not_implemented", "summary": "placeholder"},
 }
 
@@ -410,24 +411,24 @@ def _run_interactive_shell():
 
         if not user_input:
             continue
-        if user_input in {"/exit", "/quit"}:
+        if user_input in {"/exit", "/quit", "exit", "quit"}:
             console.print("[dim]Sessão encerrada.[/dim]")
             break
-        if user_input == "/help":
+        if user_input in {"/help", "help"}:
             console.print(_render_help_panel())
             continue
-        if user_input == "/tools":
+        if user_input in {"/tools", "tools"}:
             console.print(_render_functional_commands_panel())
             console.print(_render_partial_commands_panel())
             console.print(_render_not_implemented_commands_panel())
             continue
-        if user_input == "/skills":
+        if user_input in {"/skills", "skills"}:
             console.print(_render_skills_panel())
             continue
-        if user_input == "/agents":
+        if user_input in {"/agents", "agents"}:
             _show_agents_panel()
             continue
-        if user_input == "/model":
+        if user_input in {"/model", "model"}:
             console.print(_render_runtime_panel())
             continue
         if user_input.startswith("/agent "):
@@ -977,7 +978,8 @@ def system():
 @cli.command()
 def tui():
     """Terminal UI"""
-    console.print("[yellow]TUI in development.[/yellow]")
+    from cli.tui_app import run_tui
+    run_tui()
 
 @cli.command()
 def uninstall():
