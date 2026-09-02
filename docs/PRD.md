@@ -1,49 +1,34 @@
-# Product Requirements Document (PRD) - CleudoCode
+# Product Requirements Document (PRD) - Cleudocode Agent Harness
 
-## 1. Visão Geral
-O **CleudoCode** é uma plataforma local avançada com LLMs, Agentes Autônomos e Memória RAG, alimentada por **Ollama**. O objetivo é permitir que usuários com hardware limitado acessem modelos poderosos hospedados em servidores robustos (ou na nuvem) com uma experiência de baixa latência e persistência de dados.
+## 1. Visão Geral do Produto
+O **Cleudocode** é um Agent Harness para tarefas de engenharia de software e automação de negócios. Ele atua como um maestro (orquestrador) executando localmente na máquina do usuário, delegando tarefas para um esquadrão de perfis (personas) da IA, sem amarrar a execução a um provedor específico de LLM.
 
-## 2. Objetivos
-*   Prover uma interface de linha de comando (CLI) e Web simples e intuitiva.
-*   Garantir compatibilidade com o ecossistema OpenAI/Open Responses para interoperabilidade futura.
-*   Permitir conversas longas com persistência de contexto (memória).
-*   Facilitar a gestão de sessões (salvar/carregar histórico).
+## 2. Público-Alvo
+- Desenvolvedores de Software
+- Engenheiros DevOps e SysAdmins
+- Empreendedores técnicos focados em automações
+- Entusiastas de IA Open Source
 
-## 3. Especificações Funcionais
+## 3. Casos de Uso
+1. **Assistência de Codificação Local**: Solicitar ao agente a criação, refatoração ou debug de scripts, rodando diretamente no ambiente do usuário.
+2. **Brainstorming Técnico**: Provocar uma discussão (`/debate`) técnica entre agentes especializados (ex: Arquiteto vs. Especialista em Segurança) para desenhar a melhor solução.
+3. **Automação de Ferramentas Web**: Integrar com a *skill* de navegação (`browser-harness`) para navegar em páginas web e raspar informações ou testar sites em tempo real.
+4. **Resiliência na Execução**: Continuar trabalhando em missões extensas mesmo se a chave de um provedor LLM específico estourar o limite de *rate limit*, rotacionando provedores perfeitamente em plano de fundo (OmniRoute).
 
-### 3.1. Conectividade
-*   **Protocolo**: HTTP/REST sobre a API `/v1/chat/completions` (Padrão OpenAI).
-*   **Backend Suportado**: Ollama (nativo ou via Docker).
-*   **Configuração**: Gerenciada via arquivo `.env`.
+## 4. Requisitos Principais
 
-### 3.2. Interface de Chat
-*   **Loop Interativo**: Entrada de usuário -> Processamento -> Resposta do Assistente.
-*   **Comandos de Sistema**:
-    *   `/save`: Salva o estado atual da conversa em JSON.
-    *   `/load <arquivo>`: Carrega um arquivo de texto externo para o contexto.
-    *   `/clear`: Limpa a memória da conversa.
-    *   `/stop` ou `sair`: Encerra a aplicação salvando o histórico automaticamente.
+### 4.1. Funcionais
+- **Terminal Interativo (CLI)**: Uma shell rica baseada em `click` e `rich` para conversar com agentes. Comandos administrativos (como `agents`, `tools`, `skills`, `model`) devem ser executados de forma nativa e ergonômica.
+- **Roteamento Inteligente (OmniRoute)**: Suporte obrigatório a múltiplos LLMs (Ollama para local, Anthropic, OpenAI, Google Gemini, OpenRouter, etc.). O roteador deve fazer fallback transparente (failover automático em erros de autenticação, timeout e excesso de requisições).
+- **Mission Control**: O núcleo (`orchestrator.py`) deve gerenciar o estado (`idle`, `busy`) de múltiplos agentes. Um agente líder (como Jarvis) pode convocar outros e delegar tarefas usando diretivas (`delegate-task`).
+- **Dashboard de Gestão**: Uma UI local (`web_app.py`) via Streamlit, subida como serviço secundário, para monitorar o status do ecossistema, os tokens gastos, as keys atuais, o status de RAG, entre outros dados telemétricos.
+- **Memória de Longo Prazo (RAG)**: O sistema armazena interações na memória semântica e puxa contextos passados de maneira imperceptível em novas interações.
 
-### 3.3. Gestão de Contexto e RAG
-*   O sistema mantém um buffer de histórico em memória.
-*   Integração com ChromaDB para busca semântica em documentos carregados.
+### 4.2. Não-Funcionais
+- **Privacidade e Segurança**: As chaves de API não podem de forma alguma ser vazadas em logs de terminal durante os processos de exceção (implementado scrub de chaves no logger do `core.llm_providers`).
+- **Execução Desacoplada**: A ferramenta não é dona dos servidores LLM. Ela funciona em arquitetura híbrida (execução do ambiente local e cérebro na nuvem ou local via Ollama).
+- **Idempotência de Setup**: O instalador (`install_vps.sh`) deve garantir a implantação confiável do ecossistema independentemente de pré-existência parcial de pacotes.
 
-## 4. Requisitos Não-Funcionais
-*   **Performance**: Resposta em tempo aceitável (< 5s para inicialização).
-*   **Segurança**: Comunicação direta local; mascaramento de dados sensíveis na UI.
-*   **Compatibilidade**: Funciona em Windows, Linux e macOS com Python 3.
-
-## 5. Roadmap Futuro
-*   [x] Interface Gráfica (Web).
-*   [ ] Suporte a múltiplos backends com failover.
-*   [ ] App Mobile com integração via Túnel Seguro.
-
----
-
-## 📞 Contato e Suporte 
-📱 WhatsApp [+55 88 92156-7214](https://wa.me/558894227586)
-
-## Desenvolvido por
-**Automações Comerciais Integradas! ⚙️** - contato@automacoescomerciais.com.br
-
-© 2025 Automações Comerciais Integradas. Todos os direitos reservados.
+## 5. Escopo Futuro (Roadmap)
+- Pleno suporte à automação massiva em containers distribuídos.
+- Acoplamento fino com o protocolo MCP para expandir ferramentas de forma "plug and play".
