@@ -159,6 +159,65 @@
         @media (min-width: 768px) and (max-width: 1199px) {
             .cleudo-activity-carousel { width: 300px; bottom: 16px; left: 16px; }
         }
+
+        /* ===== Market Dropdown ===== */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 240px;
+            padding-top: 14px;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(8px) scale(0.96);
+            transform-origin: top left;
+            transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.25s;
+            z-index: 60;
+        }
+        .dropdown-market:hover .dropdown-menu,
+        .dropdown-market:focus-within .dropdown-menu {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 26px;
+            width: 10px;
+            height: 10px;
+            background: rgba(10, 12, 20, 0.92);
+            border-left: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            transform: rotate(45deg);
+        }
+        .dropdown-panel {
+            background: rgba(10, 12, 20, 0.85);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 95, 95, 0.08);
+            padding: 8px;
+            min-width: 240px;
+        }
+        .dropdown-item.active {
+            color: #FF5F5F;
+            background: rgba(255, 95, 95, 0.08);
+        }
+        summary::-webkit-details-marker { display: none; }
+        @media (max-width: 1023px) {
+            .dropdown-menu {
+                position: static;
+                min-width: 0;
+                padding-top: 8px;
+                visibility: visible;
+                opacity: 1;
+                transform: none;
+            }
+            .dropdown-menu::before { display: none; }
+        }
     </style>
     <script>
         tailwind.config = {
@@ -206,7 +265,26 @@
             <a href="#" id="nav-chat"
                 class="nav-link active hover:text-[#FF5F5F] transition-all py-1 border-b-2 border-[#FF5F5F]">Connect</a>
             <a href="#" id="nav-pulse" class="nav-link text-slate-500 hover:text-white transition-all">Pulse</a>
-            <a href="#" id="nav-market" class="nav-link text-slate-500 hover:text-white transition-all">Market</a>
+            <div class="dropdown-market relative">
+                <a href="#" id="nav-market"
+                    class="nav-link text-slate-500 hover:text-white transition-all flex items-center gap-1.5">Market
+                    <span class="material-symbols-outlined text-sm leading-none">expand_more</span>
+                </a>
+                <div class="dropdown-menu">
+                    <div class="dropdown-panel space-y-1">
+                        <a href="#" data-view="market"
+                            class="nav-link dropdown-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-white/5 hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-base text-[#FF5F5F]">storefront</span>
+                            <span class="text-[10px] uppercase font-black tracking-[0.2em]">Skills Marketplace</span>
+                        </a>
+                        <a href="#" data-view="cleudopay"
+                            class="nav-link dropdown-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-white/5 hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-base text-[#FF5F5F]">account_balance_wallet</span>
+                            <span class="text-[10px] uppercase font-black tracking-[0.2em]">CleudoPay</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
             <a href="#" id="nav-squad" class="nav-link text-slate-500 hover:text-white transition-all">Squad</a>
             <a href="#" id="nav-memory" class="nav-link text-slate-500 hover:text-white transition-all">Memory</a>
             <a href="#" id="nav-playground" class="nav-link text-slate-500 hover:text-white transition-all">Lab</a>
@@ -594,13 +672,12 @@
                             </div>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <a href="https://skillsmp.com/de" target="_blank"
+                            <a href="https://cleudocode.automacoescomerciais.com.br/skills/index.html" target="_blank"
                                 class="px-8 py-4 salmon-gradient rounded-2xl font-black text-white hover:scale-105 transition-all shadow-lg shadow-salmon/20 uppercase tracking-widest text-xs">Explorar
                                 Agora</a>
-                            <a href="https://skillsmp.com/de/skills/openclaw-openclaw-skills-clawhub-skill-md"
-                                target="_blank"
+                            <a href="https://github.com/automacoescomerciaisintegradas/skills" target="_blank"
                                 class="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-white hover:bg-white/10 transition-all uppercase tracking-widest text-xs">Ver
-                                Skill ClauhHub</a>
+                                no GitHub</a>
                         </div>
                     </div>
                     <div class="flex-1 w-full lg:w-auto">
@@ -651,17 +728,26 @@
                 </div>
             </div>
 
-            <!-- Fintech Preview Card -->
-            <div id="view-fintech-preview" class="max-w-4xl mx-auto pt-10 sm:pt-20">
-                <div class="text-center mb-12">
-                    <span
-                        class="text-[10px] font-black salmon-gradient bg-clip-text text-transparent uppercase tracking-[0.5em]">Project
-                        CleudoPay</span>
-                    <h2 class="text-4xl font-black text-white leading-tight uppercase italic mt-4">Landing Page
-                        Financeira</h2>
+        </div>
+
+        <!-- View: CleudoPay (Landing Page Financeira) -->
+        <div id="view-cleudopay" class="hidden max-w-6xl mx-auto space-y-16 py-10 animate-slide-up">
+            <div class="text-center space-y-4">
+                <span
+                    class="text-[10px] font-black salmon-gradient bg-clip-text text-transparent uppercase tracking-[0.5em]">Project
+                    CleudoPay</span>
+                <h2 class="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase italic">Landing Page
+                    Financeira</h2>
+                <div class="h-1.5 w-32 salmon-gradient mx-auto rounded-full"></div>
+                <p class="text-slate-400 text-xl">O banco das IAs descentralizadas e humanos soberanos.</p>
+            </div>
+
+            <div class="relative group">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[4rem] blur opacity-25 group-hover:opacity-50 transition duration-1000">
                 </div>
-                <div class="premium-glass rounded-[4rem] p-1 border-white/10 overflow-hidden shadow-2xl">
-                    <div class="bg-[#0A0A0A] rounded-[3.8rem] p-12 min-h-[500px] relative overflow-hidden">
+                <div class="relative premium-glass rounded-[4rem] p-1 border-white/10 overflow-hidden shadow-2xl">
+                    <div class="bg-[#0A0A0A] rounded-[3.8rem] p-8 sm:p-12 min-h-[500px] relative overflow-hidden">
                         <!-- Hero Mockup -->
                         <div
                             class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none">
@@ -676,11 +762,11 @@
                             <p class="text-slate-500 text-lg max-w-md">O banco das IAs descentralizadas e humanos
                                 soberanos. Rendimento automático em SENTIENT (OML).</p>
                             <div class="flex flex-col sm:flex-row gap-4">
-                                <button
-                                    class="px-8 py-4 sm:px-10 sm:py-5 salmon-gradient rounded-full font-black text-white shadow-xl shadow-salmon/30 uppercase tracking-widest text-[10px] active:scale-95 transition-transform"
-                                    onclick="window.open('/cleudopay/index.html', '_blank')">Abrir
-                                    Conta em 30s</button>
-                                <a href="/cleudopay/index.html" target="_blank"
+                                <a href="https://github.com/automacoescomerciaisintegradas/skills" target="_blank"
+                                    class="px-8 py-4 sm:px-10 sm:py-5 salmon-gradient rounded-full font-black text-white shadow-xl shadow-salmon/30 uppercase tracking-widest text-[10px] active:scale-95 transition-transform">Abrir
+                                    Conta em 30s</a>
+                                <a href="https://cleudocode.automacoescomerciais.com.br/skills/index.html"
+                                    target="_blank"
                                     class="px-10 py-5 bg-white/5 border border-white/10 rounded-full font-black text-white hover:bg-white/10 transition-all uppercase tracking-widest text-[10px] flex items-center">Ver
                                     LP Completa</a>
                             </div>
@@ -704,6 +790,384 @@
                                     <span>Rendimento Mensal</span>
                                     <span class="text-emerald-500">+12.4%</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Nav (smooth scroll + scrollspy) -->
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="#cleudopay-features" data-target="cleudopay-features"
+                    class="cleudopay-nav-link px-5 py-2 rounded-full bg-white/5 border border-white/10 text-slate-500 hover:text-white hover:border-white/20 transition-all text-[10px] font-black uppercase tracking-widest">Recursos</a>
+                <a href="#cleudopay-pricing" data-target="cleudopay-pricing"
+                    class="cleudopay-nav-link px-5 py-2 rounded-full bg-white/5 border border-white/10 text-slate-500 hover:text-white hover:border-white/20 transition-all text-[10px] font-black uppercase tracking-widest">Planos</a>
+                <a href="#cleudopay-faq" data-target="cleudopay-faq"
+                    class="cleudopay-nav-link px-5 py-2 rounded-full bg-white/5 border border-white/10 text-slate-500 hover:text-white hover:border-white/20 transition-all text-[10px] font-black uppercase tracking-widest">FAQ</a>
+                <a href="#cleudopay-social" data-target="cleudopay-social"
+                    class="cleudopay-nav-link px-5 py-2 rounded-full bg-white/5 border border-white/10 text-slate-500 hover:text-white hover:border-white/20 transition-all text-[10px] font-black uppercase tracking-widest">Depoimentos</a>
+            </div>
+
+            <!-- Features -->
+            <div id="cleudopay-features" class="space-y-10 pt-4 scroll-mt-40">
+                <div class="text-center space-y-3">
+                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-700">Recursos //</h3>
+                    <h4 class="text-3xl lg:text-5xl font-black text-white uppercase italic tracking-tighter">Feito para
+                        humanos e máquinas</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card-dark group">
+                        <div
+                            class="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:bg-[#FF5F5F]/10 group-hover:border-[#FF5F5F]/30 transition-all">
+                            <span
+                                class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-[#FF5F5F] transition-colors">account_balance_wallet</span>
+                        </div>
+                        <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Zero Taxas
+                        </h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Transações e transferências livres de
+                            tarifas, para sempre. Sem letras miúdas.</p>
+                    </div>
+                    <div class="card-dark group">
+                        <div
+                            class="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 transition-all">
+                            <span
+                                class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-indigo-400 transition-colors">trending_up</span>
+                        </div>
+                        <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Rendimento
+                            Automático</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Seu saldo rende sozinho em SENTIENT (OML),
+                            direto na conta, sem burocracia.</p>
+                    </div>
+                    <div class="card-dark group">
+                        <div
+                            class="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:bg-amber-500/10 group-hover:border-amber-500/30 transition-all">
+                            <span
+                                class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-amber-400 transition-colors">smart_toy</span>
+                        </div>
+                        <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Conta para
+                            IAs</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Carteira dedicada para agentes
+                            descentralizados pagarem e receberem automaticamente.</p>
+                    </div>
+                    <div class="card-dark group">
+                        <div
+                            class="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-all">
+                            <span
+                                class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-emerald-400 transition-colors">verified_user</span>
+                        </div>
+                        <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Soberania
+                            Total</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Suas chaves e seus ativos 100% sob seu
+                            controle. Nada de custódia centralizada.</p>
+                    </div>
+                    <div class="card-dark group">
+                        <div
+                            class="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:bg-sky-500/10 group-hover:border-sky-500/30 transition-all">
+                            <span
+                                class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-sky-400 transition-colors">bolt</span>
+                        </div>
+                        <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Pagamentos
+                            Instantâneos</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Transferências P2P na velocidade da rede,
+                            24/7, sem intermediários.</p>
+                    </div>
+                    <div class="card-dark group">
+                        <div
+                            class="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:bg-purple-500/10 group-hover:border-purple-500/30 transition-all">
+                            <span
+                                class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-purple-400 transition-colors">lock</span>
+                        </div>
+                        <h3 class="font-black text-xl lg:text-3xl text-white mb-3 uppercase tracking-tight">Criptografia
+                            de Ponta</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">Segurança criptográfica de nível
+                            institucional em cada transação.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div id="cleudopay-pricing" class="space-y-10 pt-10 sm:pt-20 scroll-mt-40">
+                <div class="text-center space-y-3">
+                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-700">Planos //</h3>
+                    <h4 class="text-3xl lg:text-5xl font-black text-white uppercase italic tracking-tighter">Escolha seu
+                        plano</h4>
+                    <div class="flex items-center justify-center gap-4 pt-2">
+                        <span id="billing-label-monthly"
+                            class="text-[10px] font-black uppercase tracking-widest text-white">Mensal</span>
+                        <button id="billing-toggle" role="switch" aria-checked="false"
+                            aria-label="Alternar cobrança mensal ou anual"
+                            class="relative w-14 h-8 rounded-full bg-white/10 border border-white/10 transition-colors hover:border-[#FF5F5F]/40 focus:outline-none focus:ring-2 focus:ring-[#FF5F5F]/40">
+                            <span id="billing-knob"
+                                class="absolute top-1 left-1 w-6 h-6 rounded-full salmon-gradient transition-transform duration-300"></span>
+                        </button>
+                        <span id="billing-label-yearly"
+                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">Anual
+                            <span
+                                class="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[8px] font-black">−20%</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                    <div class="card-dark flex flex-col p-8">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Humano</span>
+                        <div class="mt-4 flex items-end gap-1">
+                            <span class="text-5xl font-black text-white tracking-tighter">R$ 0</span>
+                            <span class="text-xs text-slate-600 font-bold uppercase mb-1">/mês</span>
+                        </div>
+                        <p class="text-slate-500 text-sm mt-3 leading-relaxed">Para quem quer liberdade financeira
+                            sem custo.</p>
+                        <ul class="mt-6 space-y-3 text-sm text-slate-400 flex-1">
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span> Conta
+                                gratuita</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span> Zero
+                                taxas em transferências</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                Rendimento automático em OML</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span> Acesso
+                                web + app</li>
+                        </ul>
+                        <a href="https://cleudocode.automacoescomerciais.com.br/skills/index.html" target="_blank"
+                            class="mt-8 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-white hover:bg-white/10 transition-all uppercase tracking-widest text-xs text-center">Começar
+                            grátis</a>
+                    </div>
+                    <div class="relative premium-glass p-1 rounded-[2rem] border-[#FF5F5F]/30 flex flex-col overflow-hidden">
+                        <div
+                            class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 salmon-gradient px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-salmon/30">
+                            Mais Popular</div>
+                        <div class="flex-1 p-8 bg-black/20 rounded-[calc(2rem-4px)] flex flex-col">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-[#FF5F5F]">IA</span>
+                            <div class="mt-4 flex items-end gap-1">
+                                <span id="price-ia" class="text-5xl font-black text-white tracking-tighter">R$ 29</span>
+                                <span class="text-xs text-slate-600 font-bold uppercase mb-1">/mês</span>
+                            </div>
+                            <p id="billing-note"
+                                class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-2">Cobrado
+                                mensalmente</p>
+                            <p class="text-slate-500 text-sm mt-3 leading-relaxed">Para agentes e automações que
+                                precisam pagar e receber.</p>
+                            <ul class="mt-6 space-y-3 text-sm text-slate-400 flex-1">
+                                <li class="flex items-center gap-3"><span
+                                        class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                    Tudo do plano Humano</li>
+                                <li class="flex items-center gap-3"><span
+                                        class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                    Carteira dedicada para agentes</li>
+                                <li class="flex items-center gap-3"><span
+                                        class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                    API de pagamentos</li>
+                                <li class="flex items-center gap-3"><span
+                                        class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                    Limites maiores</li>
+                                <li class="flex items-center gap-3"><span
+                                        class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                    Suporte prioritário</li>
+                            </ul>
+                            <a href="https://github.com/automacoescomerciaisintegradas/skills" target="_blank"
+                                class="mt-8 px-8 py-4 salmon-gradient rounded-2xl font-black text-white hover:scale-105 transition-all shadow-lg shadow-salmon/20 uppercase tracking-widest text-xs text-center">Assinar
+                                agora</a>
+                        </div>
+                    </div>
+                    <div class="card-dark flex flex-col p-8">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Empresa</span>
+                        <div class="mt-4">
+                            <span class="text-4xl font-black text-white tracking-tighter uppercase">Sob consulta</span>
+                        </div>
+                        <p class="text-slate-500 text-sm mt-3 leading-relaxed">Para plataformas e operações em
+                            escala.</p>
+                        <ul class="mt-6 space-y-3 text-sm text-slate-400 flex-1">
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span> Tudo
+                                do plano IA</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                Multi-carteiras</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                White-label</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span> SLA
+                                dedicado</li>
+                            <li class="flex items-center gap-3"><span
+                                    class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                Conformidade OML</li>
+                        </ul>
+                        <a href="https://github.com/automacoescomerciaisintegradas/skills" target="_blank"
+                            class="mt-8 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-white hover:bg-white/10 transition-all uppercase tracking-widest text-xs text-center">Falar
+                            com vendas</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div id="cleudopay-faq" class="space-y-10 pt-10 sm:pt-20 scroll-mt-40">
+                <div class="text-center space-y-3">
+                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-700">FAQ //</h3>
+                    <h4 class="text-3xl lg:text-5xl font-black text-white uppercase italic tracking-tighter">Perguntas
+                        Frequentes</h4>
+                </div>
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <details
+                        class="group premium-glass rounded-2xl p-6 border-white/10 open:border-[#FF5F5F]/30 transition-all">
+                        <summary
+                            class="flex items-center justify-between gap-4 cursor-pointer list-none font-black text-white uppercase tracking-widest text-xs">
+                            O que é o CleudoPay?
+                            <span
+                                class="material-symbols-outlined text-[#FF5F5F] transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <p class="mt-4 text-slate-400 text-sm leading-relaxed">O CleudoPay é o banco digital das IAs
+                            descentralizadas e dos humanos soberanos: conta gratuita, zero taxas e rendimento
+                            automático em SENTIENT (OML).</p>
+                    </details>
+                    <details
+                        class="group premium-glass rounded-2xl p-6 border-white/10 open:border-[#FF5F5F]/30 transition-all">
+                        <summary
+                            class="flex items-center justify-between gap-4 cursor-pointer list-none font-black text-white uppercase tracking-widest text-xs">
+                            Como funciona o rendimento automático?
+                            <span
+                                class="material-symbols-outlined text-[#FF5F5F] transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <p class="mt-4 text-slate-400 text-sm leading-relaxed">Seu saldo rende automaticamente em OML,
+                            sem que você precise fazer nada. O rendimento é creditado direto na sua conta.</p>
+                    </details>
+                    <details
+                        class="group premium-glass rounded-2xl p-6 border-white/10 open:border-[#FF5F5F]/30 transition-all">
+                        <summary
+                            class="flex items-center justify-between gap-4 cursor-pointer list-none font-black text-white uppercase tracking-widest text-xs">
+                            Existe alguma taxa escondida?
+                            <span
+                                class="material-symbols-outlined text-[#FF5F5F] transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <p class="mt-4 text-slate-400 text-sm leading-relaxed">Não. Zero taxas em transferências e
+                            transações — para sempre, em qualquer plano. Sem letras miúdas.</p>
+                    </details>
+                    <details
+                        class="group premium-glass rounded-2xl p-6 border-white/10 open:border-[#FF5F5F]/30 transition-all">
+                        <summary
+                            class="flex items-center justify-between gap-4 cursor-pointer list-none font-black text-white uppercase tracking-widest text-xs">
+                            Posso criar uma conta para os meus agentes de IA?
+                            <span
+                                class="material-symbols-outlined text-[#FF5F5F] transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <p class="mt-4 text-slate-400 text-sm leading-relaxed">Sim. O plano IA cria carteiras
+                            dedicadas para agentes descentralizados, com API de pagamentos para automações completas.
+                        </p>
+                    </details>
+                    <details
+                        class="group premium-glass rounded-2xl p-6 border-white/10 open:border-[#FF5F5F]/30 transition-all">
+                        <summary
+                            class="flex items-center justify-between gap-4 cursor-pointer list-none font-black text-white uppercase tracking-widest text-xs">
+                            Meu dinheiro está seguro?
+                            <span
+                                class="material-symbols-outlined text-[#FF5F5F] transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <p class="mt-4 text-slate-400 text-sm leading-relaxed">Sim. Suas chaves ficam sob seu controle
+                            e todas as transações usam criptografia de nível institucional.</p>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Testimonials / Social Proof -->
+            <div id="cleudopay-social" class="space-y-10 pt-10 sm:pt-20 scroll-mt-40">
+                <div class="text-center space-y-3">
+                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-slate-700">Prova Social //</h3>
+                    <h4 class="text-3xl lg:text-5xl font-black text-white uppercase italic tracking-tighter">Quem usa,
+                        recomenda</h4>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="premium-glass p-6 rounded-3xl text-center">
+                        <div class="text-3xl font-black text-white tracking-tighter">120K+</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Contas
+                            criadas</div>
+                    </div>
+                    <div class="premium-glass p-6 rounded-3xl text-center">
+                        <div class="text-3xl font-black text-[#FF5F5F] tracking-tighter">R$ 0</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Taxas
+                            cobradas</div>
+                    </div>
+                    <div class="premium-glass p-6 rounded-3xl text-center">
+                        <div class="text-3xl font-black text-emerald-400 tracking-tighter">+12,4%</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Rendimento
+                            médio</div>
+                    </div>
+                    <div class="premium-glass p-6 rounded-3xl text-center">
+                        <div class="text-3xl font-black text-indigo-400 tracking-tighter">24/7</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Operação
+                            ininterrupta</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card-dark p-6 sm:p-8 flex flex-col">
+                        <div class="flex gap-1 text-[#FF5F5F] mb-4">
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed flex-1">"Migrei minha operação inteira para o
+                            CleudoPay. Zero taxas, rendimento automático e meus agentes pagando e recebendo sozinhos —
+                            em uma semana já senti a diferença."</p>
+                        <div class="flex items-center gap-3 mt-6">
+                            <div
+                                class="w-10 h-10 rounded-full salmon-gradient flex items-center justify-center font-black text-white text-sm shrink-0">
+                                CF</div>
+                            <div>
+                                <div class="text-[10px] font-black text-white uppercase tracking-widest">Camila
+                                    Ferreira</div>
+                                <div class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">COO @
+                                    Nuvem Automações</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-dark p-6 sm:p-8 flex flex-col">
+                        <div class="flex gap-1 text-[#FF5F5F] mb-4">
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed flex-1">"O rendimento em OML roda no
+                            automático e o painel mostra tudo em tempo real. Não tem comparação com as tarifas que eu
+                            pagava antes."</p>
+                        <div class="flex items-center gap-3 mt-6">
+                            <div
+                                class="w-10 h-10 rounded-full sentient-gradient flex items-center justify-center font-black text-white text-sm shrink-0">
+                                DM</div>
+                            <div>
+                                <div class="text-[10px] font-black text-white uppercase tracking-widest">Diego
+                                    Martins</div>
+                                <div class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Founder @
+                                    LoopPay</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-dark p-6 sm:p-8 flex flex-col">
+                        <div class="flex gap-1 text-[#FF5F5F] mb-4">
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                            <span class="material-symbols-outlined text-base">star</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed flex-1">"A conta para IAs com API de
+                            pagamentos destravou nosso SaaS de agentes. Integração limpa e um time que responde
+                            rápido."</p>
+                        <div class="flex items-center gap-3 mt-6">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-white text-sm shrink-0">
+                                PA</div>
+                            <div>
+                                <div class="text-[10px] font-black text-white uppercase tracking-widest">Patrícia
+                                    Almeida</div>
+                                <div class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">CTO @
+                                    BotSolutions</div>
                             </div>
                         </div>
                     </div>

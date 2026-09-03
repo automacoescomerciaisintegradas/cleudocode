@@ -21,6 +21,7 @@ class CleudoApp {
         this.setupSquad();
         this.setupPulse(); // New
         this.setupMarket(); // New
+        this.setupCleudoPay(); // New
         this.setupTerminalTabs();
         this.loadInitialView();
         this.pollSentientStatus();
@@ -209,8 +210,12 @@ class CleudoApp {
         const navLinks = document.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
+                // Real links (e.g. /comunidade) navigate normally; only SPA view links are intercepted
+                const isViewLink = link.hasAttribute('data-view') || link.getAttribute('href') === '#';
+                if (!isViewLink) return;
+
                 e.preventDefault();
-                const viewId = link.id.replace('nav-', '');
+                const viewId = link.dataset.view || link.id.replace('nav-', '');
                 this.switchView(viewId);
 
                 // Update active state
@@ -218,14 +223,17 @@ class CleudoApp {
                 navLinks.forEach(l => l.classList.add('text-slate-500'));
 
                 link.classList.remove('text-slate-500');
-                link.classList.add('active', 'border-b-2', 'border-[#FF5F5F]', 'text-[#FF5F5F]');
+                link.classList.add('active', 'text-[#FF5F5F]');
+                if (!link.dataset.view) {
+                    link.classList.add('border-b-2', 'border-[#FF5F5F]');
+                }
             });
         });
     }
 
     switchView(viewId) {
         // Hide all views
-        const views = ['view-chat', 'view-squad', 'view-memory', 'view-playground', 'view-market', 'view-pulse', 'view-contato'];
+        const views = ['view-chat', 'view-squad', 'view-memory', 'view-playground', 'view-market', 'view-cleudopay', 'view-pulse', 'view-contato'];
         views.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -559,6 +567,78 @@ Como posso ser mais útil para você hoje?`;
 
     setupPulse() {
         console.log("Kernel Pulse Monitoring Initialized");
+    }
+
+    setupCleudoPay() {
+        // Billing toggle (mensal / anual)
+        const toggle = document.getElementById('billing-toggle');
+        const knob = document.getElementById('billing-knob');
+        const priceIA = document.getElementById('price-ia');
+        const billingNote = document.getElementById('billing-note');
+        const labelMonthly = document.getElementById('billing-label-monthly');
+        const labelYearly = document.getElementById('billing-label-yearly');
+
+        if (toggle && knob && priceIA && billingNote) {
+            const update = (yearly) => {
+                toggle.setAttribute('aria-checked', String(yearly));
+                knob.style.transform = yearly ? 'translateX(24px)' : 'translateX(0)';
+                if (yearly) {
+                    priceIA.textContent = 'R$ 23';
+                    billingNote.textContent = 'Cobrado anualmente (R$ 276/ano)';
+                    labelMonthly?.classList.remove('text-white');
+                    labelMonthly?.classList.add('text-slate-500');
+                    labelYearly?.classList.remove('text-slate-500');
+                    labelYearly?.classList.add('text-white');
+                } else {
+                    priceIA.textContent = 'R$ 29';
+                    billingNote.textContent = 'Cobrado mensalmente';
+                    labelMonthly?.classList.remove('text-slate-500');
+                    labelMonthly?.classList.add('text-white');
+                    labelYearly?.classList.remove('text-white');
+                    labelYearly?.classList.add('text-slate-500');
+                }
+            };
+            toggle.addEventListener('click', () => {
+                update(toggle.getAttribute('aria-checked') !== 'true');
+            });
+        }
+
+        // Smooth scroll + scrollspy das seções da Landing Page Financeira
+        const view = document.getElementById('view-cleudopay');
+        if (!view) return;
+
+        const sectionIds = ['cleudopay-features', 'cleudopay-pricing', 'cleudopay-faq', 'cleudopay-social'];
+        const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+        const links = Array.from(view.querySelectorAll('.cleudopay-nav-link'));
+
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.getElementById(link.dataset.target);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        const updateScrollspy = () => {
+            const offset = 200;
+            let current = null;
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= offset) current = section.id;
+            });
+            links.forEach(link => {
+                const active = link.dataset.target === current;
+                link.classList.toggle('text-[#FF5F5F]', active);
+                link.classList.toggle('text-slate-500', !active);
+            });
+        };
+
+        const scrollTargets = [window, document.querySelector('main')].filter(Boolean);
+        scrollTargets.forEach(target => {
+            target.addEventListener('scroll', updateScrollspy, { passive: true });
+        });
+        window.addEventListener('resize', updateScrollspy);
+        updateScrollspy();
     }
 
     setupTerminalTabs() {
